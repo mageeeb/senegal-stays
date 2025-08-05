@@ -14,7 +14,322 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      bookings: {
+        Row: {
+          check_in: string
+          check_out: string
+          created_at: string
+          guest_id: string
+          guests_count: number
+          id: string
+          payment_method: string | null
+          payment_status: string
+          property_id: string
+          special_requests: string | null
+          status: string
+          total_price: number
+          updated_at: string
+        }
+        Insert: {
+          check_in: string
+          check_out: string
+          created_at?: string
+          guest_id: string
+          guests_count?: number
+          id?: string
+          payment_method?: string | null
+          payment_status?: string
+          property_id: string
+          special_requests?: string | null
+          status?: string
+          total_price: number
+          updated_at?: string
+        }
+        Update: {
+          check_in?: string
+          check_out?: string
+          created_at?: string
+          guest_id?: string
+          guests_count?: number
+          id?: string
+          payment_method?: string | null
+          payment_status?: string
+          property_id?: string
+          special_requests?: string | null
+          status?: string
+          total_price?: number
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bookings_guest_id_fkey"
+            columns: ["guest_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "bookings_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          avatar_url: string | null
+          bio: string | null
+          created_at: string
+          email: string | null
+          first_name: string | null
+          id: string
+          identity_verified: boolean | null
+          is_host: boolean | null
+          last_name: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          identity_verified?: boolean | null
+          is_host?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          avatar_url?: string | null
+          bio?: string | null
+          created_at?: string
+          email?: string | null
+          first_name?: string | null
+          id?: string
+          identity_verified?: boolean | null
+          is_host?: boolean | null
+          last_name?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      properties: {
+        Row: {
+          address: string
+          amenities: string[] | null
+          bathrooms: number | null
+          bedrooms: number | null
+          check_in_time: string | null
+          check_out_time: string | null
+          city: string
+          country: string | null
+          created_at: string
+          description: string | null
+          host_id: string
+          house_rules: string | null
+          id: string
+          is_active: boolean | null
+          latitude: number | null
+          longitude: number | null
+          max_guests: number
+          price_per_night: number
+          property_type: string
+          region: string | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          address: string
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          city: string
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          host_id: string
+          house_rules?: string | null
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          max_guests?: number
+          price_per_night: number
+          property_type: string
+          region?: string | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          address?: string
+          amenities?: string[] | null
+          bathrooms?: number | null
+          bedrooms?: number | null
+          check_in_time?: string | null
+          check_out_time?: string | null
+          city?: string
+          country?: string | null
+          created_at?: string
+          description?: string | null
+          host_id?: string
+          house_rules?: string | null
+          id?: string
+          is_active?: boolean | null
+          latitude?: number | null
+          longitude?: number | null
+          max_guests?: number
+          price_per_night?: number
+          property_type?: string
+          region?: string | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "properties_host_id_fkey"
+            columns: ["host_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      property_availability: {
+        Row: {
+          created_at: string
+          date: string
+          id: string
+          is_available: boolean | null
+          price_override: number | null
+          property_id: string
+        }
+        Insert: {
+          created_at?: string
+          date: string
+          id?: string
+          is_available?: boolean | null
+          price_override?: number | null
+          property_id: string
+        }
+        Update: {
+          created_at?: string
+          date?: string
+          id?: string
+          is_available?: boolean | null
+          price_override?: number | null
+          property_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_availability_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          id: string
+          image_url: string
+          is_cover: boolean | null
+          property_id: string
+          sort_order: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          is_cover?: boolean | null
+          property_id: string
+          sort_order?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_cover?: boolean | null
+          property_id?: string
+          sort_order?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_images_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          property_id: string
+          rating: number
+          reviewer_id: string
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          property_id: string
+          rating: number
+          reviewer_id: string
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          property_id?: string
+          rating?: number
+          reviewer_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "reviews_reviewer_id_fkey"
+            columns: ["reviewer_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
