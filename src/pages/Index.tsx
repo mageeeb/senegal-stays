@@ -5,7 +5,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/layout/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { Link } from "react-router-dom";
-
+// import
 const Index = () => {
   const { user } = useAuth();
   
