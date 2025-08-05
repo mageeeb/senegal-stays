@@ -89,7 +89,7 @@ export const PropertyListingFlow = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const { data: property, error } = await supabase
         .from('properties')
         .insert({
           title: propertyData.title,
@@ -102,11 +102,28 @@ export const PropertyListingFlow = () => {
           bedrooms: propertyData.bedrooms,
           bathrooms: propertyData.bathrooms,
           amenities: propertyData.amenities,
-          images: propertyData.photos,
           host_id: user.id,
-        });
+        })
+        .select()
+        .single();
 
       if (error) throw error;
+
+      // Insert property images if any
+      if (propertyData.photos.length > 0 && property) {
+        const imageInserts = propertyData.photos.map((photo, index) => ({
+          property_id: property.id,
+          image_url: photo,
+          is_cover: index === 0,
+          sort_order: index
+        }));
+
+        const { error: imageError } = await supabase
+          .from('property_images')
+          .insert(imageInserts);
+
+        if (imageError) throw imageError;
+      }
 
       toast({
         title: "Succès",
