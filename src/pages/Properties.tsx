@@ -66,11 +66,15 @@ const Properties = () => {
       if (error) throw error;
       
       // Trier les images par sort_order pour chaque propriété
-      const propertiesWithSortedImages = data?.map(property => ({
-        ...property,
-        images: property.property_images?.sort((a: PropertyImage, b: PropertyImage) => a.sort_order - b.sort_order) || []
-      })) || [];
+      const propertiesWithSortedImages = data?.map(property => {
+        const { property_images, ...propertyData } = property;
+        return {
+          ...propertyData,
+          images: property_images?.sort((a: PropertyImage, b: PropertyImage) => a.sort_order - b.sort_order) || []
+        };
+      }) || [];
 
+      console.log('Properties with images:', propertiesWithSortedImages);
       setProperties(propertiesWithSortedImages);
     } catch (error) {
       console.error('Error fetching properties:', error);
