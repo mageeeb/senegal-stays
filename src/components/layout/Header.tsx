@@ -63,9 +63,11 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Button variant="outline" size="sm" className="hidden sm:flex">
-                <Plus className="h-4 w-4 mr-2" />
-                Ajouter un logement
+              <Button variant="outline" size="sm" className="hidden sm:flex" asChild>
+                <Link to="/add-property">
+                  <Plus className="h-4 w-4 mr-2" />
+                  Ajouter un logement
+                </Link>
               </Button>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>

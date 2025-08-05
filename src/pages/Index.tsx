@@ -55,23 +55,86 @@ const Index = () => {
         <div className="container mx-auto">
           <h2 className="text-3xl font-bold text-center mb-12">Destinations populaires</h2>
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {['Dakar', 'Saint-Louis', 'Saly'].map((city) => (
-              <Card key={city} className="overflow-hidden hover:shadow-lg transition-shadow">
-                <div className="h-48 bg-gradient-to-r from-primary/20 to-accent/20"></div>
-                <CardContent className="p-6">
-                  <h3 className="text-xl font-semibold mb-2">{city}</h3>
-                  <p className="text-muted-foreground">
-                    {city === 'Dakar' && 'La capitale dynamique'}
-                    {city === 'Saint-Louis' && 'Patrimoine mondial UNESCO'}
-                    {city === 'Saly' && 'Station balnéaire de rêve'}
-                  </p>
-                  <div className="flex items-center mt-4">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                    <span className="ml-1 text-sm">4.8 (120+ logements)</span>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {/* Dakar */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-center">Dakar</h3>
+              <div className="space-y-4">
+                {[
+                  { name: 'Plateau', description: 'Centre-ville historique', rating: '4.9', properties: '45' },
+                  { name: 'Almadies', description: 'Quartier résidentiel chic', rating: '4.8', properties: '32' },
+                  { name: 'Ngor', description: 'Village de pêcheurs authentique', rating: '4.7', properties: '28' }
+                ].map((area) => (
+                  <Card key={area.name} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="h-32 bg-gradient-to-r from-blue-500/20 to-green-500/20"></div>
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold">{area.name}</h4>
+                      <p className="text-sm text-muted-foreground">{area.description}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                          <span className="ml-1 text-xs">{area.rating}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{area.properties} logements</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Saint-Louis */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-center">Saint-Louis</h3>
+              <div className="space-y-4">
+                {[
+                  { name: 'Île de Saint-Louis', description: 'Centre historique UNESCO', rating: '4.9', properties: '22' },
+                  { name: 'Sor', description: 'Quartier traditionnel', rating: '4.6', properties: '18' },
+                  { name: 'Langue de Barbarie', description: 'Plage et nature', rating: '4.8', properties: '15' }
+                ].map((area) => (
+                  <Card key={area.name} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="h-32 bg-gradient-to-r from-orange-500/20 to-red-500/20"></div>
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold">{area.name}</h4>
+                      <p className="text-sm text-muted-foreground">{area.description}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                          <span className="ml-1 text-xs">{area.rating}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{area.properties} logements</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
+
+            {/* Saly */}
+            <div>
+              <h3 className="text-xl font-semibold mb-4 text-center">Saly</h3>
+              <div className="space-y-4">
+                {[
+                  { name: 'Saly Portudal', description: 'Front de mer touristique', rating: '4.8', properties: '38' },
+                  { name: 'Saly Niakh Niakhal', description: 'Village authentique', rating: '4.7', properties: '25' },
+                  { name: 'Ngaparou', description: 'Plages paradisiaques', rating: '4.9', properties: '30' }
+                ].map((area) => (
+                  <Card key={area.name} className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer">
+                    <div className="h-32 bg-gradient-to-r from-cyan-500/20 to-blue-500/20"></div>
+                    <CardContent className="p-4">
+                      <h4 className="font-semibold">{area.name}</h4>
+                      <p className="text-sm text-muted-foreground">{area.description}</p>
+                      <div className="flex items-center justify-between mt-2">
+                        <div className="flex items-center">
+                          <Star className="h-3 w-3 text-yellow-400 fill-current" />
+                          <span className="ml-1 text-xs">{area.rating}</span>
+                        </div>
+                        <span className="text-xs text-muted-foreground">{area.properties} logements</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </div>
           </div>
         </div>
       </section>
