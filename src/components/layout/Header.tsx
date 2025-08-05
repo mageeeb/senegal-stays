@@ -11,7 +11,6 @@ import {
 import { LogOut, User, Home, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useToast } from "@/hooks/use-toast";
-import terangaLogo from "@/assets/teranga-logo.png";
 
 const Header = () => {
   const { user, signOut } = useAuth();
@@ -43,7 +42,7 @@ const Header = () => {
     <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
-          <img src={terangaLogo} alt="Teranga Home" className="h-8 w-auto" />
+          <Home className="h-6 w-6 text-primary" />
           <span className="text-xl font-bold text-primary">Teranga Home</span>
         </Link>
 
