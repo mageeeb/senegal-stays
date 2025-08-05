@@ -196,6 +196,10 @@ const Properties = () => {
                         src={property.images[0].image_url}
                         alt={property.images[0].alt_text || property.title}
                         className="w-full h-48 md:h-full object-cover"
+                        onError={(e) => {
+                          console.log('Image failed to load:', property.images[0].image_url);
+                          e.currentTarget.src = 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&h=600&fit=crop';
+                        }}
                       />
                     ) : (
                       <div className="w-full h-48 md:h-full bg-gray-200 flex items-center justify-center">

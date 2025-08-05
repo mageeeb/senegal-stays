@@ -37,10 +37,24 @@ export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
 
     if (validFiles.length > 0) {
       // En production, vous uploaderiez les fichiers vers Supabase Storage
-      // Pour cette démo, on simule des URLs
-      const newPhotos = validFiles.map((file, index) => 
-        `https://images.unsplash.com/photo-${Date.now() + index}?w=800&h=600&fit=crop`
-      );
+      // Générer des URLs d'images Unsplash valides avec des IDs aléatoires  
+      const unsplashIds = [
+        'photo-1564013799919-ab600027ffc6',
+        'photo-1570129477492-45c003edd2be',
+        'photo-1568605114967-8130f3a36994',
+        'photo-1582063289852-62e3ba2747f8',
+        'photo-1502672260266-1c1ef2d93688',
+        'photo-1554995207-c18c203602cb',
+        'photo-1484154218962-a197022b5858',
+        'photo-1416331108676-a22ccb276e35',
+        'photo-1501594907352-04cda38ebc29',
+        'photo-1586023492125-27b2c045efd7'
+      ];
+      
+      const newPhotos = validFiles.map((file, index) => {
+        const randomId = unsplashIds[Math.floor(Math.random() * unsplashIds.length)];
+        return `https://images.unsplash.com/${randomId}?w=800&h=600&fit=crop`;
+      });
       
       updateData({ photos: [...data.photos, ...newPhotos].slice(0, 20) }); // Max 20 photos
       
