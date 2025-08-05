@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Host from "./pages/Host";
 import AddProperty from "./pages/AddProperty";
+import Properties from "./pages/Properties";
 import Destination from "./pages/Destination";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <AddProperty />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/properties" 
+              element={
+                <ProtectedRoute>
+                  <Properties />
                 </ProtectedRoute>
               } 
             />
