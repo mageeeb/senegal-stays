@@ -4,6 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/layout/Header";
 import { useAuth } from "@/hooks/useAuth";
+import { Link } from "react-router-dom";
 
 const Index = () => {
   const { user } = useAuth();
@@ -82,7 +83,7 @@ const Index = () => {
                     image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop'
                   }
                 ].map((area) => (
-                  <a key={area.name} href={`/destination/${area.name.toLowerCase()}`}>
+                  <Link key={area.name} to={`/destination/${area.name.toLowerCase()}`}>
                     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
                       <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${area.image})` }}>
                         <div className="absolute inset-0 bg-black/20"></div>
@@ -99,7 +100,7 @@ const Index = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -131,7 +132,7 @@ const Index = () => {
                     image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop'
                   }
                 ].map((area) => (
-                  <a key={area.name} href={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <Link key={area.name} to={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
                     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
                       <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${area.image})` }}>
                         <div className="absolute inset-0 bg-black/20"></div>
@@ -148,7 +149,7 @@ const Index = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>
@@ -180,7 +181,7 @@ const Index = () => {
                     image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop'
                   }
                 ].map((area) => (
-                  <a key={area.name} href={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
+                  <Link key={area.name} to={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
                     <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
                       <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${area.image})` }}>
                         <div className="absolute inset-0 bg-black/20"></div>
@@ -197,7 +198,7 @@ const Index = () => {
                         </div>
                       </CardContent>
                     </Card>
-                  </a>
+                  </Link>
                 ))}
               </div>
             </div>

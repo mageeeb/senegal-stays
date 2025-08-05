@@ -1,94 +1,67 @@
 import { useParams, Link } from "react-router-dom";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
+
+interface Property {
+  id: string;
+  title: string;
+  description: string;
+  price_per_night: number;
+  address: string;
+  city: string;
+  property_type: string;
+  max_guests: number;
+  bedrooms: number;
+  bathrooms: number;
+  amenities: string[];
+  is_active: boolean;
+  created_at: string;
+}
 
 const Destination = () => {
   const { area } = useParams();
+  const [properties, setProperties] = useState<Property[]>([]);
+  const [loading, setLoading] = useState(true);
 
-  // Mock data pour les logements
-  const properties = [
-    {
-      id: 1,
-      title: "Villa moderne avec piscine",
-      image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=600&h=400&fit=crop",
-      price: 45000,
-      rating: 4.9,
-      reviews: 128,
-      guests: 6,
-      bedrooms: 3,
-      bathrooms: 2,
-      amenities: ["Piscine", "WiFi", "Parking", "Climatisation"],
-      host: "Aminata D."
-    },
-    {
-      id: 2,
-      title: "Appartement cosy centre-ville",
-      image: "https://images.unsplash.com/photo-1466442929976-97f336a657be?w=600&h=400&fit=crop",
-      price: 25000,
-      rating: 4.7,
-      reviews: 89,
-      guests: 4,
-      bedrooms: 2,
-      bathrooms: 1,
-      amenities: ["WiFi", "Cuisine équipée", "Terrasse"],
-      host: "Moussa S."
-    },
-    {
-      id: 3,
-      title: "Maison traditionnelle authentique",
-      image: "https://images.unsplash.com/photo-1472396961693-142e6e269027?w=600&h=400&fit=crop",
-      price: 35000,
-      rating: 4.8,
-      reviews: 156,
-      guests: 8,
-      bedrooms: 4,
-      bathrooms: 3,
-      amenities: ["Jardin", "WiFi", "Parking", "Cuisine"],
-      host: "Fatou K."
-    },
-    {
-      id: 4,
-      title: "Studio moderne proche plage",
-      image: "https://images.unsplash.com/photo-1501854140801-50d01698950b?w=600&h=400&fit=crop",
-      price: 18000,
-      rating: 4.6,
-      reviews: 67,
-      guests: 2,
-      bedrooms: 1,
-      bathrooms: 1,
-      amenities: ["Vue mer", "WiFi", "Climatisation"],
-      host: "Ibrahima L."
-    },
-    {
-      id: 5,
-      title: "Villa de luxe avec vue panoramique",
-      image: "https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=600&h=400&fit=crop",
-      price: 75000,
-      rating: 4.9,
-      reviews: 203,
-      guests: 10,
-      bedrooms: 5,
-      bathrooms: 4,
-      amenities: ["Piscine", "Jardin", "Parking", "WiFi", "Chef privé"],
-      host: "Mariama B."
-    },
-    {
-      id: 6,
-      title: "Chambre chez l'habitant",
-      image: "https://images.unsplash.com/photo-1500673922987-e212871fec22?w=600&h=400&fit=crop",
-      price: 12000,
-      rating: 4.5,
-      reviews: 45,
-      guests: 2,
-      bedrooms: 1,
-      bathrooms: 1,
-      amenities: ["Petit-déjeuner", "WiFi", "Accueil familial"],
-      host: "Ousmane D."
+  useEffect(() => {
+    fetchProperties();
+  }, [area]);
+
+  const fetchProperties = async () => {
+    try {
+      setLoading(true);
+      const areaInfo = getAreaInfo(area || '');
+      
+      // Recherche par ville ou région selon la destination
+      let query = supabase
+        .from('properties')
+        .select('*')
+        .eq('is_active', true);
+
+      // Filtrer par ville selon la destination
+      if (areaInfo.city) {
+        query = query.eq('city', areaInfo.city);
+      }
+
+      const { data, error } = await query;
+
+      if (error) {
+        console.error('Erreur lors du chargement des propriétés:', error);
+        return;
+      }
+
+      setProperties(data || []);
+    } catch (error) {
+      console.error('Erreur:', error);
+    } finally {
+      setLoading(false);
     }
-  ];
+  };
 
   const getAreaInfo = (areaSlug: string) => {
     const areaMap: Record<string, any> = {
@@ -121,6 +94,12 @@ const Destination = () => {
         city: 'Saly',
         description: 'Station balnéaire avec plages de sable fin',
         image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&h=400&fit=crop'
+      },
+      'dakar': {
+        name: 'Dakar',
+        city: 'Dakar',
+        description: 'Capitale dynamique du Sénégal',
+        image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=1200&h=400&fit=crop'
       }
     };
     
@@ -133,6 +112,17 @@ const Destination = () => {
   };
 
   const areaInfo = getAreaInfo(area || '');
+
+  if (loading) {
+    return (
+      <div className="min-h-screen bg-background">
+        <Header />
+        <div className="container mx-auto px-4 py-8">
+          <div className="text-center">Chargement des logements...</div>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-background">
@@ -186,74 +176,81 @@ const Destination = () => {
             <p className="text-muted-foreground">{properties.length} logements disponibles</p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {properties.map((property) => (
-              <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                <div className="relative">
-                  <img
-                    src={property.image}
-                    alt={property.title}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                  <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
-                    <div className="flex items-center text-sm">
-                      <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                      {property.rating}
+          {properties.length === 0 ? (
+            <div className="col-span-full text-center py-12">
+              <p className="text-lg text-muted-foreground">Aucun logement disponible pour le moment dans cette destination.</p>
+              <Button asChild className="mt-4">
+                <Link to="/add-property">Ajouter un logement</Link>
+              </Button>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {properties.map((property) => (
+                <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                  <div className="relative">
+                    <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                      <p className="text-muted-foreground">Photo à venir</p>
                     </div>
-                  </div>
-                </div>
-                
-                <CardContent className="p-4">
-                  <div className="flex justify-between items-start mb-2">
-                    <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
-                  </div>
-                  
-                  <p className="text-sm text-muted-foreground mb-3">
-                    Hôte: {property.host}
-                  </p>
-                  
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                    <div className="flex items-center">
-                      <Users className="h-4 w-4 mr-1" />
-                      {property.guests}
-                    </div>
-                    <div className="flex items-center">
-                      <Bed className="h-4 w-4 mr-1" />
-                      {property.bedrooms}
-                    </div>
-                    <div className="flex items-center">
-                      <Bath className="h-4 w-4 mr-1" />
-                      {property.bathrooms}
+                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
+                      <div className="flex items-center text-sm">
+                        <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                        4.5
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="flex flex-wrap gap-1 mb-3">
-                    {property.amenities.slice(0, 3).map((amenity) => (
-                      <Badge key={amenity} variant="secondary" className="text-xs">
-                        {amenity}
-                      </Badge>
-                    ))}
-                    {property.amenities.length > 3 && (
-                      <Badge variant="secondary" className="text-xs">
-                        +{property.amenities.length - 3}
-                      </Badge>
-                    )}
-                  </div>
-                  
-                  <div className="flex justify-between items-center">
-                    <div>
-                      <span className="font-bold text-lg">{property.price.toLocaleString()} FCFA</span>
-                      <span className="text-muted-foreground text-sm"> / nuit</span>
+                  <CardContent className="p-4">
+                    <div className="flex justify-between items-start mb-2">
+                      <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
                     </div>
-                    <div className="flex items-center text-sm text-muted-foreground">
-                      <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                      {property.rating} ({property.reviews})
+                    
+                    <p className="text-sm text-muted-foreground mb-3">
+                      {property.address}, {property.city}
+                    </p>
+                    
+                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                      <div className="flex items-center">
+                        <Users className="h-4 w-4 mr-1" />
+                        {property.max_guests}
+                      </div>
+                      <div className="flex items-center">
+                        <Bed className="h-4 w-4 mr-1" />
+                        {property.bedrooms}
+                      </div>
+                      <div className="flex items-center">
+                        <Bath className="h-4 w-4 mr-1" />
+                        {property.bathrooms}
+                      </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+                    
+                    <div className="flex flex-wrap gap-1 mb-3">
+                      {property.amenities?.slice(0, 3).map((amenity) => (
+                        <Badge key={amenity} variant="secondary" className="text-xs">
+                          {amenity}
+                        </Badge>
+                      ))}
+                      {property.amenities && property.amenities.length > 3 && (
+                        <Badge variant="secondary" className="text-xs">
+                          +{property.amenities.length - 3}
+                        </Badge>
+                      )}
+                    </div>
+                    
+                    <div className="flex justify-between items-center">
+                      <div>
+                        <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
+                        <span className="text-muted-foreground text-sm"> / nuit</span>
+                      </div>
+                      <div className="flex items-center text-sm text-muted-foreground">
+                        <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                        4.5 (12)
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
         </div>
       </section>
     </div>
