@@ -7,6 +7,14 @@ import Header from "@/components/layout/Header";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 
+interface PropertyImage {
+  id: string;
+  image_url: string;
+  is_cover: boolean;
+  alt_text: string | null;
+  sort_order: number;
+}
+
 interface Property {
   id: string;
   title: string;
@@ -21,6 +29,7 @@ interface Property {
   amenities: string[];
   is_active: boolean;
   created_at: string;
+  images?: PropertyImage[];
 }
 
 const Destination = () => {
@@ -40,7 +49,16 @@ const Destination = () => {
       // Recherche par ville ou région selon la destination
       let query = supabase
         .from('properties')
-        .select('*')
+        .select(`
+          *,
+          property_images (
+            id,
+            image_url,
+            is_cover,
+            alt_text,
+            sort_order
+          )
+        `)
         .eq('is_active', true);
 
       // Filtrer par ville selon la destination
@@ -48,14 +66,20 @@ const Destination = () => {
         query = query.eq('city', areaInfo.city);
       }
 
-      const { data, error } = await query;
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) {
         console.error('Erreur lors du chargement des propriétés:', error);
         return;
       }
 
-      setProperties(data || []);
+      // Trier les images par sort_order pour chaque propriété
+      const propertiesWithSortedImages = data?.map(property => ({
+        ...property,
+        images: property.property_images?.sort((a: PropertyImage, b: PropertyImage) => a.sort_order - b.sort_order) || []
+      })) || [];
+
+      setProperties(propertiesWithSortedImages);
     } catch (error) {
       console.error('Erreur:', error);
     } finally {
@@ -188,9 +212,17 @@ const Destination = () => {
               {properties.map((property) => (
                 <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
                   <div className="relative">
-                    <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                      <p className="text-muted-foreground">Photo à venir</p>
-                    </div>
+                    {property.images && property.images.length > 0 ? (
+                      <img
+                        src={property.images[0].image_url}
+                        alt={property.images[0].alt_text || property.title}
+                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                      />
+                    ) : (
+                      <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                        <p className="text-muted-foreground">Photo à venir</p>
+                      </div>
+                    )}
                     <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
                       <div className="flex items-center text-sm">
                         <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />

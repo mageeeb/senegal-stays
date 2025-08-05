@@ -8,6 +8,11 @@ import { Link } from "react-router-dom";
 
 const Index = () => {
   const { user } = useAuth();
+  
+  const handleSearch = () => {
+    // Rediriger vers la page de destination générique pour l'instant
+    window.location.href = '/destination/dakar';
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -43,7 +48,7 @@ const Index = () => {
                 />
               </div>
             </div>
-            <Button className="w-full md:w-auto mt-4" size="lg">
+            <Button className="w-full md:w-auto mt-4" size="lg" onClick={handleSearch}>
               <Search className="mr-2 h-4 w-4" />
               Rechercher
             </Button>
