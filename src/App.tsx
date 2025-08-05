@@ -10,6 +10,7 @@ import Auth from "./pages/Auth";
 import Host from "./pages/Host";
 import AddProperty from "./pages/AddProperty";
 import Properties from "./pages/Properties";
+import PropertyDetail from "./pages/PropertyDetail";
 import Destination from "./pages/Destination";
 import NotFound from "./pages/NotFound";
 
@@ -43,6 +44,7 @@ const App = () => (
                 </ProtectedRoute>
               } 
             />
+            <Route path="/property/:id" element={<PropertyDetail />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />
           </Routes>

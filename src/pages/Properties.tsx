@@ -8,6 +8,14 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 
+interface PropertyImage {
+  id: string;
+  image_url: string;
+  is_cover: boolean;
+  alt_text: string | null;
+  sort_order: number;
+}
+
 interface Property {
   id: string;
   title: string;
@@ -22,6 +30,7 @@ interface Property {
   amenities: string[];
   is_active: boolean;
   created_at: string;
+  images?: PropertyImage[];
 }
 
 const Properties = () => {
@@ -40,12 +49,28 @@ const Properties = () => {
     try {
       const { data, error } = await supabase
         .from('properties')
-        .select('*')
+        .select(`
+          *,
+          property_images (
+            id,
+            image_url,
+            is_cover,
+            alt_text,
+            sort_order
+          )
+        `)
         .eq('host_id', user?.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setProperties(data || []);
+      
+      // Trier les images par sort_order pour chaque propriété
+      const propertiesWithSortedImages = data?.map(property => ({
+        ...property,
+        images: property.property_images?.sort((a: PropertyImage, b: PropertyImage) => a.sort_order - b.sort_order) || []
+      })) || [];
+
+      setProperties(propertiesWithSortedImages);
     } catch (error) {
       console.error('Error fetching properties:', error);
       toast({
@@ -128,72 +153,94 @@ const Properties = () => {
         ) : (
           <div className="grid gap-6">
             {properties.map((property) => (
-              <Card key={property.id}>
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div>
-                      <CardTitle className="flex items-center gap-2">
-                        {property.title}
-                        <Badge variant={property.is_active ? "default" : "secondary"}>
-                          {property.is_active ? "Actif" : "Inactif"}
-                        </Badge>
-                      </CardTitle>
-                      <p className="text-muted-foreground mt-1">
-                        {property.address}, {property.city}
-                      </p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm">
-                        <Edit className="h-4 w-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm"
-                        onClick={() => togglePropertyStatus(property.id, property.is_active)}
-                      >
-                        <Eye className="h-4 w-4" />
-                      </Button>
+              <Card 
+                key={property.id} 
+                className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
+                onClick={() => window.location.href = `/property/${property.id}`}
+              >
+                <div className="grid md:grid-cols-3 gap-0">
+                  {/* Image principale */}
+                  <div className="relative md:col-span-1">
+                    {property.images && property.images.length > 0 ? (
+                      <img
+                        src={property.images[0].image_url}
+                        alt={property.images[0].alt_text || property.title}
+                        className="w-full h-48 md:h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-48 md:h-full bg-gray-200 flex items-center justify-center">
+                        <p className="text-muted-foreground">Photo à venir</p>
+                      </div>
+                    )}
+                    <div className="absolute top-3 left-3">
+                      <Badge variant={property.is_active ? "default" : "secondary"}>
+                        {property.is_active ? "Actif" : "Inactif"}
+                      </Badge>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <div className="grid md:grid-cols-2 gap-4">
-                    <div>
-                      <p className="text-sm text-muted-foreground mb-2">Description</p>
-                      <p className="line-clamp-3">{property.description}</p>
-                    </div>
-                    <div className="space-y-2">
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Type:</span>
-                        <span className="text-sm">{property.property_type}</span>
+
+                  {/* Contenu */}
+                  <div className="md:col-span-2 p-6">
+                    <div className="flex justify-between items-start mb-4">
+                      <div>
+                        <h3 className="text-xl font-semibold mb-2">{property.title}</h3>
+                        <p className="text-muted-foreground">
+                          {property.address}, {property.city}
+                        </p>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Prix/nuit:</span>
-                        <span className="text-sm font-medium">{property.price_per_night}€</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Capacité:</span>
-                        <span className="text-sm">{property.max_guests} personnes</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-sm text-muted-foreground">Chambres/SDB:</span>
-                        <span className="text-sm">{property.bedrooms}ch / {property.bathrooms}sdb</span>
+                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                        <Button variant="outline" size="sm">
+                          <Edit className="h-4 w-4" />
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => togglePropertyStatus(property.id, property.is_active)}
+                        >
+                          <Eye className="h-4 w-4" />
+                        </Button>
                       </div>
                     </div>
-                  </div>
-                  {property.amenities && property.amenities.length > 0 && (
-                    <div className="mt-4">
-                      <p className="text-sm text-muted-foreground mb-2">Équipements:</p>
+
+                    <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">Type</p>
+                        <p className="font-medium">{property.property_type}</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">Prix/nuit</p>
+                        <p className="font-medium">{Number(property.price_per_night).toLocaleString()} FCFA</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">Capacité</p>
+                        <p className="font-medium">{property.max_guests} pers.</p>
+                      </div>
+                      <div className="text-center">
+                        <p className="text-sm text-muted-foreground">Chambres</p>
+                        <p className="font-medium">{property.bedrooms}ch / {property.bathrooms}sdb</p>
+                      </div>
+                    </div>
+
+                    <p className="text-sm text-muted-foreground line-clamp-2 mb-4">
+                      {property.description}
+                    </p>
+
+                    {property.amenities && property.amenities.length > 0 && (
                       <div className="flex flex-wrap gap-1">
-                        {property.amenities.map((amenity, index) => (
+                        {property.amenities.slice(0, 5).map((amenity, index) => (
                           <Badge key={index} variant="outline" className="text-xs">
                             {amenity}
                           </Badge>
                         ))}
+                        {property.amenities.length > 5 && (
+                          <Badge variant="outline" className="text-xs">
+                            +{property.amenities.length - 5}
+                          </Badge>
+                        )}
                       </div>
-                    </div>
-                  )}
-                </CardContent>
+                    )}
+                  </div>
+                </div>
               </Card>
             ))}
           </div>
