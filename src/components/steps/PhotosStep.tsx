@@ -3,6 +3,8 @@ import { Button } from "@/components/ui/button";
 import { PropertyData } from "../PropertyListingFlow";
 import { Upload, X, Camera, Image as ImageIcon } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PhotosStepProps {
   data: PropertyData;
@@ -10,16 +12,27 @@ interface PhotosStepProps {
 }
 
 export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
+  const { user } = useAuth();
   const [dragActive, setDragActive] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
-  const handleFiles = (files: FileList) => {
+  const handleFiles = async (files: FileList) => {
+    if (!user) {
+      toast({
+        title: "Erreur",
+        description: "Vous devez être connecté pour uploader des images",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const validFiles = Array.from(files).filter(file => {
       if (!file.type.startsWith('image/')) {
         toast({
           title: "Fichier non valide",
-          description: "Veuillez sélectionner uniquement des images",
+          description: `${file.name} n'est pas une image`,
           variant: "destructive",
         });
         return false;
@@ -36,32 +49,55 @@ export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
     });
 
     if (validFiles.length > 0) {
-      // En production, vous uploaderiez les fichiers vers Supabase Storage
-      // Générer des URLs d'images Unsplash valides avec des IDs aléatoires  
-      const unsplashIds = [
-        'photo-1564013799919-ab600027ffc6',
-        'photo-1570129477492-45c003edd2be',
-        'photo-1568605114967-8130f3a36994',
-        'photo-1582063289852-62e3ba2747f8',
-        'photo-1502672260266-1c1ef2d93688',
-        'photo-1554995207-c18c203602cb',
-        'photo-1484154218962-a197022b5858',
-        'photo-1416331108676-a22ccb276e35',
-        'photo-1501594907352-04cda38ebc29',
-        'photo-1586023492125-27b2c045efd7'
-      ];
-      
-      const newPhotos = validFiles.map((file, index) => {
-        const randomId = unsplashIds[Math.floor(Math.random() * unsplashIds.length)];
-        return `https://images.unsplash.com/${randomId}?w=800&h=600&fit=crop`;
-      });
-      
-      updateData({ photos: [...data.photos, ...newPhotos].slice(0, 20) }); // Max 20 photos
-      
-      toast({
-        title: "Photos ajoutées",
-        description: `${validFiles.length} photo(s) ajoutée(s) avec succès`,
-      });
+      setUploading(true);
+      const uploadedUrls: string[] = [];
+
+      try {
+        for (const file of validFiles) {
+          // Créer un nom de fichier unique
+          const fileExt = file.name.split('.').pop();
+          const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
+
+          // Uploader vers Supabase Storage
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('property-images')
+            .upload(fileName, file);
+
+          if (uploadError) {
+            console.error('Upload error:', uploadError);
+            toast({
+              title: "Erreur d'upload",
+              description: `Impossible d'uploader ${file.name}`,
+              variant: "destructive",
+            });
+            continue;
+          }
+
+          // Obtenir l'URL publique
+          const { data: urlData } = supabase.storage
+            .from('property-images')
+            .getPublicUrl(uploadData.path);
+
+          uploadedUrls.push(urlData.publicUrl);
+        }
+
+        if (uploadedUrls.length > 0) {
+          updateData({ photos: [...data.photos, ...uploadedUrls].slice(0, 20) }); // Max 20 photos
+          toast({
+            title: "Photos ajoutées",
+            description: `${uploadedUrls.length} photo(s) uploadée(s) avec succès`,
+          });
+        }
+      } catch (error) {
+        console.error('Error uploading files:', error);
+        toast({
+          title: "Erreur",
+          description: "Une erreur est survenue lors de l'upload",
+          variant: "destructive",
+        });
+      } finally {
+        setUploading(false);
+      }
     }
   };
 
@@ -75,13 +111,13 @@ export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
     }
   };
 
-  const handleDrop = (e: React.DragEvent) => {
+  const handleDrop = async (e: React.DragEvent) => {
     e.preventDefault();
     e.stopPropagation();
     setDragActive(false);
     
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
-      handleFiles(e.dataTransfer.files);
+      await handleFiles(e.dataTransfer.files);
     }
   };
 
@@ -124,6 +160,7 @@ export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
           multiple
           accept="image/*"
           onChange={(e) => e.target.files && handleFiles(e.target.files)}
+          disabled={uploading}
           className="hidden"
         />
         
@@ -133,16 +170,19 @@ export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
           </div>
           
           <div>
-            <h4 className="text-lg font-medium mb-2">Glissez vos photos ici</h4>
+            <h4 className="text-lg font-medium mb-2">
+              {uploading ? "Upload en cours..." : "Glissez vos photos ici"}
+            </h4>
             <p className="text-muted-foreground mb-4">
               ou cliquez pour sélectionner des fichiers
             </p>
             <Button 
               variant="outline" 
               onClick={() => fileInputRef.current?.click()}
+              disabled={uploading}
             >
               <Camera className="h-4 w-4 mr-2" />
-              Choisir des photos
+              {uploading ? "Upload en cours..." : "Choisir des photos"}
             </Button>
           </div>
           
