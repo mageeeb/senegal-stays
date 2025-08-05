@@ -11,6 +11,7 @@ import Host from "./pages/Host";
 import AddProperty from "./pages/AddProperty";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
+import EditProperty from "./pages/EditProperty";
 import Destination from "./pages/Destination";
 import NotFound from "./pages/NotFound";
 
@@ -41,6 +42,14 @@ const App = () => (
               element={
                 <ProtectedRoute>
                   <Properties />
+                </ProtectedRoute>
+              } 
+            />
+            <Route 
+              path="/edit-property/:id" 
+              element={
+                <ProtectedRoute>
+                  <EditProperty />
                 </ProtectedRoute>
               } 
             />

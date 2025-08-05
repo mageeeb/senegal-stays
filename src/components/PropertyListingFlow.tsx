@@ -40,7 +40,17 @@ const STEPS = [
   { id: 6, title: "Révision", component: ReviewStep },
 ];
 
-export const PropertyListingFlow = () => {
+interface PropertyListingFlowProps {
+  initialData?: Partial<PropertyData>;
+  isEdit?: boolean;
+  propertyId?: string;
+}
+
+export const PropertyListingFlow = ({ 
+  initialData = {}, 
+  isEdit = false, 
+  propertyId 
+}: PropertyListingFlowProps = {}) => {
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -48,17 +58,17 @@ export const PropertyListingFlow = () => {
   const [currentStep, setCurrentStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [propertyData, setPropertyData] = useState<PropertyData>({
-    title: "",
-    description: "",
-    property_type: "",
-    address: "",
-    city: "",
-    max_guests: 1,
-    bedrooms: 1,
-    bathrooms: 1,
-    amenities: [],
-    photos: [],
-    price_per_night: 0,
+    title: initialData.title || "",
+    description: initialData.description || "",
+    property_type: initialData.property_type || "",
+    address: initialData.address || "",
+    city: initialData.city || "",
+    max_guests: initialData.max_guests || 1,
+    bedrooms: initialData.bedrooms || 1,
+    bathrooms: initialData.bathrooms || 1,
+    amenities: initialData.amenities || [],
+    photos: initialData.photos || [],
+    price_per_night: initialData.price_per_night || 0,
   });
 
   const updatePropertyData = (data: Partial<PropertyData>) => {
@@ -89,52 +99,80 @@ export const PropertyListingFlow = () => {
 
     setLoading(true);
     try {
-      const { data: property, error } = await supabase
-        .from('properties')
-        .insert({
-          title: propertyData.title,
-          description: propertyData.description,
-          price_per_night: propertyData.price_per_night,
-          address: propertyData.address,
-          city: propertyData.city,
-          property_type: propertyData.property_type,
-          max_guests: propertyData.max_guests,
-          bedrooms: propertyData.bedrooms,
-          bathrooms: propertyData.bathrooms,
-          amenities: propertyData.amenities,
-          host_id: user.id,
-        })
-        .select()
-        .single();
+      if (isEdit && propertyId) {
+        // Mode édition - mise à jour
+        const { error } = await supabase
+          .from('properties')
+          .update({
+            title: propertyData.title,
+            description: propertyData.description,
+            price_per_night: propertyData.price_per_night,
+            address: propertyData.address,
+            city: propertyData.city,
+            property_type: propertyData.property_type,
+            max_guests: propertyData.max_guests,
+            bedrooms: propertyData.bedrooms,
+            bathrooms: propertyData.bathrooms,
+            amenities: propertyData.amenities,
+          })
+          .eq('id', propertyId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      // Insert property images if any
-      if (propertyData.photos.length > 0 && property) {
-        const imageInserts = propertyData.photos.map((photo, index) => ({
-          property_id: property.id,
-          image_url: photo,
-          is_cover: index === 0,
-          sort_order: index
-        }));
+        toast({
+          title: "Succès",
+          description: "Votre logement a été modifié avec succès !",
+        });
+        navigate('/properties');
+      } else {
+        // Mode création
+        const { data: property, error } = await supabase
+          .from('properties')
+          .insert({
+            title: propertyData.title,
+            description: propertyData.description,
+            price_per_night: propertyData.price_per_night,
+            address: propertyData.address,
+            city: propertyData.city,
+            property_type: propertyData.property_type,
+            max_guests: propertyData.max_guests,
+            bedrooms: propertyData.bedrooms,
+            bathrooms: propertyData.bathrooms,
+            amenities: propertyData.amenities,
+            host_id: user.id,
+          })
+          .select()
+          .single();
 
-        const { error: imageError } = await supabase
-          .from('property_images')
-          .insert(imageInserts);
+        if (error) throw error;
 
-        if (imageError) throw imageError;
+        // Insert property images if any
+        if (propertyData.photos.length > 0 && property) {
+          const imageInserts = propertyData.photos.map((photo, index) => ({
+            property_id: property.id,
+            image_url: photo,
+            is_cover: index === 0,
+            sort_order: index
+          }));
+
+          const { error: imageError } = await supabase
+            .from('property_images')
+            .insert(imageInserts);
+
+          if (imageError) throw imageError;
+        }
+
+        toast({
+          title: "Succès",
+          description: "Votre logement a été ajouté avec succès !",
+        });
+        navigate('/');
       }
-
-      toast({
-        title: "Succès",
-        description: "Votre logement a été ajouté avec succès !",
-      });
-      navigate('/');
     } catch (error) {
-      console.error('Error adding property:', error);
+      console.error('Error saving property:', error);
       toast({
         title: "Erreur",
-        description: "Une erreur est survenue lors de l'ajout du logement",
+        description: `Une erreur est survenue lors de ${isEdit ? 'la modification' : 'l\'ajout'} du logement`,
         variant: "destructive",
       });
     } finally {
@@ -160,7 +198,9 @@ export const PropertyListingFlow = () => {
           </Button>
           
           <div className="mb-6">
-            <h1 className="text-3xl font-bold mb-2">Ajouter votre logement</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              {isEdit ? 'Modifier votre logement' : 'Ajouter votre logement'}
+            </h1>
             <p className="text-muted-foreground">
               Étape {currentStep} sur {STEPS.length}: {STEPS[currentStep - 1].title}
             </p>
@@ -200,7 +240,7 @@ export const PropertyListingFlow = () => {
               disabled={loading}
               className="min-w-[120px]"
             >
-              {loading ? "Publication..." : "Publier l'annonce"}
+              {loading ? (isEdit ? "Modification..." : "Publication...") : (isEdit ? "Modifier l'annonce" : "Publier l'annonce")}
             </Button>
           ) : (
             <Button onClick={nextStep}>
