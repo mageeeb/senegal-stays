@@ -7,7 +7,9 @@ import { AuthProvider } from "@/hooks/useAuth";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
+import Host from "./pages/Host";
 import AddProperty from "./pages/AddProperty";
+import Destination from "./pages/Destination";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -22,6 +24,8 @@ const App = () => (
           <Routes>
             <Route path="/" element={<Index />} />
             <Route path="/auth" element={<Auth />} />
+            <Route path="/host" element={<Host />} />
+            <Route path="/destination/:area" element={<Destination />} />
             <Route 
               path="/add-property" 
               element={
