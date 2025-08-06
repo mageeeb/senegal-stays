@@ -210,76 +210,78 @@ const Destination = () => {
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {properties.map((property) => (
-                <Card key={property.id} className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                  <div className="relative">
-                    {property.images && property.images.length > 0 ? (
-                      <img
-                        src={property.images[0].image_url}
-                        alt={property.images[0].alt_text || property.title}
-                        className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                      />
-                    ) : (
-                      <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                        <p className="text-muted-foreground">Photo à venir</p>
-                      </div>
-                    )}
-                    <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
-                      <div className="flex items-center text-sm">
-                        <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                        4.5
-                      </div>
-                    </div>
-                  </div>
-                  
-                  <CardContent className="p-4">
-                    <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
-                    </div>
-                    
-                    <p className="text-sm text-muted-foreground mb-3">
-                      {property.address}, {property.city}
-                    </p>
-                    
-                    <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                      <div className="flex items-center">
-                        <Users className="h-4 w-4 mr-1" />
-                        {property.max_guests}
-                      </div>
-                      <div className="flex items-center">
-                        <Bed className="h-4 w-4 mr-1" />
-                        {property.bedrooms}
-                      </div>
-                      <div className="flex items-center">
-                        <Bath className="h-4 w-4 mr-1" />
-                        {property.bathrooms}
-                      </div>
-                    </div>
-                    
-                    <div className="flex flex-wrap gap-1 mb-3">
-                      {property.amenities?.slice(0, 3).map((amenity) => (
-                        <Badge key={amenity} variant="secondary" className="text-xs">
-                          {amenity}
-                        </Badge>
-                      ))}
-                      {property.amenities && property.amenities.length > 3 && (
-                        <Badge variant="secondary" className="text-xs">
-                          +{property.amenities.length - 3}
-                        </Badge>
+                <Link to={`/property/${property.id}`} key={property.id}>
+                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                    <div className="relative">
+                      {property.images && property.images.length > 0 ? (
+                        <img
+                          src={property.images[0].image_url}
+                          alt={property.images[0].alt_text || property.title}
+                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                        />
+                      ) : (
+                        <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                          <p className="text-muted-foreground">Photo à venir</p>
+                        </div>
                       )}
+                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
+                        <div className="flex items-center text-sm">
+                          <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                          4.5
+                        </div>
+                      </div>
                     </div>
                     
-                    <div className="flex justify-between items-center">
-                      <div>
-                        <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
-                        <span className="text-muted-foreground text-sm"> / nuit</span>
+                    <CardContent className="p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
                       </div>
-                      <div className="flex items-center text-sm text-muted-foreground">
-                        <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                        4.5 (12)
+                      
+                      <p className="text-sm text-muted-foreground mb-3">
+                        {property.address}, {property.city}
+                      </p>
+                      
+                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                        <div className="flex items-center">
+                          <Users className="h-4 w-4 mr-1" />
+                          {property.max_guests}
+                        </div>
+                        <div className="flex items-center">
+                          <Bed className="h-4 w-4 mr-1" />
+                          {property.bedrooms}
+                        </div>
+                        <div className="flex items-center">
+                          <Bath className="h-4 w-4 mr-1" />
+                          {property.bathrooms}
+                        </div>
                       </div>
-                    </div>
-                  </CardContent>
-                </Card>
+                      
+                      <div className="flex flex-wrap gap-1 mb-3">
+                        {property.amenities?.slice(0, 3).map((amenity) => (
+                          <Badge key={amenity} variant="secondary" className="text-xs">
+                            {amenity}
+                          </Badge>
+                        ))}
+                        {property.amenities && property.amenities.length > 3 && (
+                          <Badge variant="secondary" className="text-xs">
+                            +{property.amenities.length - 3}
+                          </Badge>
+                        )}
+                      </div>
+                      
+                      <div className="flex justify-between items-center">
+                        <div>
+                          <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
+                          <span className="text-muted-foreground text-sm"> / nuit</span>
+                        </div>
+                        <div className="flex items-center text-sm text-muted-foreground">
+                          <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                          4.5 (12)
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </Link>
               ))}
             </div>
           )}

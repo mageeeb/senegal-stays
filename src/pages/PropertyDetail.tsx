@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Calendar } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
+import { BookingForm } from "@/components/BookingForm";
 
 interface PropertyImage {
   id: string;
@@ -254,57 +255,11 @@ const PropertyDetail = () => {
 
           {/* Réservation */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-4">
-              <CardContent className="p-6">
-                <div className="mb-6">
-                  <div className="text-2xl font-bold">
-                    {Number(property.price_per_night).toLocaleString()} FCFA
-                    <span className="text-base font-normal text-muted-foreground"> / nuit</span>
-                  </div>
-                  <div className="flex items-center mt-2">
-                    <Star className="h-4 w-4 text-yellow-400 fill-current mr-1" />
-                    <span className="text-sm">4.5 (12 avis)</span>
-                  </div>
-                </div>
-
-                <div className="space-y-4">
-                  <div className="grid grid-cols-2 gap-2">
-                    <div className="border rounded-lg p-3">
-                      <div className="text-xs font-medium">ARRIVÉE</div>
-                      <div className="text-sm">Sélectionner</div>
-                    </div>
-                    <div className="border rounded-lg p-3">
-                      <div className="text-xs font-medium">DÉPART</div>
-                      <div className="text-sm">Sélectionner</div>
-                    </div>
-                  </div>
-                  
-                  <div className="border rounded-lg p-3">
-                    <div className="text-xs font-medium">VOYAGEURS</div>
-                    <div className="text-sm">1 voyageur</div>
-                  </div>
-
-                  <Button className="w-full" size="lg">
-                    Réserver
-                  </Button>
-                  
-                  <p className="text-center text-sm text-muted-foreground">
-                    Aucun frais pour le moment
-                  </p>
-                  
-                  <div className="space-y-2 pt-4 border-t">
-                    <div className="flex justify-between">
-                      <span className="underline">{Number(property.price_per_night).toLocaleString()} FCFA x 5 nuits</span>
-                      <span>{(Number(property.price_per_night) * 5).toLocaleString()} FCFA</span>
-                    </div>
-                    <div className="flex justify-between font-semibold">
-                      <span>Total avant taxes</span>
-                      <span>{(Number(property.price_per_night) * 5).toLocaleString()} FCFA</span>
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <BookingForm 
+              propertyId={property.id}
+              pricePerNight={Number(property.price_per_night)}
+              maxGuests={property.max_guests}
+            />
           </div>
         </div>
       </div>
