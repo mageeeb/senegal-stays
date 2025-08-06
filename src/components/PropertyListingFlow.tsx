@@ -119,6 +119,31 @@ export const PropertyListingFlow = ({
 
         if (error) throw error;
 
+        // Gérer les images pour la mise à jour
+        if (propertyData.photos.length > 0) {
+          // Supprimer les anciennes images
+          const { error: deleteError } = await supabase
+            .from('property_images')
+            .delete()
+            .eq('property_id', propertyId);
+
+          if (deleteError) throw deleteError;
+
+          // Insérer les nouvelles images
+          const imageInserts = propertyData.photos.map((photo, index) => ({
+            property_id: propertyId,
+            image_url: photo,
+            is_cover: index === 0,
+            sort_order: index
+          }));
+
+          const { error: imageError } = await supabase
+            .from('property_images')
+            .insert(imageInserts);
+
+          if (imageError) throw imageError;
+        }
+
         toast({
           title: "Succès",
           description: "Votre logement a été modifié avec succès !",
