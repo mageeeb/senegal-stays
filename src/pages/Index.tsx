@@ -4,14 +4,28 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
 import Header from "@/components/layout/Header";
 import { useAuth } from "@/hooks/useAuth";
-import { Link } from "react-router-dom";
-// import
+import { Link, useNavigate } from "react-router-dom";
+import { useState } from "react";
+
 const Index = () => {
   const { user } = useAuth();
+  const navigate = useNavigate();
+  const [searchLocation, setSearchLocation] = useState("");
   
   const handleSearch = () => {
-    // Rediriger vers la page de destination générique pour l'instant
-    window.location.href = '/destination/dakar';
+    if (searchLocation.trim()) {
+      // Convertir la recherche en slug utilisable
+      const locationSlug = searchLocation.toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[àáâãäå]/g, 'a')
+        .replace(/[èéêë]/g, 'e')
+        .replace(/[ìíîï]/g, 'i')
+        .replace(/[òóôõö]/g, 'o')
+        .replace(/[ùúûü]/g, 'u')
+        .replace(/[ç]/g, 'c');
+      
+      navigate(`/destination/${locationSlug}`);
+    }
   };
 
   return (
@@ -36,6 +50,9 @@ const Index = () => {
                 <Input 
                   placeholder="Où allez-vous ?" 
                   className="pl-10"
+                  value={searchLocation}
+                  onChange={(e) => setSearchLocation(e.target.value)}
+                  onKeyPress={(e) => e.key === 'Enter' && handleSearch()}
                 />
               </div>
               <Input type="date" placeholder="Arrivée" />
