@@ -58,16 +58,19 @@ export const PhotosStep = ({ data, updateData }: PhotosStepProps) => {
           const fileExt = file.name.split('.').pop();
           const fileName = `${user.id}/${Date.now()}-${Math.random().toString(36).substring(2)}.${fileExt}`;
 
-          // Uploader vers Supabase Storage
+          // Uploader vers Supabase Storage avec upsert false pour éviter les conflits
           const { data: uploadData, error: uploadError } = await supabase.storage
             .from('property-images')
-            .upload(fileName, file);
+            .upload(fileName, file, {
+              cacheControl: '3600',
+              upsert: false
+            });
 
           if (uploadError) {
             console.error('Upload error:', uploadError);
             toast({
               title: "Erreur d'upload",
-              description: `Impossible d'uploader ${file.name}`,
+              description: `Impossible d'uploader ${file.name}: ${uploadError.message}`,
               variant: "destructive",
             });
             continue;
