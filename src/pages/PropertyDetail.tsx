@@ -4,9 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
-import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Calendar } from "lucide-react";
+import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
+import ImageGallery from "@/components/ImageGallery";
 
 interface PropertyImage {
   id: string;
@@ -46,7 +47,6 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<Property | null>(null);
   const [host, setHost] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
-  const [selectedImage, setSelectedImage] = useState(0);
 
   useEffect(() => {
     if (id) {
@@ -163,29 +163,7 @@ const PropertyDetail = () => {
 
         {/* Photos */}
         {property.images && property.images.length > 0 && (
-          <div className="grid grid-cols-4 gap-2 mb-8 h-96">
-            <div className="col-span-2 row-span-2">
-              <img
-                src={property.images[selectedImage]?.image_url || property.images[0].image_url}
-                alt={property.images[selectedImage]?.alt_text || property.title}
-                className="w-full h-full object-cover rounded-l-lg cursor-pointer"
-                onClick={() => setSelectedImage(0)}
-              />
-            </div>
-            <div className="col-span-2 grid grid-cols-2 gap-2">
-              {property.images.slice(1, 5).map((image, index) => (
-                <img
-                  key={image.id}
-                  src={image.image_url}
-                  alt={image.alt_text || property.title}
-                  className={`w-full h-full object-cover cursor-pointer ${
-                    index === 1 ? 'rounded-tr-lg' : index === 3 ? 'rounded-br-lg' : ''
-                  }`}
-                  onClick={() => setSelectedImage(index + 1)}
-                />
-              ))}
-            </div>
-          </div>
+          <ImageGallery images={property.images} title={property.title} />
         )}
 
         <div className="grid lg:grid-cols-3 gap-8">
