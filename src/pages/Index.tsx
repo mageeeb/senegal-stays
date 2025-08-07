@@ -88,21 +88,21 @@ const Index = () => {
                     description: 'Centre-ville historique', 
                     rating: '4.9', 
                     properties: '45',
-                    image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=400&h=300&fit=crop'
+                    image: '/img/destPop/5.jpg'
                   },
                   { 
-                    name: 'Almadies', 
+                    name: 'Sine-Saloum',
                     description: 'Quartier résidentiel chic', 
                     rating: '4.8', 
                     properties: '32',
-                    image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop'
+                    image: '/img/destPop/9.jpg'
                   },
                   { 
                     name: 'Ngor', 
                     description: 'Village de pêcheurs authentique', 
                     rating: '4.7', 
                     properties: '28',
-                    image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop'
+                    image: '/img/destPop/10.jpg'
                   }
                 ].map((area) => (
                   <Link key={area.name} to={`/destination/${area.name.toLowerCase()}`}>
@@ -137,21 +137,21 @@ const Index = () => {
                     description: 'Centre historique UNESCO', 
                     rating: '4.9', 
                     properties: '22',
-                    image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=400&h=300&fit=crop'
+                    image: '/img/destPop/6.jpg'
                   },
                   { 
-                    name: 'Sor', 
+                    name: 'Lac Rose',
                     description: 'Quartier traditionnel', 
                     rating: '4.6', 
                     properties: '18',
-                    image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=400&h=300&fit=crop'
+                    image: '/img/destPop/13.jpg'
                   },
                   { 
-                    name: 'Langue de Barbarie', 
+                    name: 'Cap Skirring',
                     description: 'Plage et nature', 
                     rating: '4.8', 
                     properties: '15',
-                    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop'
+                    image: '/img/destPop/14.jpg'
                   }
                 ].map((area) => (
                   <Link key={area.name} to={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
@@ -186,21 +186,21 @@ const Index = () => {
                     description: 'Front de mer touristique', 
                     rating: '4.8', 
                     properties: '38',
-                    image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=400&h=300&fit=crop'
+                    image: '/img/destPop/3.jpg'
                   },
                   { 
-                    name: 'Saly Niakh Niakhal', 
-                    description: 'Village authentique', 
+                    name: 'Gorée',
+                    description: 'île authentique',
                     rating: '4.7', 
                     properties: '25',
-                    image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=400&h=300&fit=crop'
+                    image: '/img/destPop/7.jpg'
                   },
                   { 
-                    name: 'Ngaparou', 
+                    name: 'Desert de Lompoul',
                     description: 'Plages paradisiaques', 
                     rating: '4.9', 
                     properties: '30',
-                    image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=400&h=300&fit=crop'
+                    image: '/img/destPop/4.jpg'
                   }
                 ].map((area) => (
                   <Link key={area.name} to={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>

@@ -90,10 +90,10 @@ const Destination = () => {
   const getAreaInfo = (areaSlug: string) => {
     const areaMap: Record<string, any> = {
       'plateau': {
-        name: 'Plateau',
+        name: 'Dakar-Capitale',
         city: 'Dakar',
         description: 'Le cœur historique et administratif de Dakar',
-        image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=1200&h=400&fit=crop'
+        image: '/img/destPop/15.jpg'
       },
       'almadies': {
         name: 'Almadies',
@@ -105,33 +105,33 @@ const Destination = () => {
         name: 'Ngor',
         city: 'Dakar',
         description: 'Village de pêcheurs authentique avec île paradisiaque',
-        image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?w=1200&h=400&fit=crop'
+        image: '/img/destPop/2.jpg'
       },
       'île-de-saint-louis': {
         name: 'Île de Saint-Louis',
         city: 'Saint-Louis',
         description: 'Centre historique classé au patrimoine mondial de l\'UNESCO',
-        image: 'https://images.unsplash.com/photo-1433086966358-54859d0ed716?w=1200&h=400&fit=crop'
+        image: '/img/destPop/6.jpg'
       },
       'saly-portudal': {
         name: 'Saly Portudal',
         city: 'Saly',
         description: 'Station balnéaire avec plages de sable fin',
-        image: 'https://images.unsplash.com/photo-1501854140801-50d01698950b?w=1200&h=400&fit=crop'
+        image: '/img/destPop/17.jpg'
       },
       'dakar': {
         name: 'Dakar',
         city: 'Dakar',
         description: 'Capitale dynamique du Sénégal',
-        image: 'https://images.unsplash.com/photo-1466442929976-97f336a657be?w=1200&h=400&fit=crop'
+        image: '/img/destPop/15.jpg'
       }
     };
     
     return areaMap[areaSlug || ''] || {
-      name: 'Destination',
+      name: 'Lac Rose',
       city: 'Sénégal',
       description: 'Découvrez cette magnifique destination',
-      image: 'https://images.unsplash.com/photo-1500673922987-e212871fec22?w=1200&h=400&fit=crop'
+      image: '/img/destPop/13.jpg'
     };
   };
 
@@ -153,22 +153,63 @@ const Destination = () => {
       <Header />
       
       {/* Hero Section */}
-      <section className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url(${areaInfo.image})` }}>
-        <div className="absolute inset-0 bg-black/40"></div>
-        <div className="relative container mx-auto px-4 h-full flex items-center">
-          <div className="text-white">
-            <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mb-4" asChild>
-              <Link to="/">
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Retour
-              </Link>
-            </Button>
-            <h1 className="text-4xl font-bold mb-2">{areaInfo.name}</h1>
-            <p className="text-xl opacity-90">{areaInfo.description}</p>
-          </div>
-        </div>
-      </section>
-
+      {/*<section className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url(${areaInfo.image})` }}>*/}
+      {/*  <div className="absolute inset-0 bg-black/40"></div>*/}
+      {/*  <div className="relative container mx-auto px-4 h-full flex items-center">*/}
+      {/*    <div className="text-white">*/}
+      {/*      <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mb-4" asChild>*/}
+      {/*        <Link to="/">*/}
+      {/*          <ArrowLeft className="h-4 w-4 mr-2" />*/}
+      {/*          Retour*/}
+      {/*        </Link>*/}
+      {/*      </Button>*/}
+      {/*      <h1 className="text-4xl font-bold mb-2">{areaInfo.name}</h1>*/}
+      {/*      <p className="text-xl opacity-90">{areaInfo.description}</p>*/}
+      {/*    </div>*/}
+      {/*  </div>*/}
+      {/*</section>*/}
+        {/* Hero Section */}
+        <section
+            className="relative h-[500px] bg-cover bg-center bg-no-repeat"
+            style={{
+                backgroundImage: `url(${areaInfo.image})`,
+                backgroundPosition: 'center 25%'
+            }}
+        >
+            <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
+            <div className="relative container mx-auto px-4 h-full flex flex-col justify-end pb-12">
+                <div className="text-white max-w-3xl">
+                    {/*<Button*/}
+                    {/*    variant="outline"*/}
+                    {/*    size="sm"*/}
+                    {/*    className="text-white border-white/20 hover:bg-white/20 mb-6 backdrop-blur-sm"*/}
+                    {/*    asChild*/}
+                    {/*>*/}
+                    {/*    <Link to="/">*/}
+                    {/*        <ArrowLeft className="h-4 w-4 mr-2" />*/}
+                    {/*        Retour*/}
+                    {/*    </Link>*/}
+                    {/*</Button>*/}
+                    <Button
+                        variant="secondary"
+                        size="sm"
+                        className="bg-white/90 hover:bg-white text-black mb-6 backdrop-blur-sm shadow-lg"
+                        asChild
+                    >
+                        <Link to="/">
+                            <ArrowLeft className="h-4 w-4 mr-2" />
+                            Retour
+                        </Link>
+                    </Button>
+                    <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
+                        {areaInfo.name}
+                    </h1>
+                    <p className="text-xl opacity-90 drop-shadow-md">
+                        {areaInfo.description}
+                    </p>
+                </div>
+            </div>
+        </section>
       {/* Filters */}
       <section className="py-6 px-4 border-b">
         <div className="container mx-auto">
