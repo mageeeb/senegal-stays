@@ -168,58 +168,38 @@ const PropertyDetail = () => {
           </div>
         )}
 
-        {/* Section principale avec prix et détails de base */}
-        <div className="grid lg:grid-cols-3 gap-8 mb-8">
-          {/* Informations de base */}
-          <div className="lg:col-span-2">
-            <Card className="p-6">
-              <div className="flex justify-between items-start">
-                <div>
-                  <h2 className="text-2xl font-semibold mb-3">
-                    {property.property_type} entier hébergé par {host?.first_name || 'Hôte'}
-                  </h2>
-                  <div className="flex items-center gap-6 text-muted-foreground">
-                    <div className="flex items-center">
-                      <Users className="h-5 w-5 mr-2" />
-                      {property.max_guests} voyageurs
-                    </div>
-                    <div className="flex items-center">
-                      <Bed className="h-5 w-5 mr-2" />
-                      {property.bedrooms} chambres
-                    </div>
-                    <div className="flex items-center">
-                      <Bath className="h-5 w-5 mr-2" />
-                      {property.bathrooms} salles de bain
-                    </div>
+        {/* Section principale avec informations de base */}
+        <div className="mb-8">
+          <Card className="p-6">
+            <div className="flex justify-between items-start">
+              <div>
+                <h2 className="text-2xl font-semibold mb-3">
+                  {property.property_type} entier hébergé par {host?.first_name || 'Hôte'}
+                </h2>
+                <div className="flex items-center gap-6 text-muted-foreground">
+                  <div className="flex items-center">
+                    <Users className="h-5 w-5 mr-2" />
+                    {property.max_guests} voyageurs
+                  </div>
+                  <div className="flex items-center">
+                    <Bed className="h-5 w-5 mr-2" />
+                    {property.bedrooms} chambres
+                  </div>
+                  <div className="flex items-center">
+                    <Bath className="h-5 w-5 mr-2" />
+                    {property.bathrooms} salles de bain
                   </div>
                 </div>
-                {host?.avatar_url && (
-                  <img
-                    src={host.avatar_url}
-                    alt={`${host.first_name} ${host.last_name}`}
-                    className="w-16 h-16 rounded-full object-cover"
-                  />
-                )}
               </div>
-            </Card>
-          </div>
-
-          {/* Prix et réservation rapide */}
-          <div className="lg:col-span-1">
-            <Card className="sticky top-24">
-              <CardContent className="p-6">
-                <div className="flex items-baseline gap-1 mb-4">
-                  <span className="text-2xl font-bold">{property.price_per_night}€</span>
-                  <span className="text-muted-foreground">par nuit</span>
-                </div>
-                <BookingForm 
-                  propertyId={property.id}
-                  pricePerNight={Number(property.price_per_night)}
-                  maxGuests={property.max_guests}
+              {host?.avatar_url && (
+                <img
+                  src={host.avatar_url}
+                  alt={`${host.first_name} ${host.last_name}`}
+                  className="w-16 h-16 rounded-full object-cover"
                 />
-              </CardContent>
-            </Card>
-          </div>
+              )}
+            </div>
+          </Card>
         </div>
 
         {/* Sections détaillées */}
@@ -277,8 +257,22 @@ const PropertyDetail = () => {
             </Card>
           </div>
 
-          {/* Espace vide pour équilibrer la mise en page */}
-          <div className="lg:col-span-1 hidden lg:block"></div>
+          {/* Section réservation */}
+          <div className="lg:col-span-1">
+            <Card className="sticky top-8">
+              <CardContent className="p-6">
+                <div className="flex items-baseline gap-1 mb-4">
+                  <span className="text-2xl font-bold">{property.price_per_night}€</span>
+                  <span className="text-muted-foreground">par nuit</span>
+                </div>
+                <BookingForm 
+                  propertyId={property.id}
+                  pricePerNight={Number(property.price_per_night)}
+                  maxGuests={property.max_guests}
+                />
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
     </div>
