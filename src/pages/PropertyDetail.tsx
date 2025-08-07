@@ -163,7 +163,9 @@ const PropertyDetail = () => {
 
         {/* Photos */}
         {property.images && property.images.length > 0 && (
-          <ImageGallery images={property.images} title={property.title} />
+          <div className="mb-12">
+            <ImageGallery images={property.images} title={property.title} />
+          </div>
         )}
 
         {/* Section principale avec prix et détails de base */}
@@ -204,7 +206,7 @@ const PropertyDetail = () => {
 
           {/* Prix et réservation rapide */}
           <div className="lg:col-span-1">
-            <Card className="sticky top-8">
+            <Card className="sticky top-24">
               <CardContent className="p-6">
                 <div className="flex items-baseline gap-1 mb-4">
                   <span className="text-2xl font-bold">{property.price_per_night}€</span>
