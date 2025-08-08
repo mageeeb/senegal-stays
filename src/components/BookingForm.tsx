@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
@@ -25,9 +25,47 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests }: BookingFor
   const [checkOut, setCheckOut] = useState<Date>();
   const [guests, setGuests] = useState(1);
   const [isLoading, setIsLoading] = useState(false);
+  const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
   const { user } = useAuth();
   const { toast } = useToast();
   const navigate = useNavigate();
+
+  const fetchAvailability = async () => {
+    const { data, error } = await supabase
+      .from('property_availability')
+      .select('date, is_available')
+      .eq('property_id', propertyId)
+      .eq('is_available', false);
+    if (!error && data) {
+      setUnavailableSet(new Set(data.map((d: { date: string }) => d.date)));
+    }
+  };
+
+  useEffect(() => {
+    fetchAvailability();
+  }, [propertyId]);
+
+  // Helpers disponibilité
+  const formatKey = (d: Date) => format(d, 'yyyy-MM-dd');
+  const isUnavailable = (d: Date) => unavailableSet.has(formatKey(d));
+  const hasBlockedBetween = (start: Date, end: Date) => {
+    if (end <= start) return false;
+    const cursor = new Date(start);
+    cursor.setDate(cursor.getDate() + 1);
+    while (cursor <= end) {
+      if (isUnavailable(cursor)) return true;
+      cursor.setDate(cursor.getDate() + 1);
+    }
+    return false;
+  };
+
+  useEffect(() => {
+    if (checkIn && checkOut) {
+      if (checkOut <= checkIn || isUnavailable(checkOut) || hasBlockedBetween(checkIn, checkOut)) {
+        setCheckOut(undefined);
+      }
+    }
+  }, [checkIn, unavailableSet]);
 
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 0;

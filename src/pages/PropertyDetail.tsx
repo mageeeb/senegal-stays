@@ -11,6 +11,8 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
 import ImageGallery from "@/components/ImageGallery";
+import { Calendar } from "@/components/ui/calendar";
+import { format } from "date-fns";
 
 interface PropertyImage {
   id: string;
@@ -50,10 +52,12 @@ const PropertyDetail = () => {
   const [property, setProperty] = useState<Property | null>(null);
   const [host, setHost] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
 
   useEffect(() => {
     if (id) {
       fetchProperty();
+      fetchAvailability();
     }
   }, [id]);
 
@@ -104,6 +108,19 @@ const PropertyDetail = () => {
       console.error('Erreur:', error);
     } finally {
       setLoading(false);
+    }
+  };
+
+  const fetchAvailability = async () => {
+    if (!id) return;
+    const { data, error } = await supabase
+      .from('property_availability')
+      .select('date, is_available')
+      .eq('property_id', id)
+      .eq('is_available', false);
+    if (!error && data) {
+      const set = new Set<string>(data.map((d: { date: string }) => d.date));
+      setUnavailableSet(set);
     }
   };
 
@@ -407,8 +424,13 @@ const PropertyDetail = () => {
                         {/* Calendrier placeholder */}
                         <div className="py-8 border-b">
                             <h3 className="text-xl font-semibold mb-6">Sélectionnez les dates d'arrivée et de départ</h3>
-                            <div className="bg-muted/30 rounded-lg p-8 text-center">
-                                <p className="text-muted-foreground">Calendrier de disponibilité</p>
+                            <div className="rounded-lg">
+                                <Calendar
+                                  mode="single"
+                                  numberOfMonths={2}
+                                  disabled={(date) => date < new Date() || unavailableSet.has(format(date, 'yyyy-MM-dd'))}
+                                  className="p-3 pointer-events-auto"
+                                />
                             </div>
                         </div>
                     </div>
