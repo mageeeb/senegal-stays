@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-
+import { getAmenityIcon } from "@/utils/amenityIcons";
 interface PropertyImage {
   id: string;
   image_url: string;
@@ -14,6 +14,7 @@ interface PropertyImage {
   alt_text: string | null;
   sort_order: number;
 }
+
 
 interface Property {
   id: string;
@@ -124,7 +125,26 @@ const Destination = () => {
         city: 'Dakar',
         description: 'Capitale dynamique du Sénégal',
         image: '/img/destPop/15.jpg'
-      }
+      },
+        // Ajout des nouvelles destinations
+        'desert-de-lompoul': {
+            name: 'Désert de Lompoul',
+            city: 'Lompoul',
+            description: 'Unique désert de sable du Sénégal avec ses dunes orangées',
+            image: '/img/destPop/4.jpg'
+        },
+        'goree': {
+            name: 'Île de Gorée',
+            city: 'Dakar',
+            description: 'Île historique marquée par son passé lié à la traite négrière',
+            image: '/img/destPop/19.jpg'
+        },
+        'cap-skirring': {
+            name: 'Cap Skirring',
+            city: 'Casamance',
+            description: 'Station balnéaire paradisiaque au sud du Sénégal',
+            image: '/img/destPop/17.jpg'
+        }
     };
     
     return areaMap[areaSlug || ''] || {

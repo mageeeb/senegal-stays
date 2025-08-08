@@ -13,6 +13,7 @@ import { BookingForm } from "@/components/BookingForm";
 import ImageGallery from "@/components/ImageGallery";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
+import { getAmenityIcon } from "@/utils/amenityIcons";
 
 interface PropertyImage {
   id: string;
@@ -283,136 +284,19 @@ const PropertyDetail = () => {
                         {property.amenities && property.amenities.length > 0 && (
                             <div className="py-8 border-b">
                                 <h3 className="text-xl font-semibold mb-6">Ce que propose ce logement</h3>
+
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {property.amenities.slice(0, 10).map((amenity, index) => {
-                                        // Création d'un objet pour les correspondances de mots-clés
-                                        const amenityLower = amenity.toLowerCase();
-
-                                        let AmenityIcon = Wifi; // Icône par défaut
-
-                                        // Cuisine
-                                        if (amenityLower.includes('cuisine') ||
-                                            amenityLower.includes('cuisson') ||
-                                            amenityLower.includes('ustensile') ||
-                                            amenityLower.includes('cuisinière') ||
-                                            amenityLower.includes('four')) {
-                                            AmenityIcon = UtensilsCrossed;
-                                        }
-                                        // Climatisation
-                                        else if (amenityLower.includes('clim') ||
-                                            amenityLower.includes('climatisation') ||
-                                            amenityLower.includes('air conditionné') ||
-                                            amenityLower.includes('température')) {
-                                            AmenityIcon = Snowflake;
-                                        }
-                                        // Télévision
-                                        else if (amenityLower.includes('télé') ||
-                                            amenityLower.includes('tv') ||
-                                            amenityLower.includes('télévision') ||
-                                            amenityLower.includes('écran')) {
-                                            AmenityIcon = Tv;
-                                        }
-                                        // Lave-linge/Laverie
-                                        else if (amenityLower.includes('lave') ||
-                                            amenityLower.includes('linge') ||
-                                            amenityLower.includes('machine à laver') ||
-                                            amenityLower.includes('laverie') ||
-                                            amenityLower.includes('séchoir') ||
-                                            amenityLower.includes('blanchisserie')) {
-                                            AmenityIcon = Shirt;
-                                        }
-                                        // Internet/Wifi
-                                        else if (amenityLower.includes('wifi') ||
-                                            amenityLower.includes('internet') ||
-                                            amenityLower.includes('réseau') ||
-                                            amenityLower.includes('connexion')) {
-                                            AmenityIcon = Wifi;
-                                        }
-                                        // Transport/Voiture
-                                        else if (amenityLower.includes('parking') ||
-                                            amenityLower.includes('garage') ||
-                                            amenityLower.includes('voiture') ||
-                                            amenityLower.includes('stationnement') ||
-                                            amenityLower.includes('auto')) {
-                                            AmenityIcon = Car;
-                                        }
-                                        // Chambre/Lit
-                                        else if (amenityLower.includes('lit') ||
-                                            amenityLower.includes('chambre') ||
-                                            amenityLower.includes('coucher') ||
-                                            amenityLower.includes('oreiller') ||
-                                            amenityLower.includes('matelas') ||
-                                            amenityLower.includes('draps')) {
-                                            AmenityIcon = Bed;
-                                        }
-                                        // Salle de bain
-                                        else if (amenityLower.includes('bain') ||
-                                            amenityLower.includes('douche') ||
-                                            amenityLower.includes('toilette') ||
-                                            amenityLower.includes('lavabo') ||
-                                            amenityLower.includes('serviette')) {
-                                            AmenityIcon = Bath;
-                                        }
-                                        // Vue/Mer/Piscine
-                                        else if (amenityLower.includes('vue') ||
-                                            amenityLower.includes('mer') ||
-                                            amenityLower.includes('plage') ||
-                                            amenityLower.includes('océan') ||
-                                            amenityLower.includes('piscine')) {
-                                            AmenityIcon = Waves;
-                                        }
-                                        // Petit-déjeuner/Café
-                                        else if (amenityLower.includes('petit-déjeuner') ||
-                                            amenityLower.includes('café') ||
-                                            amenityLower.includes('petit déjeuner') ||
-                                            amenityLower.includes('cafetière') ||
-                                            amenityLower.includes('thé')) {
-                                            AmenityIcon = Coffee;
-                                        }
-                                        // Personnes
-                                        else if (amenityLower.includes('personne') ||
-                                            amenityLower.includes('voyageur') ||
-                                            amenityLower.includes('invité') ||
-                                            amenityLower.includes('famille') ||
-                                            amenityLower.includes('enfant')) {
-                                            AmenityIcon = Users;
-                                        }
-                                        // Localisation
-                                        else if (amenityLower.includes('emplacement') ||
-                                            amenityLower.includes('localisation') ||
-                                            amenityLower.includes('adresse') ||
-                                            amenityLower.includes('quartier') ||
-                                            amenityLower.includes('ville') ||
-                                            amenityLower.includes('centre') ||
-                                            amenityLower.includes('proche')) {
-                                            AmenityIcon = MapPin;
-                                        }
-                                        // Logement/Maison
-                                        else if (amenityLower.includes('maison') ||
-                                            amenityLower.includes('logement') ||
-                                            amenityLower.includes('propriété') ||
-                                            amenityLower.includes('villa') ||
-                                            amenityLower.includes('appartement')) {
-                                            AmenityIcon = HomeIcon;
-                                        }
-
-                                        // Cas spéciaux pour des équipements exacts
-                                        if (amenityLower === 'cuisine' || amenityLower === 'cuisine équipée') AmenityIcon = UtensilsCrossed;
-                                        if (amenityLower === 'climatisation') AmenityIcon = Snowflake;
-                                        if (amenityLower === 'télévision' || amenityLower === 'tv') AmenityIcon = Tv;
-                                        if (amenityLower === 'lave-linge' || amenityLower === 'machine à laver') AmenityIcon = Shirt;
-                                        if (amenityLower === 'piscine') AmenityIcon = Waves;
-                                        if (amenityLower === 'parking') AmenityIcon = Car;
-                                        if (amenityLower === 'wifi') AmenityIcon = Wifi;
-
+                                    {property.amenities.slice(0, 10).map((amenity) => {
+                                        const Icon = getAmenityIcon(amenity);
                                         return (
-                                            <div key={index} className="flex items-center gap-4 py-2">
-                                                <AmenityIcon className="h-6 w-6 text-muted-foreground" />
+                                            <div key={amenity} className="flex items-center gap-4 py-2">
+                                                <Icon className="h-6 w-6 text-muted-foreground" />
                                                 <span>{amenity}</span>
                                             </div>
                                         );
                                     })}
                                 </div>
+
                                 {property.amenities.length > 10 && (
                                     <Button variant="outline" className="mt-6">
                                         Afficher les {property.amenities.length} équipements
