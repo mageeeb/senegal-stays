@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
 import ImageGallery from "@/components/ImageGallery";
+import InteractiveMap from "@/components/Map";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { getAmenityIcon } from "@/utils/amenityIcons";
@@ -39,6 +40,8 @@ interface Property {
   created_at: string;
   images?: PropertyImage[];
   host_id: string;
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 interface Profile {
@@ -384,12 +387,21 @@ const PropertyDetail = () => {
                 {/* Section Localisation */}
                 <div className="mb-12 pb-8 border-b">
                     <h3 className="text-2xl font-semibold mb-6">Où vous dormirez</h3>
-                    <div className="bg-muted/30 rounded-lg h-96 flex items-center justify-center">
-                        <p className="text-muted-foreground">Carte de localisation</p>
+                    <div className="h-96 rounded-lg overflow-hidden">
+                        <InteractiveMap
+                          className="h-full w-full"
+                          properties={[{
+                            id: property.id,
+                            title: property.title,
+                            latitude: property.latitude ?? null,
+                            longitude: property.longitude ?? null,
+                            price_per_night: Number(property.price_per_night),
+                            image_url: property.images && property.images[0] ? property.images[0].image_url : null,
+                          }]}
+                        />
                     </div>
-                    <div className="mt-4">
-                        <p className="font-medium">{property.city}</p>
-                        <p className="text-muted-foreground text-sm">{property.address}</p>
+                    <div className="mt-2 text-sm text-muted-foreground">
+                        {!property.latitude || !property.longitude ? "Localisation approximative: ajoutez un point précis lors de l'édition pour afficher le marqueur exact." : null}
                     </div>
                 </div>
 

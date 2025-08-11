@@ -114,6 +114,8 @@ export const PropertyListingFlow = ({
             bedrooms: propertyData.bedrooms,
             bathrooms: propertyData.bathrooms,
             amenities: propertyData.amenities,
+            latitude: propertyData.coordinates?.lat ?? null,
+            longitude: propertyData.coordinates?.lng ?? null,
           })
           .eq('id', propertyId);
 
@@ -165,6 +167,8 @@ export const PropertyListingFlow = ({
             bathrooms: propertyData.bathrooms,
             amenities: propertyData.amenities,
             host_id: user.id,
+            latitude: propertyData.coordinates?.lat ?? null,
+            longitude: propertyData.coordinates?.lng ?? null,
           })
           .select()
           .single();

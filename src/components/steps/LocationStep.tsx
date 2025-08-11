@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { PropertyData } from "../PropertyListingFlow";
 import { MapPin } from "lucide-react";
+import LocationPickerMap from "@/components/LocationPickerMap";
 
 interface LocationStepProps {
   data: PropertyData;
@@ -11,27 +12,9 @@ interface LocationStepProps {
 }
 
 export const LocationStep = ({ data, updateData }: LocationStepProps) => {
-  const mapContainer = useRef<HTMLDivElement>(null);
-  const [coordinates, setCoordinates] = useState({ lat: 14.6937, lng: -17.4441 }); // Dakar par défaut
-
-  useEffect(() => {
-    // Simple carte placeholder - en production, utilisez Mapbox ou Google Maps
-    if (mapContainer.current) {
-      mapContainer.current.innerHTML = `
-        <div class="w-full h-64 bg-muted rounded-lg flex items-center justify-center border-2 border-dashed border-border">
-          <div class="text-center">
-            <div class="w-12 h-12 bg-primary rounded-full flex items-center justify-center mx-auto mb-2">
-              <svg class="w-6 h-6 text-primary-foreground" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clipRule="evenodd" />
-              </svg>
-            </div>
-            <p class="text-sm text-muted-foreground">Carte interactive</p>
-            <p class="text-xs text-muted-foreground">${data.address || 'Ajoutez une adresse'}</p>
-          </div>
-        </div>
-      `;
-    }
-  }, [data.address]);
+  const [coordinates, setCoordinates] = useState<{ lat: number; lng: number }>(
+    data.coordinates || { lat: 14.6937, lng: -17.4441 }
+  );
 
   const handleCityChange = (city: string) => {
     updateData({ city });
@@ -87,7 +70,17 @@ export const LocationStep = ({ data, updateData }: LocationStepProps) => {
 
       <div>
         <Label>Localisation sur la carte</Label>
-        <div ref={mapContainer} className="mt-2"></div>
+        <LocationPickerMap
+          className="mt-2"
+          value={coordinates}
+          onChange={(c) => {
+            setCoordinates(c);
+            updateData({ coordinates: c });
+          }}
+        />
+        <p className="text-xs text-muted-foreground mt-2">
+          Point sélectionné: {coordinates.lat.toFixed(5)}, {coordinates.lng.toFixed(5)}
+        </p>
         <p className="text-sm text-muted-foreground mt-1">
           La localisation exacte sera visible aux invités après réservation
         </p>
