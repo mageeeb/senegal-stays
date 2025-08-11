@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
+import InteractiveMap from "@/components/Map";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAmenityIcon } from "@/utils/amenityIcons";
@@ -31,6 +32,8 @@ interface Property {
   is_active: boolean;
   created_at: string;
   images?: PropertyImage[];
+  latitude?: number | null;
+  longitude?: number | null;
 }
 
 const Destination = () => {
@@ -253,14 +256,14 @@ const Destination = () => {
         </div>
       </section>
 
-      {/* Properties Grid */}
+      {/* Properties + Map Split View */}
       <section className="py-8 px-4">
         <div className="container mx-auto">
           <div className="mb-6">
             <h2 className="text-2xl font-bold mb-2">Logements à {areaInfo.name}</h2>
             <p className="text-muted-foreground">{properties.length} logements disponibles</p>
           </div>
-          
+
           {properties.length === 0 ? (
             <div className="col-span-full text-center py-12">
               <p className="text-lg text-muted-foreground">Aucun logement disponible pour le moment dans cette destination.</p>
@@ -269,81 +272,86 @@ const Destination = () => {
               </Button>
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              {properties.map((property) => (
-                <Link to={`/property/${property.id}`} key={property.id}>
-                  <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
-                    <div className="relative">
-                      {property.images && property.images.length > 0 ? (
-                        <img
-                          src={property.images[0].image_url}
-                          alt={property.images[0].alt_text || property.title}
-                          className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                        />
-                      ) : (
-                        <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
-                          <p className="text-muted-foreground">Photo à venir</p>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                  {properties.map((property) => (
+                    <Link to={`/property/${property.id}`} key={property.id}>
+                      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                        <div className="relative">
+                          {property.images && property.images.length > 0 ? (
+                            <img
+                              src={property.images[0].image_url}
+                              alt={property.images[0].alt_text || property.title}
+                              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
+                              loading="lazy"
+                            />
+                          ) : (
+                            <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                              <p className="text-muted-foreground">Photo à venir</p>
+                            </div>
+                          )}
+                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
+                            <div className="flex items-center text-sm">
+                              <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                              4.5
+                            </div>
+                          </div>
                         </div>
-                      )}
-                      <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
-                        <div className="flex items-center text-sm">
-                          <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                          4.5
-                        </div>
-                      </div>
-                    </div>
-                    
-                    <CardContent className="p-4">
-                      <div className="flex justify-between items-start mb-2">
-                        <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
-                      </div>
-                      
-                      <p className="text-sm text-muted-foreground mb-3">
-                        {property.address}, {property.city}
-                      </p>
-                      
-                      <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
-                        <div className="flex items-center">
-                          <Users className="h-4 w-4 mr-1" />
-                          {property.max_guests}
-                        </div>
-                        <div className="flex items-center">
-                          <Bed className="h-4 w-4 mr-1" />
-                          {property.bedrooms}
-                        </div>
-                        <div className="flex items-center">
-                          <Bath className="h-4 w-4 mr-1" />
-                          {property.bathrooms}
-                        </div>
-                      </div>
-                      
-                      <div className="flex flex-wrap gap-1 mb-3">
-                        {property.amenities?.slice(0, 3).map((amenity) => (
-                          <Badge key={amenity} variant="secondary" className="text-xs">
-                            {amenity}
-                          </Badge>
-                        ))}
-                        {property.amenities && property.amenities.length > 3 && (
-                          <Badge variant="secondary" className="text-xs">
-                            +{property.amenities.length - 3}
-                          </Badge>
-                        )}
-                      </div>
-                      
-                      <div className="flex justify-between items-center">
-                        <div>
-                          <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
-                          <span className="text-muted-foreground text-sm"> / nuit</span>
-                        </div>
-                        <div className="flex items-center text-sm text-muted-foreground">
-                          <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                          4.5 (12)
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                </Link>
-              ))}
+
+                        <CardContent className="p-4">
+                          <div className="flex justify-between items-start mb-2">
+                            <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
+                          </div>
+
+                          <p className="text-sm text-muted-foreground mb-3">
+                            {property.address}, {property.city}
+                          </p>
+
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground mb-3">
+                            <div className="flex items-center">
+                              <Users className="h-4 w-4 mr-1" />
+                              {property.max_guests}
+                            </div>
+                            <div className="flex items-center">
+                              <Bed className="h-4 w-4 mr-1" />
+                              {property.bedrooms}
+                            </div>
+                            <div className="flex items-center">
+                              <Bath className="h-4 w-4 mr-1" />
+                              {property.bathrooms}
+                            </div>
+                          </div>
+
+                          <div className="flex justify-between items-center">
+                            <div>
+                              <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
+                              <span className="text-muted-foreground text-sm"> / nuit</span>
+                            </div>
+                            <div className="flex items-center text-sm text-muted-foreground">
+                              <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
+                              4.5 (12)
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+              <div className="lg:sticky lg:top-24 h-[70vh]">
+                <InteractiveMap
+                  className="h-full w-full"
+                  properties={properties.map((p) => ({
+                    id: p.id,
+                    title: p.title,
+                    latitude: p.latitude ?? null,
+                    longitude: p.longitude ?? null,
+                    price_per_night: p.price_per_night,
+                    image_url: p.images && p.images[0] ? p.images[0].image_url : null,
+                  }))}
+                />
+              </div>
             </div>
           )}
         </div>
