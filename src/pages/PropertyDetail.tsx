@@ -15,6 +15,8 @@ import InteractiveMap from "@/components/Map";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { getAmenityIcon } from "@/utils/amenityIcons";
+import CommentsSection from "@/components/CommentsSection";
+import { useAuth } from "@/hooks/useAuth";
 
 interface PropertyImage {
   id: string;
@@ -42,6 +44,17 @@ interface Property {
   host_id: string;
   latitude?: number | null;
   longitude?: number | null;
+  // long-term
+  long_term_enabled?: boolean;
+  monthly_price?: number | null;
+  min_months?: number | null;
+  max_months?: number | null;
+  deposit_amount?: number | null;
+  utilities_included?: boolean | null;
+  utilities_notes?: string | null;
+  notice_period_days?: number | null;
+  furnished?: boolean | null;
+  available_from?: string | null;
 }
 
 interface Profile {
@@ -53,10 +66,13 @@ interface Profile {
 
 const PropertyDetail = () => {
   const { id } = useParams();
+  const { user } = useAuth();
   const [property, setProperty] = useState<Property | null>(null);
   const [host, setHost] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
+  const [reviewPromptLoading, setReviewPromptLoading] = useState<boolean>(false);
+  const [lastStayDate, setLastStayDate] = useState<string | null>(null);
 
   useEffect(() => {
     if (id) {
@@ -64,6 +80,51 @@ const PropertyDetail = () => {
       fetchAvailability();
     }
   }, [id]);
+
+  useEffect(() => {
+    const fetchLastCompletedStay = async () => {
+      if (!id || !user) {
+        setLastStayDate(null);
+        return;
+      }
+      try {
+        setReviewPromptLoading(true);
+        const { data, error } = await supabase
+          .from('bookings')
+          .select('id, check_in, check_out')
+          .eq('property_id', id)
+          .eq('guest_id', user.id)
+          .eq('status', 'completed')
+          .order('check_out', { ascending: false })
+          .limit(1);
+        if (error) {
+          console.error('Erreur lors de la vérification du séjour terminé:', error);
+          setLastStayDate(null);
+          return;
+        }
+        if (data && data.length > 0) {
+          const booking = data[0] as { check_in: string | null; check_out: string | null };
+          const dateStr = booking.check_out || booking.check_in;
+          if (dateStr) {
+            const d = new Date(dateStr);
+            const formatted = format(d, 'dd/MM/yyyy');
+            setLastStayDate(formatted);
+          } else {
+            setLastStayDate(null);
+          }
+        } else {
+          setLastStayDate(null);
+        }
+      } catch (e) {
+        // silent failure
+        setLastStayDate(null);
+      } finally {
+        setReviewPromptLoading(false);
+      }
+    };
+
+    fetchLastCompletedStay();
+  }, [id, user]);
 
   const fetchProperty = async () => {
     try {
@@ -308,6 +369,48 @@ const PropertyDetail = () => {
                             </div>
                         )}
 
+                        {/* Conditions longues durées */}
+                        {property.long_term_enabled && (
+                          <div className="py-8 border-b">
+                            <h3 className="text-xl font-semibold mb-4">Conditions longues durées</h3>
+                            <div className="grid grid-cols-2 md:grid-cols-3 gap-4 text-sm">
+                              <div>
+                                <div className="text-muted-foreground">Prix mensuel</div>
+                                <div className="font-semibold tabular-nums">{Number(property.monthly_price || 0).toLocaleString()} FCFA</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground">Durée min/max</div>
+                                <div className="font-semibold">{property.min_months || 1}–{property.max_months || 12} mois</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground">Dépôt</div>
+                                <div className="font-semibold tabular-nums">{Number(property.deposit_amount || 0).toLocaleString()} FCFA</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground">Charges</div>
+                                <div className="font-semibold">{property.utilities_included ? 'Incluses' : 'Non incluses'}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground">Meublé</div>
+                                <div className="font-semibold">{property.furnished ? 'Oui' : 'Non'}</div>
+                              </div>
+                              <div>
+                                <div className="text-muted-foreground">Préavis</div>
+                                <div className="font-semibold">{property.notice_period_days || 30} jours</div>
+                              </div>
+                              {property.available_from && (
+                                <div>
+                                  <div className="text-muted-foreground">Disponible à partir du</div>
+                                  <div className="font-semibold">{property.available_from}</div>
+                                </div>
+                              )}
+                            </div>
+                            {property.utilities_notes && (
+                              <div className="text-xs text-muted-foreground mt-3">{property.utilities_notes}</div>
+                            )}
+                          </div>
+                        )}
+
                         {/* Calendrier placeholder */}
                         <div className="py-8 border-b">
                             <h3 className="text-xl font-semibold mb-6">Sélectionnez les dates d'arrivée et de départ</h3>
@@ -328,13 +431,15 @@ const PropertyDetail = () => {
                             <Card className="shadow-xl border rounded-xl">
                                 <CardContent className="p-6">
                                     <div className="flex items-baseline gap-1 mb-6">
-                                        <span className="text-2xl font-semibold">{property.price_per_night.toLocaleString()} FCFA</span>
+                                        <span className="text-2xl font-semibold tabular-nums">{property.price_per_night.toLocaleString()} FCFA</span>
                                         <span className="text-muted-foreground"> par nuit</span>
                                     </div>
                                     <BookingForm
                                         propertyId={property.id}
                                         pricePerNight={Number(property.price_per_night)}
                                         maxGuests={property.max_guests}
+                                        longTermEnabled={!!property.long_term_enabled}
+                                        minMonths={property.min_months || 1}
                                     />
                                 </CardContent>
                             </Card>
@@ -342,47 +447,30 @@ const PropertyDetail = () => {
                     </div>
                 </div>
 
-                {/* Section Avis */}
-                <div className="mb-12 pb-8 border-b">
-                    <div className="flex items-center gap-2 mb-8">
-                        <Star className="h-6 w-6 text-yellow-400 fill-current" />
-                        <span className="text-2xl font-semibold">4,5 • 12 commentaires</span>
-                    </div>
-                    <div className="grid md:grid-cols-2 gap-8">
-                        {/* Placeholder pour les avis */}
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 bg-muted rounded-full"></div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-medium">Marie</span>
-                                        <span className="text-muted-foreground text-sm">Décembre 2024</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        Excellent séjour ! Le logement était parfait et l'hôte très accueillant.
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-4">
-                                <div className="w-10 h-10 bg-muted rounded-full"></div>
-                                <div className="flex-1">
-                                    <div className="flex items-center gap-2 mb-1">
-                                        <span className="font-medium">Thomas</span>
-                                        <span className="text-muted-foreground text-sm">Novembre 2024</span>
-                                    </div>
-                                    <p className="text-sm text-muted-foreground">
-                                        Logement très propre et bien situé. Je recommande vivement !
-                                    </p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <Button variant="outline" className="mt-8">
-                        Afficher tous les commentaires
+                {/* Section Avis - Prompt d'avis si éligible */}
+                {(!reviewPromptLoading && lastStayDate) ? (
+                  <div
+                    role="status"
+                    aria-live="polite"
+                    className="mb-4 p-4 border border-green-300 bg-green-50 text-green-900 rounded-lg flex items-center justify-between"
+                  >
+                    <span>Vous avez séjourné ici le {lastStayDate} — laissez un avis.</span>
+                    <Button
+                      onClick={() => {
+                        const el = document.getElementById('reviews-section');
+                        if (el) {
+                          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }
+                      }}
+                      aria-label="Aller à la section des avis pour laisser un commentaire"
+                    >
+                      Laisser un avis
                     </Button>
-                </div>
+                  </div>
+                ) : null}
+
+                {/* Section Avis */}
+                <CommentsSection propertyId={property.id} />
 
                 {/* Section Localisation */}
                 <div className="mb-12 pb-8 border-b">

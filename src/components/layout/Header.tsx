@@ -53,6 +53,9 @@ const Header = () => {
           <Link to="/properties" className="text-foreground hover:text-primary transition-colors">
             Logements
           </Link>
+          <Link to="/long-stays" className="text-foreground hover:text-primary transition-colors">
+            Séjours Longue Durée
+          </Link>
           {user && (
             <Link to="/host" className="text-foreground hover:text-primary transition-colors">
               Devenir hôte

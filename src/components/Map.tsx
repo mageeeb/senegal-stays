@@ -85,6 +85,8 @@ const InteractiveMap: React.FC<{
       el.className =
         "rounded-full bg-background/90 border border-border shadow px-2 py-1 text-xs font-medium";
       el.style.backdropFilter = "blur(6px)";
+      // Align numbers for prices
+      (el.style as any)["fontVariantNumeric"] = "tabular-nums";
       el.textContent = p.price_per_night ? `${Number(p.price_per_night).toLocaleString()} FCFA` : p.title;
 
       const marker = new mapboxgl.Marker({ element: el })
@@ -97,7 +99,7 @@ const InteractiveMap: React.FC<{
             ${p.image_url ? `<img src="${p.image_url}" alt="${p.title}" style="width:72px;height:72px;object-fit:cover;border-radius:8px;"/>` : ""}
             <div style="flex:1;">
               <div style="font-weight:600; margin-bottom:4px;">${p.title}</div>
-              ${p.price_per_night ? `<div style="color:#444; font-size:12px;">${Number(p.price_per_night).toLocaleString()} FCFA / nuit</div>` : ""}
+              ${p.price_per_night ? `<div style="color:#444; font-size:12px; font-variant-numeric: tabular-nums;">${Number(p.price_per_night).toLocaleString()} FCFA / nuit</div>` : ""}
               <a href="/property/${p.id}" style="display:inline-block;margin-top:6px;color:#2563eb;font-weight:600;">Voir le logement</a>
             </div>
           </div>

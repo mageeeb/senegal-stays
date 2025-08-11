@@ -166,9 +166,73 @@ const Properties = () => {
               Gérez vos propriétés et leurs annonces
             </p>
           </div>
-          <Button onClick={() => window.location.href = '/add-property'}>
-            Ajouter un logement
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={async () => {
+              try {
+                if (!user) return;
+                const nextMonth = new Date();
+                nextMonth.setMonth(nextMonth.getMonth() + 1);
+                const formatDate = (d: Date) => d.toISOString().slice(0,10);
+                const { error } = await supabase.from('properties').insert([
+                  {
+                    host_id: user.id,
+                    title: "Appartement meublé au Plateau — Longue durée",
+                    description: "Appartement confortable au Plateau avec wifi fibre et eau incluse. Idéal pour séjours mensuels.",
+                    property_type: "appartement",
+                    address: "Plateau, Dakar",
+                    city: "Dakar",
+                    price_per_night: 60000,
+                    max_guests: 2,
+                    bedrooms: 1,
+                    bathrooms: 1,
+                    amenities: ['WiFi','Lave-linge','Climatisation'],
+                    long_term_enabled: true,
+                    monthly_price: 450000,
+                    min_months: 1,
+                    max_months: 12,
+                    deposit_amount: 450000,
+                    utilities_included: true,
+                    utilities_notes: "Électricité non incluse",
+                    furnished: true,
+                    notice_period_days: 30,
+                    available_from: formatDate(nextMonth),
+                  },
+                  {
+                    host_id: user.id,
+                    title: "Villa 2 chambres — Séjours mensuels",
+                    description: "Villa confortable à Saly, idéale pour des séjours longue durée.",
+                    property_type: "villa",
+                    address: "Saly Portudal",
+                    city: "Saly",
+                    price_per_night: 90000,
+                    max_guests: 4,
+                    bedrooms: 2,
+                    bathrooms: 2,
+                    amenities: ['WiFi','Piscine','Parking'],
+                    long_term_enabled: true,
+                    monthly_price: 700000,
+                    min_months: 2,
+                    max_months: 12,
+                    deposit_amount: 700000,
+                    utilities_included: false,
+                    utilities_notes: "Charges selon consommation",
+                    furnished: true,
+                    notice_period_days: 45,
+                    available_from: formatDate(new Date()),
+                  }
+                ]).select();
+                if (error) throw error;
+                toast({ title: 'Exemples ajoutés', description: '2 annonces longue durée ont été créées.' });
+                fetchProperties();
+              } catch (e) {
+                console.error(e);
+                toast({ title: 'Erreur', description: "Impossible d'ajouter les exemples", variant: 'destructive' });
+              }
+            }}>Ajouter exemples longue durée</Button>
+            <Button onClick={() => window.location.href = '/add-property'}>
+              Ajouter un logement
+            </Button>
+          </div>
         </div>
 
         {properties.length === 0 ? (
@@ -268,7 +332,7 @@ const Properties = () => {
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Prix/nuit</p>
-                        <p className="font-medium">{Number(property.price_per_night).toLocaleString()} FCFA</p>
+                        <p className="font-medium tabular-nums">{Number(property.price_per_night).toLocaleString()} FCFA</p>
                       </div>
                       <div className="text-center">
                         <p className="text-sm text-muted-foreground">Capacité</p>

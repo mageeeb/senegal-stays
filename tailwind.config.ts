@@ -63,6 +63,19 @@ export default {
 					ring: 'hsl(var(--sidebar-ring))'
 				}
 			},
+			fontFamily: {
+				head: [
+					'var(--font-heading)',
+					"Georgia",
+					"Times New Roman",
+					"Times",
+					"serif"
+				],
+				body: [
+					'var(--font-body)',
+					"Inter", "ui-sans-serif", "system-ui", "Segoe UI", "Roboto", "Helvetica", "Arial", "sans-serif"
+				]
+			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',

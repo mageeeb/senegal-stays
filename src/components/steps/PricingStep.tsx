@@ -4,6 +4,7 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PropertyData } from "../PropertyListingFlow";
 import { DollarSign, Calendar, TrendingUp } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
 
 interface PricingStepProps {
   data: PropertyData;
@@ -93,7 +94,7 @@ export const PricingStep = ({ data, updateData }: PricingStepProps) => {
                   </span>
                 </div>
                 <div className="text-right">
-                  <div className="text-lg font-bold text-blue-900 dark:text-blue-100">
+                  <div className="text-lg font-bold text-blue-900 dark:text-blue-100 tabular-nums">
                     {suggestedPrice.toLocaleString()} FCFA
                   </div>
                   <button 
@@ -121,16 +122,16 @@ export const PricingStep = ({ data, updateData }: PricingStepProps) => {
           <CardContent className="space-y-3">
             <div className="flex justify-between items-center">
               <span className="text-sm">Prix de base</span>
-              <span className="font-medium">{data.price_per_night.toLocaleString()} FCFA</span>
+              <span className="font-medium tabular-nums">{data.price_per_night.toLocaleString()} FCFA</span>
             </div>
             <div className="flex justify-between items-center text-muted-foreground">
               <span className="text-sm">Frais de service Teranga Home</span>
-              <span className="text-sm">-{fees.serviceFee.toLocaleString()} FCFA</span>
+              <span className="text-sm tabular-nums">-{fees.serviceFee.toLocaleString()} FCFA</span>
             </div>
             <hr />
             <div className="flex justify-between items-center font-medium">
               <span>Vous recevez</span>
-              <span className="text-green-600">{fees.hostEarnings.toLocaleString()} FCFA</span>
+              <span className="text-green-600 tabular-nums">{fees.hostEarnings.toLocaleString()} FCFA</span>
             </div>
           </CardContent>
         </Card>
@@ -172,6 +173,96 @@ export const PricingStep = ({ data, updateData }: PricingStepProps) => {
           </CardContent>
         </Card>
       )}
+
+      {/* Long-term settings */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="text-base">Séjours longue durée (mensuel)</CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div className="flex items-center justify-between">
+            <div>
+              <div className="font-medium">Activer les séjours longue durée</div>
+              <div className="text-sm text-muted-foreground">Permettre des réservations d'au moins 1 mois</div>
+            </div>
+            <Switch checked={data.long_term_enabled} onCheckedChange={(v) => updateData({ long_term_enabled: !!v })} />
+          </div>
+
+          {data.long_term_enabled && (
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <Label htmlFor="monthly_price">Prix mensuel (FCFA)</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="monthly_price"
+                    type="number"
+                    value={data.monthly_price || ''}
+                    onChange={(e) => updateData({ monthly_price: parseInt(e.target.value) || 0 })}
+                    placeholder="500000"
+                    className="pl-12"
+                    min="0"
+                  />
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">FCFA</span>
+                </div>
+                {(!data.monthly_price || data.monthly_price <= 0) && (
+                  <p className="text-xs text-red-600 mt-1">Requis lorsque la longue durée est activée.</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="deposit_amount">Dépôt de garantie (FCFA)</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="deposit_amount"
+                    type="number"
+                    value={data.deposit_amount || 0}
+                    onChange={(e) => updateData({ deposit_amount: parseInt(e.target.value) || 0 })}
+                    placeholder="200000"
+                    className="pl-12"
+                    min="0"
+                  />
+                  <span className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground">FCFA</span>
+                </div>
+                {(data.deposit_amount !== undefined && data.deposit_amount < 0) && (
+                  <p className="text-xs text-red-600 mt-1">Le dépôt doit être ≥ 0.</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="min_months">Durée minimale (mois)</Label>
+                <Input id="min_months" type="number" value={data.min_months || 1} min={1} onChange={(e) => updateData({ min_months: parseInt(e.target.value) || 1 })} />
+                {(data.min_months !== undefined && data.min_months < 1) && (
+                  <p className="text-xs text-red-600 mt-1">Minimum 1 mois.</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="max_months">Durée maximale (mois)</Label>
+                <Input id="max_months" type="number" value={data.max_months || 12} min={1} onChange={(e) => updateData({ max_months: parseInt(e.target.value) || 12 })} />
+                {(data.max_months && data.min_months && data.max_months < data.min_months) && (
+                  <p className="text-xs text-red-600 mt-1">Doit être ≥ durée minimale.</p>
+                )}
+              </div>
+              <div>
+                <Label htmlFor="notice_period_days">Préavis de départ (jours)</Label>
+                <Input id="notice_period_days" type="number" value={data.notice_period_days || 30} min={0} onChange={(e) => updateData({ notice_period_days: parseInt(e.target.value) || 0 })} />
+              </div>
+              <div>
+                <Label htmlFor="available_from">Disponible à partir de</Label>
+                <Input id="available_from" type="date" value={data.available_from || ''} onChange={(e) => updateData({ available_from: e.target.value || null })} />
+              </div>
+              <div className="col-span-1 md:col-span-2">
+                <div className="flex items-center gap-2 mb-2">
+                  <input id="utilities_included" type="checkbox" checked={!!data.utilities_included} onChange={(e) => updateData({ utilities_included: e.target.checked })} />
+                  <Label htmlFor="utilities_included">Charges incluses</Label>
+                </div>
+                <Input
+                  placeholder="Détails des charges (eau, électricité, internet...)"
+                  value={data.utilities_notes || ''}
+                  onChange={(e) => updateData({ utilities_notes: e.target.value })}
+                />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Conseils tarifaires */}
       <div className="bg-green-50 dark:bg-green-950/20 p-4 rounded-lg border border-green-200 dark:border-green-800">

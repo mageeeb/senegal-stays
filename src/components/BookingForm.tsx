@@ -18,9 +18,11 @@ interface BookingFormProps {
   propertyId: string;
   pricePerNight: number;
   maxGuests: number;
+  longTermEnabled?: boolean;
+  minMonths?: number;
 }
 
-export const BookingForm = ({ propertyId, pricePerNight, maxGuests }: BookingFormProps) => {
+export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnabled, minMonths }: BookingFormProps) => {
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [guests, setGuests] = useState(1);
@@ -73,9 +75,36 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests }: BookingFor
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
-  const calculateTotal = () => {
+  const roundFcfa = (n: number) => Math.round(n);
+
+  const computeBreakdown = (opts?: { serviceFeeRate?: number; vatRate?: number; cleaningFee?: number; discountAmount?: number }) => {
+    const serviceFeeRate = opts?.serviceFeeRate ?? 0.12;
+    const vatRate = opts?.vatRate ?? 0.18;
+    const cleaningFee = roundFcfa(opts?.cleaningFee ?? 0);
+    const discountAmount = roundFcfa(opts?.discountAmount ?? 0);
+
     const nights = calculateNights();
-    return nights * pricePerNight;
+    const baseRaw = roundFcfa(nights * pricePerNight) - discountAmount;
+    const baseAmount = Math.max(baseRaw, 0);
+    const serviceFeeAmount = roundFcfa(baseAmount * serviceFeeRate);
+    const vatOnService = roundFcfa(serviceFeeAmount * vatRate);
+    const total = baseAmount + serviceFeeAmount + vatOnService + cleaningFee;
+
+    return {
+      nights,
+      baseAmount,
+      serviceFeeAmount,
+      vatOnService,
+      cleaningFee,
+      discountAmount,
+      serviceFeeRate,
+      vatRate,
+      total,
+    };
+  };
+
+  const calculateTotal = () => {
+    return computeBreakdown().total;
   };
 
   const handleBooking = async () => {
@@ -118,9 +147,17 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests }: BookingFor
           check_in: format(checkIn, 'yyyy-MM-dd'),
           check_out: format(checkOut, 'yyyy-MM-dd'),
           guests_count: guests,
-          total_price: calculateTotal(),
+          // Let server trigger compute all monetary fields; send optional inputs as 0 for now
+          discount_amount: 0,
+          cleaning_fee: 0,
+          service_fee_rate: 0.12,
+          vat_rate: 0.18,
+          currency: 'FCFA',
+          total_price: calculateTotal(), // still provided for type compatibility; server will validate/overwrite
           status: 'pending'
-        });
+        })
+        .select()
+        .single();
 
       if (error) {
         console.error('Erreur lors de la réservation:', error);
@@ -162,7 +199,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests }: BookingFor
       <CardContent className="p-6">
         <div className="mb-6">
           <div className="text-2xl font-bold">
-            {pricePerNight.toLocaleString()} FCFA
+            <span className="tabular-nums">{pricePerNight.toLocaleString()} FCFA</span>
             <span className="text-base font-normal text-muted-foreground"> / nuit</span>
           </div>
         </div>
@@ -254,22 +291,56 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests }: BookingFor
             {isLoading ? "Réservation..." : "Réserver"}
           </Button>
           
-          <p className="text-center text-sm text-muted-foreground">
-            Aucun frais pour le moment
-          </p>
-          
-          {nights > 0 && (
-            <div className="space-y-2 pt-4 border-t">
-              <div className="flex justify-between">
-                <span className="underline">{pricePerNight.toLocaleString()} FCFA x {nights} nuit{nights > 1 ? 's' : ''}</span>
-                <span>{total.toLocaleString()} FCFA</span>
-              </div>
-              <div className="flex justify-between font-semibold">
-                <span>Total avant taxes</span>
-                <span>{total.toLocaleString()} FCFA</span>
-              </div>
+          {(longTermEnabled && nights >= Math.max(30, (minMonths || 1) * 30)) && (
+            <div className="p-3 border rounded text-sm bg-blue-50 text-blue-900">
+              Séjour de longue durée détecté (≥ 30 nuits). Les conditions mensuelles s’appliquent. Consultez les offres sur la page « Séjours Longue Durée ».
             </div>
           )}
+
+          {nights === 0 && (
+            <p className="text-center text-sm text-muted-foreground">
+              Sélectionnez vos dates pour voir le détail du prix
+            </p>
+          )}
+          
+          {nights > 0 && (() => {
+            const b = computeBreakdown();
+            return (
+              <div className="space-y-2 pt-4 border-t">
+                <div className="flex justify-between">
+                  <span className="underline tabular-nums">{pricePerNight.toLocaleString()} FCFA x {nights} nuit{nights > 1 ? 's' : ''}</span>
+                  <span className="tabular-nums">{b.baseAmount.toLocaleString()} FCFA</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span>Frais de service ({Math.round(b.serviceFeeRate * 100)}%)</span>
+                  <span className="tabular-nums">{b.serviceFeeAmount.toLocaleString()} FCFA</span>
+                </div>
+                <div className="flex justify-between text-sm">
+                  <span className="flex items-center gap-1">
+                    TVA ({Math.round(b.vatRate * 100)}% des frais)
+                    <span className="text-muted-foreground" title="La TVA (18%) est appliquée aux frais de service ‘teranga-home’.">ℹ️</span>
+                  </span>
+                  <span className="tabular-nums">{b.vatOnService.toLocaleString()} FCFA</span>
+                </div>
+                {b.cleaningFee > 0 && (
+                  <div className="flex justify-between text-sm">
+                    <span>Frais de ménage</span>
+                    <span className="tabular-nums">{b.cleaningFee.toLocaleString()} FCFA</span>
+                  </div>
+                )}
+                {b.discountAmount > 0 && (
+                  <div className="flex justify-between text-sm text-green-700">
+                    <span>Remise</span>
+                    <span className="tabular-nums">-{b.discountAmount.toLocaleString()} FCFA</span>
+                  </div>
+                )}
+                <div className="flex justify-between font-semibold pt-2 border-t">
+                  <span>Total</span>
+                  <span className="tabular-nums">{b.total.toLocaleString()} FCFA</span>
+                </div>
+              </div>
+            );
+          })()}
         </div>
       </CardContent>
     </Card>

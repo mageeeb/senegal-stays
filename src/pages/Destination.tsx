@@ -338,7 +338,7 @@ const Destination = () => {
 
                           <div className="flex justify-between items-center">
                             <div>
-                              <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
+                              <span className="font-bold text-lg tabular-nums">{Number(property.price_per_night).toLocaleString()} FCFA</span>
                               <span className="text-muted-foreground text-sm"> / nuit</span>
                             </div>
                             <div className="flex items-center text-sm text-muted-foreground">

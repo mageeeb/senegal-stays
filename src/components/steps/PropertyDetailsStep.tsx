@@ -110,6 +110,15 @@ export const PropertyDetailsStep = ({ data, updateData }: PropertyDetailsStepPro
         </div>
       </div>
 
+      {/* Meublé / Non meublé */}
+      <div>
+        <h3 className="text-lg font-semibold mb-4">Mobilier</h3>
+        <div className="flex items-center gap-2">
+          <Checkbox id="furnished" checked={!!data.furnished} onCheckedChange={(v) => updateData({ furnished: !!v })} />
+          <Label htmlFor="furnished">Logement meublé</Label>
+        </div>
+      </div>
+
       {/* Résumé */}
       <div className="bg-muted/50 p-4 rounded-lg">
         <h4 className="font-medium mb-2">Résumé de votre logement</h4>

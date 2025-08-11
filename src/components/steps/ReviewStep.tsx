@@ -153,6 +153,51 @@ export const ReviewStep = ({ data }: ReviewStepProps) => {
               </div>
             </div>
 
+            {/* Longue durée - résumé */}
+            {data.long_term_enabled && (
+              <div className="mt-4 p-4 rounded-lg border bg-muted/30">
+                <div className="flex items-center justify-between mb-2">
+                  <span className="text-sm font-medium">Longue durée</span>
+                  <Badge variant="secondary">Activée</Badge>
+                </div>
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-2 text-sm">
+                  <div>
+                    <span className="text-muted-foreground">Prix mensuel</span>
+                    <div className="font-semibold tabular-nums">{(data.monthly_price || 0).toLocaleString()} FCFA</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Durée</span>
+                    <div className="font-semibold">{data.min_months || 1}–{data.max_months || 12} mois</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Dépôt</span>
+                    <div className="font-semibold tabular-nums">{(data.deposit_amount || 0).toLocaleString()} FCFA</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Charges</span>
+                    <div className="font-semibold">{data.utilities_included ? 'Incluses' : 'Non incluses'}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Meublé</span>
+                    <div className="font-semibold">{data.furnished ? 'Oui' : 'Non'}</div>
+                  </div>
+                  <div>
+                    <span className="text-muted-foreground">Préavis</span>
+                    <div className="font-semibold">{data.notice_period_days || 30} jours</div>
+                  </div>
+                  {data.available_from && (
+                    <div>
+                      <span className="text-muted-foreground">Disponible à partir du</span>
+                      <div className="font-semibold">{data.available_from}</div>
+                    </div>
+                  )}
+                </div>
+                {data.utilities_notes && (
+                  <div className="text-xs text-muted-foreground mt-2">{data.utilities_notes}</div>
+                )}
+              </div>
+            )}
+
             {/* Description */}
             {data.description && (
               <div>

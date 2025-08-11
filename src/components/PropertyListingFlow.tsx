@@ -29,6 +29,17 @@ export interface PropertyData {
   amenities: string[];
   photos: string[];
   price_per_night: number;
+  // Long-term specific
+  long_term_enabled: boolean;
+  monthly_price?: number;
+  min_months?: number;
+  max_months?: number;
+  deposit_amount?: number;
+  utilities_included?: boolean;
+  utilities_notes?: string;
+  notice_period_days?: number;
+  furnished?: boolean;
+  available_from?: string | null;
 }
 
 const STEPS = [
@@ -69,6 +80,16 @@ export const PropertyListingFlow = ({
     amenities: initialData.amenities || [],
     photos: initialData.photos || [],
     price_per_night: initialData.price_per_night || 0,
+    long_term_enabled: initialData.long_term_enabled ?? false,
+    monthly_price: initialData.monthly_price || 0,
+    min_months: initialData.min_months || 1,
+    max_months: initialData.max_months || 12,
+    deposit_amount: initialData.deposit_amount || 0,
+    utilities_included: initialData.utilities_included ?? false,
+    utilities_notes: initialData.utilities_notes || "",
+    notice_period_days: initialData.notice_period_days || 30,
+    furnished: initialData.furnished ?? true,
+    available_from: initialData.available_from || null,
   });
 
   const updatePropertyData = (data: Partial<PropertyData>) => {
@@ -88,6 +109,32 @@ export const PropertyListingFlow = ({
   };
 
   const handleSubmit = async () => {
+    // Validations
+    if (propertyData.long_term_enabled) {
+      const errs: string[] = [];
+      if (!propertyData.monthly_price || propertyData.monthly_price <= 0) {
+        errs.push("Prix mensuel requis et doit être > 0.");
+      }
+      if (!propertyData.min_months || propertyData.min_months < 1) {
+        errs.push("Durée minimale: au moins 1 mois.");
+      }
+      if (propertyData.max_months && propertyData.min_months && propertyData.max_months < propertyData.min_months) {
+        errs.push("Durée maximale doit être ≥ durée minimale.");
+      }
+      if (propertyData.deposit_amount !== undefined && propertyData.deposit_amount < 0) {
+        errs.push("Dépôt de garantie doit être ≥ 0.");
+      }
+      if (errs.length > 0) {
+        toast({
+          title: "Champs longue durée invalides",
+          description: errs.join(" \n"),
+          variant: "destructive",
+        });
+        // Send user to pricing step to fix
+        setCurrentStep(5);
+        return;
+      }
+    }
     if (!user) {
       toast({
         title: "Erreur",
@@ -116,6 +163,16 @@ export const PropertyListingFlow = ({
             amenities: propertyData.amenities,
             latitude: propertyData.coordinates?.lat ?? null,
             longitude: propertyData.coordinates?.lng ?? null,
+            long_term_enabled: propertyData.long_term_enabled,
+            monthly_price: propertyData.monthly_price ?? null,
+            min_months: propertyData.min_months ?? 1,
+            max_months: propertyData.max_months ?? 12,
+            deposit_amount: propertyData.deposit_amount ?? 0,
+            utilities_included: propertyData.utilities_included ?? false,
+            utilities_notes: propertyData.utilities_notes || null,
+            notice_period_days: propertyData.notice_period_days ?? 30,
+            furnished: propertyData.furnished ?? true,
+            available_from: propertyData.available_from ? propertyData.available_from : null,
           })
           .eq('id', propertyId);
 
@@ -169,6 +226,16 @@ export const PropertyListingFlow = ({
             host_id: user.id,
             latitude: propertyData.coordinates?.lat ?? null,
             longitude: propertyData.coordinates?.lng ?? null,
+            long_term_enabled: propertyData.long_term_enabled,
+            monthly_price: propertyData.monthly_price ?? null,
+            min_months: propertyData.min_months ?? 1,
+            max_months: propertyData.max_months ?? 12,
+            deposit_amount: propertyData.deposit_amount ?? 0,
+            utilities_included: propertyData.utilities_included ?? false,
+            utilities_notes: propertyData.utilities_notes || null,
+            notice_period_days: propertyData.notice_period_days ?? 30,
+            furnished: propertyData.furnished ?? true,
+            available_from: propertyData.available_from ? propertyData.available_from : null,
           })
           .select()
           .single();
