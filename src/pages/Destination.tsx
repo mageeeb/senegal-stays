@@ -323,6 +323,19 @@ const Destination = () => {
                             </div>
                           </div>
 
+                          <div className="flex flex-wrap gap-1 mb-3">
+                            {property.amenities?.slice(0, 3).map((amenity) => (
+                              <Badge key={amenity} variant="secondary" className="text-xs">
+                                {amenity}
+                              </Badge>
+                            ))}
+                            {property.amenities && property.amenities.length > 3 && (
+                              <Badge variant="secondary" className="text-xs">
+                                +{property.amenities.length - 3}
+                              </Badge>
+                            )}
+                          </div>
+
                           <div className="flex justify-between items-center">
                             <div>
                               <span className="font-bold text-lg">{Number(property.price_per_night).toLocaleString()} FCFA</span>
