@@ -262,7 +262,7 @@ export const PropertyListingFlow = ({
           title: "Succès",
           description: "Votre logement a été ajouté avec succès !",
         });
-        navigate('/');
+        navigate(propertyData.long_term_enabled ? '/long-stays' : '/');
       }
     } catch (error) {
       console.error('Error saving property:', error);
