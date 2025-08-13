@@ -15,6 +15,7 @@ import EditProperty from "./pages/EditProperty";
 import Destination from "./pages/Destination";
 import LongStays from "./pages/LongStays";
 import NotFound from "./pages/NotFound";
+import MobileNav from "@/components/layout/MobileNav";
 
 const queryClient = new QueryClient();
 
@@ -25,40 +26,43 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/host" element={<Host />} />
-            <Route path="/destination/:area" element={<Destination />} />
-            <Route 
-              path="/add-property" 
-              element={
-                <ProtectedRoute>
-                  <AddProperty />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/properties" 
-              element={
-                <ProtectedRoute>
-                  <Properties />
-                </ProtectedRoute>
-              } 
-            />
-            <Route 
-              path="/edit-property/:id" 
-              element={
-                <ProtectedRoute>
-                  <EditProperty />
-                </ProtectedRoute>
-              } 
-            />
-            <Route path="/property/:id" element={<PropertyDetail />} />
-            <Route path="/long-stays" element={<LongStays />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
+          <div className="pb-20 md:pb-0">
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/auth" element={<Auth />} />
+              <Route path="/host" element={<Host />} />
+              <Route path="/destination/:area" element={<Destination />} />
+              <Route 
+                path="/add-property" 
+                element={
+                  <ProtectedRoute>
+                    <AddProperty />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/properties" 
+                element={
+                  <ProtectedRoute>
+                    <Properties />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/edit-property/:id" 
+                element={
+                  <ProtectedRoute>
+                    <EditProperty />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/long-stays" element={<LongStays />} />
+              {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </div>
+          <MobileNav />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
