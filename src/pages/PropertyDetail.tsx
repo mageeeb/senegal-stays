@@ -17,6 +17,7 @@ import { format } from "date-fns";
 import { getAmenityIcon } from "@/utils/amenityIcons";
 import CommentsSection from "@/components/CommentsSection";
 import { useAuth } from "@/hooks/useAuth";
+import { VerifiedBadge } from "@/components/VerifiedBadge";
 
 interface PropertyImage {
   id: string;
@@ -431,8 +432,17 @@ const PropertyDetail = () => {
                             <Card className="shadow-xl border rounded-xl">
                                 <CardContent className="p-6">
                                     <div className="flex items-baseline gap-1 mb-6">
-                                        <span className="text-2xl font-semibold tabular-nums">{property.price_per_night.toLocaleString()} FCFA</span>
-                                        <span className="text-muted-foreground"> par nuit</span>
+                                        {property.long_term_enabled ? (
+                                          <>
+                                            <span className="text-2xl font-semibold tabular-nums">{Number(property.monthly_price || 0).toLocaleString()} FCFA</span>
+                                            <span className="text-muted-foreground"> par mois</span>
+                                          </>
+                                        ) : (
+                                          <>
+                                            <span className="text-2xl font-semibold tabular-nums">{Number(property.price_per_night).toLocaleString()} FCFA</span>
+                                            <span className="text-muted-foreground"> par nuit</span>
+                                          </>
+                                        )}
                                     </div>
                                     <BookingForm
                                         propertyId={property.id}
@@ -440,6 +450,8 @@ const PropertyDetail = () => {
                                         maxGuests={property.max_guests}
                                         longTermEnabled={!!property.long_term_enabled}
                                         minMonths={property.min_months || 1}
+                                        maxMonths={property.max_months || 12}
+                                        monthlyPrice={property.monthly_price || 0}
                                     />
                                 </CardContent>
                             </Card>
@@ -514,8 +526,7 @@ const PropertyDetail = () => {
                                     <span>4,5 (12 commentaires)</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <Badge className="h-4 w-4" />
-                                    <span>Identité vérifiée</span>
+                                    <VerifiedBadge status="verified" size="sm" />
                                 </div>
                             </div>
                             <div className="flex gap-4">

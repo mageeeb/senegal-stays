@@ -63,7 +63,8 @@ const Destination = () => {
             sort_order
           )
         `)
-        .eq('is_active', true);
+        .eq('is_active', true)
+        .or('long_term_enabled.is.null,long_term_enabled.eq.false');
 
       // Filtrer par ville selon la destination
       if (areaInfo.city) {

@@ -14,6 +14,7 @@ import PropertyDetail from "./pages/PropertyDetail";
 import EditProperty from "./pages/EditProperty";
 import Destination from "./pages/Destination";
 import LongStays from "./pages/LongStays";
+import Logements from "./pages/Logements";
 import NotFound from "./pages/NotFound";
 import MobileNav from "@/components/layout/MobileNav";
 
@@ -58,6 +59,8 @@ const App = () => (
               />
               <Route path="/property/:id" element={<PropertyDetail />} />
               <Route path="/long-stays" element={<LongStays />} />
+                            <Route path="/sejour-longue-duree" element={<LongStays />} />
+                            <Route path="/logements" element={<Logements />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

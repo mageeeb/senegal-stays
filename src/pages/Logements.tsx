@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import { supabase } from "@/integrations/supabase/client";
-import { VillesPopulairesLongSejour } from "@/components/VillesPopulairesLongSejour";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -15,39 +14,33 @@ interface Property {
   title: string;
   city: string;
   price_per_night: number;
-  monthly_price: number | null;
-  long_term_enabled: boolean;
-  min_months: number | null;
-  furnished: boolean | null;
-  utilities_included: boolean | null;
+  long_term_enabled: boolean | null;
   amenities: string[] | null;
   property_images?: PropertyImage[];
 }
 
-const LongStays = () => {
+const Logements = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
-  // Filters
-  const [minBudget, setMinBudget] = useState<string>("");
-  const [maxBudget, setMaxBudget] = useState<string>("");
+  // Nightly filters
+  const [minPrice, setMinPrice] = useState<string>("");
+  const [maxPrice, setMaxPrice] = useState<string>("");
   const [city, setCity] = useState<string>("all");
-  const [furnished, setFurnished] = useState<string>("all"); // 'all', 'true', 'false'
-  const [utilities, setUtilities] = useState<string>("all");
 
   const fetchProperties = async () => {
     setLoading(true);
-    // Cast to any to avoid deep TS instantiation from Supabase generics (types are not generated in this project)
+    // Base query: active properties in Senegal, NOT long-term
     let query: any = (supabase as any)
       .from('properties')
-      .select(`id, title, city, price_per_night, monthly_price, long_term_enabled, min_months, furnished, utilities_included, amenities, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
+      .select(`id, title, city, price_per_night, long_term_enabled, amenities, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
       .eq('is_active', true)
-      .eq('long_term_enabled', true)
       .eq('country', 'Senegal')
-      .gt('monthly_price', 0)
+      .or('long_term_enabled.is.null,long_term_enabled.eq.false')
       .order('created_at', { ascending: false });
 
     if (city && city !== 'all') query = query.eq('city', city);
+
     const { data, error } = await query;
     if (!error && data) {
       let list = data.map((p: any) => ({
@@ -55,14 +48,11 @@ const LongStays = () => {
         property_images: (p.property_images || []).sort((a: PropertyImage, b: PropertyImage) => a.sort_order - b.sort_order)
       })) as Property[];
 
-      // Client-side additional filters for MVP
+      // Client-side nightly price filter (MVP)
       list = list.filter(p => {
-        const mp = Number(p.monthly_price || 0);
-        if (minBudget && mp < Number(minBudget)) return false;
-        if (maxBudget && mp > Number(maxBudget)) return false;
-        if (furnished === 'true' && p.furnished !== true) return false;
-        if (furnished === 'false' && p.furnished !== false) return false;
-        if (utilities === 'true' && p.utilities_included !== true) return false;
+        const pn = Number(p.price_per_night || 0);
+        if (minPrice && pn < Number(minPrice)) return false;
+        if (maxPrice && pn > Number(maxPrice)) return false;
         return true;
       });
 
@@ -76,10 +66,10 @@ const LongStays = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [city]);
 
-  // Basic per-page SEO
+  // Basic per-page SEO + analytics tag
   useEffect(() => {
-    document.title = "Séjours longue durée | Locations mensuelles";
-    const desc = "Trouvez des locations meublées longue durée au meilleur prix. Exemples inclus.";
+    document.title = "Logements | Réservations à la nuit";
+    const desc = "Trouvez des logements disponibles à la nuit au Sénégal.";
     let meta = document.querySelector('meta[name="description"]') as HTMLMetaElement | null;
     if (!meta) {
       meta = document.createElement('meta');
@@ -93,11 +83,11 @@ const LongStays = () => {
       link.rel = 'canonical';
       document.head.appendChild(link);
     }
-    link.href = window.location.origin + "/long-stays";
+    link.href = window.location.origin + "/logements";
 
     // Analytics tagging
     try {
-      window.dispatchEvent(new CustomEvent('analytics', { detail: { event: 'page_view', section: 'monthly' } }));
+      window.dispatchEvent(new CustomEvent('analytics', { detail: { event: 'page_view', section: 'nightly' } }));
     } catch {}
   }, []);
 
@@ -111,21 +101,21 @@ const LongStays = () => {
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="flex flex-col items-center text-center gap-4">
               <img
-                src="/lovable-uploads/c3f179a3-8194-49b7-b5b5-71ec36a3e68c.png"
-                alt="Logo - séjours longue durée"
+                src="/lovable-uploads/6b7b0a3b-a0e4-4c6c-9d9d-2a8a2cb9a5b2.png"
+                alt="Logo - logements"
                 className="h-12 md:h-16 object-contain"
                 loading="lazy"
               />
-              <h1 className="text-3xl md:text-4xl font-bold">Locations longue durée</h1>
+              <h1 className="text-3xl md:text-4xl font-bold">Logements à la nuit</h1>
               <p className="text-muted-foreground max-w-2xl">
-                Trouvez un logement pour plusieurs mois, meublé ou non, avec ou sans charges incluses.
+                Réservez des logements disponibles à la nuit partout au Sénégal.
               </p>
             </div>
 
             <div className="mt-6 md:mt-8">
               <Card className="shadow-sm">
                 <CardContent className="p-4 md:p-6">
-                  <div className="grid grid-cols-1 md:grid-cols-5 gap-3">
+                  <div className="grid grid-cols-1 md:grid-cols-4 gap-3">
                     <div>
                       <label className="text-sm text-muted-foreground">Ville</label>
                       <Select value={city} onValueChange={setCity}>
@@ -141,42 +131,15 @@ const LongStays = () => {
                       </Select>
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Budget min (FCFA/mois)</label>
-                      <Input type="number" value={minBudget} onChange={(e) => setMinBudget(e.target.value)} placeholder="200000" />
+                      <label className="text-sm text-muted-foreground">Prix min (FCFA/nuit)</label>
+                      <Input type="number" value={minPrice} onChange={(e) => setMinPrice(e.target.value)} placeholder="15000" />
                     </div>
                     <div>
-                      <label className="text-sm text-muted-foreground">Budget max (FCFA/mois)</label>
-                      <Input type="number" value={maxBudget} onChange={(e) => setMaxBudget(e.target.value)} placeholder="1000000" />
-                    </div>
-                    <div>
-                      <label className="text-sm text-muted-foreground">Meublé</label>
-                      <Select value={furnished} onValueChange={setFurnished}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Meublé ?" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tous</SelectItem>
-                          <SelectItem value="true">Meublé</SelectItem>
-                          <SelectItem value="false">Non meublé</SelectItem>
-                        </SelectContent>
-                      </Select>
+                      <label className="text-sm text-muted-foreground">Prix max (FCFA/nuit)</label>
+                      <Input type="number" value={maxPrice} onChange={(e) => setMaxPrice(e.target.value)} placeholder="200000" />
                     </div>
                     <div className="flex items-end">
                       <Button className="w-full" onClick={fetchProperties}>Rechercher</Button>
-                    </div>
-                  </div>
-                  <div className="mt-3 grid grid-cols-1 md:grid-cols-2 gap-3">
-                    <div>
-                      <label className="text-sm text-muted-foreground">Charges</label>
-                      <Select value={utilities} onValueChange={setUtilities}>
-                        <SelectTrigger>
-                          <SelectValue placeholder="Charges incluses ?" />
-                        </SelectTrigger>
-                        <SelectContent>
-                          <SelectItem value="all">Tous</SelectItem>
-                          <SelectItem value="true">Charges incluses</SelectItem>
-                        </SelectContent>
-                      </Select>
                     </div>
                   </div>
                 </CardContent>
@@ -186,16 +149,6 @@ const LongStays = () => {
         </section>
 
         <section className="container mx-auto px-4 py-8">
-          <h2 className="text-xl font-semibold mb-4">Villes populaires</h2>
-          <VillesPopulairesLongSejour
-            onSelectCity={(selected) => {
-              setCity(selected);
-              window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
-            }}
-          />
-        </section>
-
-        <section className="container mx-auto px-4 pb-10">
           <div className="flex items-baseline justify-between mb-4">
             <h2 className="text-xl font-semibold">Résultats</h2>
             <Badge variant="secondary">{properties.length} logements</Badge>
@@ -205,23 +158,18 @@ const LongStays = () => {
             <div>Chargement...</div>
           ) : properties.length === 0 ? (
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {[5,6,7].map((n) => (
+              {[12,13,14].map((n) => (
                 <Card key={n} className="overflow-hidden">
-                  <img src={`/img/destPop/${n}.jpg`} alt="Exemple de logement longue durée" className="w-full h-48 object-cover" loading="lazy" />
+                  <img src={`/img/destPop/${n}.jpg`} alt="Exemple de logement" className="w-full h-48 object-cover" loading="lazy" />
                   <CardContent className="p-4">
                     <div className="flex justify-between items-start mb-2">
-                      <h3 className="font-semibold line-clamp-1">Exemple d'appartement meublé</h3>
-                      <Badge variant="secondary">Longue durée</Badge>
+                      <h3 className="font-semibold line-clamp-1">Exemple de logement</h3>
+                      <Badge variant="secondary">Nuitée</Badge>
                     </div>
                     <div className="text-sm text-muted-foreground mb-2">Ville populaire</div>
                     <div className="flex items-baseline gap-1">
-                      <span className="text-lg font-bold tabular-nums">350 000 FCFA</span>
-                      <span className="text-sm text-muted-foreground">/ mois</span>
-                    </div>
-                    <div className="mt-2 flex gap-2">
-                      <Badge variant="outline">Charges incluses</Badge>
-                      <Badge variant="outline">Meublé</Badge>
-                      <Badge variant="outline">3 mois min</Badge>
+                      <span className="text-lg font-bold tabular-nums">25 000 FCFA</span>
+                      <span className="text-sm text-muted-foreground">/ nuit</span>
                     </div>
                   </CardContent>
                 </Card>
@@ -240,17 +188,12 @@ const LongStays = () => {
                     <CardContent className="p-4">
                       <div className="flex justify-between items-start mb-2">
                         <h3 className="font-semibold line-clamp-1">{p.title}</h3>
-                        <Badge variant="secondary">Longue durée</Badge>
+                        <Badge variant="secondary">Nuitée</Badge>
                       </div>
                       <div className="text-sm text-muted-foreground mb-2">{p.city}</div>
                       <div className="flex items-baseline gap-1">
-                        <span className="text-lg font-bold tabular-nums">{Number(p.monthly_price || 0).toLocaleString()} FCFA</span>
-                        <span className="text-sm text-muted-foreground">/ mois</span>
-                      </div>
-                      <div className="mt-2 flex gap-2">
-                        {p.utilities_included ? <Badge variant="outline">Charges incluses</Badge> : null}
-                        {p.furnished ? <Badge variant="outline">Meublé</Badge> : <Badge variant="outline">Non meublé</Badge>}
-                        {p.min_months ? <Badge variant="outline">{p.min_months} mois min</Badge> : null}
+                        <span className="text-lg font-bold tabular-nums">{Number(p.price_per_night || 0).toLocaleString()} FCFA</span>
+                        <span className="text-sm text-muted-foreground">/ nuit</span>
                       </div>
                     </CardContent>
                   </Card>
@@ -264,4 +207,4 @@ const LongStays = () => {
   );
 };
 
-export default LongStays;
+export default Logements;
