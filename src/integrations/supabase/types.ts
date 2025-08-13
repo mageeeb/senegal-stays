@@ -126,6 +126,7 @@ export type Database = {
         Row: {
           address: string
           amenities: string[] | null
+          available_from: string | null
           bathrooms: number | null
           bedrooms: number | null
           check_in_time: string | null
@@ -133,23 +134,33 @@ export type Database = {
           city: string
           country: string | null
           created_at: string
+          deposit_amount: number | null
           description: string | null
+          furnished: boolean | null
           host_id: string
           house_rules: string | null
           id: string
           is_active: boolean | null
           latitude: number | null
+          long_term_enabled: boolean
           longitude: number | null
           max_guests: number
+          max_months: number | null
+          min_months: number | null
+          monthly_price: number | null
+          notice_period_days: number | null
           price_per_night: number
           property_type: string
           region: string | null
           title: string
           updated_at: string
+          utilities_included: boolean | null
+          utilities_notes: string | null
         }
         Insert: {
           address: string
           amenities?: string[] | null
+          available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           check_in_time?: string | null
@@ -157,23 +168,33 @@ export type Database = {
           city: string
           country?: string | null
           created_at?: string
+          deposit_amount?: number | null
           description?: string | null
+          furnished?: boolean | null
           host_id: string
           house_rules?: string | null
           id?: string
           is_active?: boolean | null
           latitude?: number | null
+          long_term_enabled?: boolean
           longitude?: number | null
           max_guests?: number
+          max_months?: number | null
+          min_months?: number | null
+          monthly_price?: number | null
+          notice_period_days?: number | null
           price_per_night: number
           property_type: string
           region?: string | null
           title: string
           updated_at?: string
+          utilities_included?: boolean | null
+          utilities_notes?: string | null
         }
         Update: {
           address?: string
           amenities?: string[] | null
+          available_from?: string | null
           bathrooms?: number | null
           bedrooms?: number | null
           check_in_time?: string | null
@@ -181,19 +202,28 @@ export type Database = {
           city?: string
           country?: string | null
           created_at?: string
+          deposit_amount?: number | null
           description?: string | null
+          furnished?: boolean | null
           host_id?: string
           house_rules?: string | null
           id?: string
           is_active?: boolean | null
           latitude?: number | null
+          long_term_enabled?: boolean
           longitude?: number | null
           max_guests?: number
+          max_months?: number | null
+          min_months?: number | null
+          monthly_price?: number | null
+          notice_period_days?: number | null
           price_per_night?: number
           property_type?: string
           region?: string | null
           title?: string
           updated_at?: string
+          utilities_included?: boolean | null
+          utilities_notes?: string | null
         }
         Relationships: [
           {
@@ -247,6 +277,7 @@ export type Database = {
           id: string
           image_url: string
           is_cover: boolean | null
+          latitude: number | null
           property_id: string
           sort_order: number | null
         }
@@ -256,6 +287,7 @@ export type Database = {
           id?: string
           image_url: string
           is_cover?: boolean | null
+          latitude?: number | null
           property_id: string
           sort_order?: number | null
         }
@@ -265,6 +297,7 @@ export type Database = {
           id?: string
           image_url?: string
           is_cover?: boolean | null
+          latitude?: number | null
           property_id?: string
           sort_order?: number | null
         }
