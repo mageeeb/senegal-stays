@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import Header from "@/components/layout/Header";
 import { supabase } from "@/integrations/supabase/client";
+import { VillesPopulairesLongSejour } from "@/components/VillesPopulairesLongSejour";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -42,6 +43,7 @@ const LongStays = () => {
       .select(`id, title, city, price_per_night, monthly_price, long_term_enabled, min_months, furnished, utilities_included, amenities, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
       .eq('is_active', true)
       .eq('long_term_enabled', true)
+      .eq('country', 'Senegal')
       .order('created_at', { ascending: false });
 
     if (city && city !== 'all') query = query.eq('city', city);
@@ -179,26 +181,12 @@ const LongStays = () => {
 
         <section className="container mx-auto px-4 py-8">
           <h2 className="text-xl font-semibold mb-4">Villes populaires</h2>
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-            {[
-              { name: 'Abidjan', img: '/img/destPop/1.jpg' },
-              { name: 'Bouaké', img: '/img/destPop/2.jpg' },
-              { name: 'Yamoussoukro', img: '/img/destPop/3.jpg' },
-              { name: 'San-Pédro', img: '/img/destPop/4.jpg' },
-            ].map(cityItem => (
-              <button
-                key={cityItem.name}
-                className="group relative overflow-hidden rounded-lg border bg-card hover:shadow-md transition hover-scale text-left"
-                onClick={() => { setCity(cityItem.name); window.scrollTo({ top: window.innerHeight, behavior: 'smooth' }); }}
-              >
-                <img src={cityItem.img} alt={`Location longue durée ${cityItem.name}`} className="w-full h-28 md:h-36 object-cover" loading="lazy" />
-                <div className="absolute inset-0 bg-foreground/20"></div>
-                <div className="absolute inset-x-0 bottom-0 p-3">
-                  <span className="text-foreground font-medium drop-shadow">{cityItem.name}</span>
-                </div>
-              </button>
-            ))}
-          </div>
+          <VillesPopulairesLongSejour
+            onSelectCity={(selected) => {
+              setCity(selected);
+              window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
+            }}
+          />
         </section>
 
         <section className="container mx-auto px-4 pb-10">
