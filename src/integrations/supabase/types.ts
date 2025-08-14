@@ -22,6 +22,9 @@ export type Database = {
           guest_id: string
           guests_count: number
           id: string
+          is_monthly: boolean | null
+          monthly_unit_price: number | null
+          months_count: number | null
           payment_method: string | null
           payment_status: string
           property_id: string
@@ -37,6 +40,9 @@ export type Database = {
           guest_id: string
           guests_count?: number
           id?: string
+          is_monthly?: boolean | null
+          monthly_unit_price?: number | null
+          months_count?: number | null
           payment_method?: string | null
           payment_status?: string
           property_id: string
@@ -52,6 +58,9 @@ export type Database = {
           guest_id?: string
           guests_count?: number
           id?: string
+          is_monthly?: boolean | null
+          monthly_unit_price?: number | null
+          months_count?: number | null
           payment_method?: string | null
           payment_status?: string
           property_id?: string
@@ -365,7 +374,13 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      popular_long_stay_cities_senegal: {
+        Row: {
+          bookings_count: number | null
+          city: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       [_ in never]: never
