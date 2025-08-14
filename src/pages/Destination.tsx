@@ -275,10 +275,10 @@ const Destination = () => {
           ) : (
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <div>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
+                <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-6">
                   {properties.map((property) => (
                     <Link to={`/property/${property.id}`} key={property.id}>
-                      <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
+                      <Card className="h-full flex flex-col overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
                         <div className="relative">
                           {property.images && property.images.length > 0 ? (
                             <Gallery
@@ -288,10 +288,9 @@ const Destination = () => {
                               showCounter={false}
                               showArrows={false}
                               loop={false}
-                              className="h-48"
                             />
                           ) : (
-                            <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">
+                            <div className="w-full aspect-[4/3] bg-gray-200 overflow-hidden flex items-center justify-center">
                               <p className="text-muted-foreground">Photo à venir</p>
                             </div>
                           )}
@@ -303,12 +302,12 @@ const Destination = () => {
                           </div>
                         </div>
 
-                        <CardContent className="p-4">
+                        <CardContent className="p-4 flex flex-col gap-3 grow">
                           <div className="flex justify-between items-start mb-2">
-                            <h3 className="font-semibold text-lg leading-tight">{property.title}</h3>
+                            <h3 className="font-semibold text-lg leading-tight line-clamp-2">{property.title}</h3>
                           </div>
 
-                          <p className="text-sm text-muted-foreground mb-3">
+                          <p className="text-sm text-muted-foreground mb-3 line-clamp-1">
                             {property.address}, {property.city}
                           </p>
 
@@ -340,7 +339,7 @@ const Destination = () => {
                             )}
                           </div>
 
-                          <div className="flex justify-between items-center">
+                          <div className="mt-auto pt-2 flex justify-between items-center">
                             <div>
                               <span className="font-bold text-lg tabular-nums">{Number(property.price_per_night).toLocaleString()} FCFA</span>
                               <span className="text-muted-foreground text-sm"> / nuit</span>

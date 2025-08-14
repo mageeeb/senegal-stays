@@ -104,7 +104,7 @@ const Gallery: React.FC<GalleryProps> = ({
         opts={opts}
         className={cn(
           "group",
-          isDetail ? "aspect-[16/9]" : "h-48"
+          isDetail ? "aspect-[16/9]" : "aspect-[4/3]"
         )}
         aria-label={isDetail ? "Galerie d'images du logement" : "Galerie d'images"}
       >
@@ -132,7 +132,7 @@ const Gallery: React.FC<GalleryProps> = ({
                     "w-full h-full object-cover",
                     isDetail ? "rounded-lg" : "rounded-md"
                   )}
-                  loading={idx <= 1 ? "eager" : "lazy"}
+                  loading={isDetail ? (idx <= 1 ? "eager" : "lazy") : "lazy"}
                   decoding="async"
                 />
               )}
