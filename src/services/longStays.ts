@@ -10,5 +10,5 @@ export async function fetchPopularLongStayCitiesSenegal(limit = 8): Promise<Popu
     .limit(limit);
 
   if (error) throw error;
-  return (data as PopularCityRow[]) ?? [];
+  return (data as unknown as PopularCityRow[]) ?? [];
 }

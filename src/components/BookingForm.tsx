@@ -254,7 +254,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
       }
       const { data, error } = await supabase
         .from('bookings')
-        .insert(payload)
+        .insert(payload as any)
         .select()
         .single();
 
