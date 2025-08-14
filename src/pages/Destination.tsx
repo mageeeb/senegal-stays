@@ -9,6 +9,7 @@ import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "luc
 import { supabase } from "@/integrations/supabase/client";
 import { getAmenityIcon } from "@/utils/amenityIcons";
 import { getRegionBySlug, REGION_CITIES, mapLocationToRegion } from "@/utils/regions";
+import Gallery from "@/components/Gallery";
 interface PropertyImage {
   id: string;
   image_url: string;
@@ -280,11 +281,14 @@ const Destination = () => {
                       <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer group">
                         <div className="relative">
                           {property.images && property.images.length > 0 ? (
-                            <img
-                              src={property.images[0].image_url}
-                              alt={property.images[0].alt_text || property.title}
-                              className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-300"
-                              loading="lazy"
+                            <Gallery
+                              images={property.images}
+                              variant="card"
+                              showDots={true}
+                              showCounter={false}
+                              showArrows={false}
+                              loop={false}
+                              className="h-48"
                             />
                           ) : (
                             <div className="w-full h-48 bg-gray-200 group-hover:scale-105 transition-transform duration-300 flex items-center justify-center">

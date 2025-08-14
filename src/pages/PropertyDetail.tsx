@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
-import ImageGallery from "@/components/ImageGallery";
+import Gallery from "@/components/Gallery";
 import InteractiveMap from "@/components/MapCluster";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
@@ -265,7 +265,7 @@ const PropertyDetail = () => {
                         {/* Galerie d'images */}
                         {property.images && property.images.length > 0 && (
                             <div className="mb-8">
-                                <ImageGallery images={property.images} title={property.title} />
+                                <Gallery images={property.images} variant="detail" loop={true} enableZoom={true} showDots={true} showCounter={true} showArrows={true} />
                             </div>
                         )}
 
