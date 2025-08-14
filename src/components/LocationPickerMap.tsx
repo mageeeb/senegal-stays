@@ -7,9 +7,12 @@ interface LocationPickerMapProps {
   value?: { lat: number; lng: number };
   onChange?: (coords: { lat: number; lng: number }) => void;
   className?: string;
+  animate?: boolean;
+  onDragEnd?: (coords: { lat: number; lng: number }) => void;
+  zoom?: number;
 }
 
-const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ value, onChange, className }) => {
+const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ value, onChange, className, animate = true, onDragEnd, zoom = 13 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const mapRef = useRef<mapboxgl.Map | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null);
@@ -44,7 +47,7 @@ const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ value, onChange, 
         container: mapContainer.current,
         style: "mapbox://styles/mapbox/streets-v12",
         center: value ? [value.lng, value.lat] : [-17.4441, 14.6937],
-        zoom: value ? 13 : 10,
+        zoom: value ? zoom : 10,
       });
 
       mapRef.current.addControl(new mapboxgl.NavigationControl({ visualizePitch: true }), "top-right");
@@ -52,15 +55,39 @@ const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ value, onChange, 
       mapRef.current.on("click", (e) => {
         const { lng, lat } = e.lngLat;
         if (!markerRef.current) {
-          markerRef.current = new mapboxgl.Marker({ draggable: true })
+          const el = document.createElement('div');
+          el.style.width = '24px';
+          el.style.height = '24px';
+          el.style.borderRadius = '50%';
+          el.style.background = '#ef4444';
+          el.style.border = '2px solid white';
+          el.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
+          el.style.transformOrigin = 'bottom center';
+          markerRef.current = new mapboxgl.Marker({ draggable: true, element: el })
             .setLngLat([lng, lat])
             .addTo(mapRef.current!);
           markerRef.current.on("dragend", () => {
             const pos = markerRef.current!.getLngLat();
             onChange?.({ lat: pos.lat, lng: pos.lng });
+            onDragEnd?.({ lat: pos.lat, lng: pos.lng });
           });
         } else {
           markerRef.current.setLngLat([lng, lat]);
+        }
+        if (animate && markerRef.current) {
+          try {
+            const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+            if (!prefersReduced) {
+              const el = markerRef.current.getElement();
+              el.style.transition = 'transform 200ms ease, opacity 200ms ease';
+              el.style.transform = 'translateY(-8px) scale(0.9)';
+              el.style.opacity = '0.7';
+              setTimeout(() => {
+                el.style.transform = 'translateY(0) scale(1)';
+                el.style.opacity = '1';
+              }, 0);
+            }
+          } catch {}
         }
         onChange?.({ lat, lng });
       });
@@ -69,17 +96,38 @@ const LocationPickerMap: React.FC<LocationPickerMapProps> = ({ value, onChange, 
     // Initialize or move marker if value changes
     if (value && mapRef.current) {
       if (!markerRef.current) {
-        markerRef.current = new mapboxgl.Marker({ draggable: true })
+        const el = document.createElement('div');
+        el.style.width = '24px';
+        el.style.height = '24px';
+        el.style.borderRadius = '50%';
+        el.style.background = '#ef4444';
+        el.style.border = '2px solid white';
+        el.style.boxShadow = '0 6px 12px rgba(0,0,0,0.2)';
+        el.style.transformOrigin = 'bottom center';
+        markerRef.current = new mapboxgl.Marker({ draggable: true, element: el })
           .setLngLat([value.lng, value.lat])
           .addTo(mapRef.current);
         markerRef.current.on("dragend", () => {
           const pos = markerRef.current!.getLngLat();
           onChange?.({ lat: pos.lat, lng: pos.lng });
+          onDragEnd?.({ lat: pos.lat, lng: pos.lng });
         });
       } else {
         markerRef.current.setLngLat([value.lng, value.lat]);
       }
-      mapRef.current.easeTo({ center: [value.lng, value.lat], zoom: 13, duration: 500 });
+      const prefersReduced = typeof window !== 'undefined' && window.matchMedia ? window.matchMedia('(prefers-reduced-motion: reduce)').matches : false;
+      const duration = animate && !prefersReduced ? 500 : 0;
+      mapRef.current.easeTo({ center: [value.lng, value.lat], zoom, duration });
+      if (animate && markerRef.current && !prefersReduced) {
+        const el = markerRef.current.getElement();
+        el.style.transition = 'transform 200ms ease, opacity 200ms ease';
+        el.style.transform = 'translateY(-8px) scale(0.9)';
+        el.style.opacity = '0.7';
+        setTimeout(() => {
+          el.style.transform = 'translateY(0) scale(1)';
+          el.style.opacity = '1';
+        }, 0);
+      }
     }
 
     return () => {

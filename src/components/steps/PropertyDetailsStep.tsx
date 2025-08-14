@@ -45,9 +45,17 @@ export const PropertyDetailsStep = ({ data, updateData }: PropertyDetailsStepPro
               id="max_guests"
               type="number"
               value={data.max_guests}
-              onChange={(e) => updateData({ max_guests: parseInt(e.target.value) || 1 })}
-              min="1"
+              onChange={(e) => {
+                const parsed = parseInt(e.target.value, 10);
+                updateData({ max_guests: isNaN(parsed) ? 0 : Math.max(0, parsed) });
+              }}
+              onBlur={(e) => {
+                if (e.target.value === "") updateData({ max_guests: 0 });
+              }}
+              min="0"
+              step="1"
               max="20"
+              placeholder="0"
               className="mt-1"
             />
           </div>
@@ -58,9 +66,17 @@ export const PropertyDetailsStep = ({ data, updateData }: PropertyDetailsStepPro
               id="bedrooms"
               type="number"
               value={data.bedrooms}
-              onChange={(e) => updateData({ bedrooms: parseInt(e.target.value) || 0 })}
+              onChange={(e) => {
+                const parsed = parseInt(e.target.value, 10);
+                updateData({ bedrooms: isNaN(parsed) ? 0 : Math.max(0, parsed) });
+              }}
+              onBlur={(e) => {
+                if (e.target.value === "") updateData({ bedrooms: 0 });
+              }}
               min="0"
+              step="1"
               max="10"
+              placeholder="0"
               className="mt-1"
             />
           </div>
@@ -71,9 +87,17 @@ export const PropertyDetailsStep = ({ data, updateData }: PropertyDetailsStepPro
               id="bathrooms"
               type="number"
               value={data.bathrooms}
-              onChange={(e) => updateData({ bathrooms: parseInt(e.target.value) || 1 })}
-              min="1"
+              onChange={(e) => {
+                const parsed = parseInt(e.target.value, 10);
+                updateData({ bathrooms: isNaN(parsed) ? 0 : Math.max(0, parsed) });
+              }}
+              onBlur={(e) => {
+                if (e.target.value === "") updateData({ bathrooms: 0 });
+              }}
+              min="0"
+              step="1"
               max="10"
+              placeholder="0"
               className="mt-1"
             />
           </div>

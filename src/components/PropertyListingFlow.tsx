@@ -74,9 +74,9 @@ export const PropertyListingFlow = ({
     property_type: initialData.property_type || "",
     address: initialData.address || "",
     city: initialData.city || "",
-    max_guests: initialData.max_guests || 1,
-    bedrooms: initialData.bedrooms || 1,
-    bathrooms: initialData.bathrooms || 1,
+    max_guests: typeof initialData.max_guests === 'number' ? Math.max(0, initialData.max_guests) : 0,
+    bedrooms: typeof initialData.bedrooms === 'number' ? Math.max(0, initialData.bedrooms) : 0,
+    bathrooms: typeof initialData.bathrooms === 'number' ? Math.max(0, initialData.bathrooms) : 0,
     amenities: initialData.amenities || [],
     photos: initialData.photos || [],
     price_per_night: initialData.price_per_night || 0,
@@ -97,6 +97,17 @@ export const PropertyListingFlow = ({
   };
 
   const nextStep = () => {
+    // Validate location on step 2
+    if (currentStep === 2) {
+      if (!propertyData.coordinates || typeof propertyData.coordinates.lat !== 'number' || typeof propertyData.coordinates.lng !== 'number') {
+        toast({
+          title: "Localisation manquante",
+          description: "Veuillez renseigner une adresse valide ou placer le point sur la carte",
+          variant: "destructive",
+        });
+        return;
+      }
+    }
     if (currentStep < STEPS.length) {
       setCurrentStep(prev => prev + 1);
     }
@@ -109,8 +120,15 @@ export const PropertyListingFlow = ({
   };
 
   const handleSubmit = async () => {
+    // Clamp non-negative counters to satisfy UI + validation
+    const pd = {
+      ...propertyData,
+      max_guests: Math.max(0, Number(propertyData.max_guests) || 0),
+      bedrooms: Math.max(0, Number(propertyData.bedrooms) || 0),
+      bathrooms: Math.max(0, Number(propertyData.bathrooms) || 0),
+    };
     // Validations
-    if (propertyData.long_term_enabled) {
+    if (pd.long_term_enabled) {
       const errs: string[] = [];
       if (!propertyData.monthly_price || propertyData.monthly_price <= 0) {
         errs.push("Prix mensuel requis et doit être > 0.");
@@ -151,28 +169,28 @@ export const PropertyListingFlow = ({
         const { error } = await supabase
           .from('properties')
           .update({
-            title: propertyData.title,
-            description: propertyData.description,
-            price_per_night: propertyData.price_per_night,
-            address: propertyData.address,
-            city: propertyData.city,
-            property_type: propertyData.property_type,
-            max_guests: propertyData.max_guests,
-            bedrooms: propertyData.bedrooms,
-            bathrooms: propertyData.bathrooms,
-            amenities: propertyData.amenities,
-            latitude: propertyData.coordinates?.lat ?? null,
-            longitude: propertyData.coordinates?.lng ?? null,
-            long_term_enabled: propertyData.long_term_enabled,
-            monthly_price: propertyData.monthly_price ?? null,
-            min_months: propertyData.min_months ?? 1,
-            max_months: propertyData.max_months ?? 12,
-            deposit_amount: propertyData.deposit_amount ?? 0,
-            utilities_included: propertyData.utilities_included ?? false,
-            utilities_notes: propertyData.utilities_notes || null,
-            notice_period_days: propertyData.notice_period_days ?? 30,
-            furnished: propertyData.furnished ?? true,
-            available_from: propertyData.available_from ? propertyData.available_from : null,
+            title: pd.title,
+            description: pd.description,
+            price_per_night: pd.price_per_night,
+            address: pd.address,
+            city: pd.city,
+            property_type: pd.property_type,
+            max_guests: pd.max_guests,
+            bedrooms: pd.bedrooms,
+            bathrooms: pd.bathrooms,
+            amenities: pd.amenities,
+            latitude: pd.coordinates?.lat ?? null,
+            longitude: pd.coordinates?.lng ?? null,
+            long_term_enabled: pd.long_term_enabled,
+            monthly_price: pd.monthly_price ?? null,
+            min_months: pd.min_months ?? 1,
+            max_months: pd.max_months ?? 12,
+            deposit_amount: pd.deposit_amount ?? 0,
+            utilities_included: pd.utilities_included ?? false,
+            utilities_notes: pd.utilities_notes || null,
+            notice_period_days: pd.notice_period_days ?? 30,
+            furnished: pd.furnished ?? true,
+            available_from: pd.available_from ? pd.available_from : null,
           })
           .eq('id', propertyId);
 
@@ -213,29 +231,29 @@ export const PropertyListingFlow = ({
         const { data: property, error } = await supabase
           .from('properties')
           .insert({
-            title: propertyData.title,
-            description: propertyData.description,
-            price_per_night: propertyData.price_per_night,
-            address: propertyData.address,
-            city: propertyData.city,
-            property_type: propertyData.property_type,
-            max_guests: propertyData.max_guests,
-            bedrooms: propertyData.bedrooms,
-            bathrooms: propertyData.bathrooms,
-            amenities: propertyData.amenities,
+            title: pd.title,
+            description: pd.description,
+            price_per_night: pd.price_per_night,
+            address: pd.address,
+            city: pd.city,
+            property_type: pd.property_type,
+            max_guests: pd.max_guests,
+            bedrooms: pd.bedrooms,
+            bathrooms: pd.bathrooms,
+            amenities: pd.amenities,
             host_id: user.id,
-            latitude: propertyData.coordinates?.lat ?? null,
-            longitude: propertyData.coordinates?.lng ?? null,
-            long_term_enabled: propertyData.long_term_enabled,
-            monthly_price: propertyData.monthly_price ?? null,
-            min_months: propertyData.min_months ?? 1,
-            max_months: propertyData.max_months ?? 12,
-            deposit_amount: propertyData.deposit_amount ?? 0,
-            utilities_included: propertyData.utilities_included ?? false,
-            utilities_notes: propertyData.utilities_notes || null,
-            notice_period_days: propertyData.notice_period_days ?? 30,
-            furnished: propertyData.furnished ?? true,
-            available_from: propertyData.available_from ? propertyData.available_from : null,
+            latitude: pd.coordinates?.lat ?? null,
+            longitude: pd.coordinates?.lng ?? null,
+            long_term_enabled: pd.long_term_enabled,
+            monthly_price: pd.monthly_price ?? null,
+            min_months: pd.min_months ?? 1,
+            max_months: pd.max_months ?? 12,
+            deposit_amount: pd.deposit_amount ?? 0,
+            utilities_included: pd.utilities_included ?? false,
+            utilities_notes: pd.utilities_notes || null,
+            notice_period_days: pd.notice_period_days ?? 30,
+            furnished: pd.furnished ?? true,
+            available_from: pd.available_from ? pd.available_from : null,
           })
           .select()
           .single();
