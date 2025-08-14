@@ -39,7 +39,7 @@ const Header = () => {
   };
 
   return (
-    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className="hidden lg:block border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         <Link to="/" className="flex items-center space-x-2">
           <img src="/lovable-uploads/c3f179a3-8194-49b7-b5b5-71ec36a3e68c.png" alt="Teranga Home" className="h-8 w-8" />
