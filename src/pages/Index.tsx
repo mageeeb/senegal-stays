@@ -1,16 +1,59 @@
-import { Search, MapPin, Star, Users } from "lucide-react";
+import { Search, MapPin, Star, Users, Tag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Skeleton } from "@/components/ui/skeleton";
 import Header from "@/components/layout/Header";
 import { useAuth } from "@/hooks/useAuth";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
+import { REGIONS, SHOW_EMPTY_REGIONS, mapLocationToRegion, RegionSlug } from "@/utils/regions";
 
 const Index = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [searchLocation, setSearchLocation] = useState("");
+  const [loadingRegions, setLoadingRegions] = useState(true);
+  const [regionCounts, setRegionCounts] = useState<Record<RegionSlug, number>>({
+    'dakar': 0,
+    'saint-louis': 0,
+    'saly': 0,
+    'casamance': 0,
+    'sine-saloum': 0,
+    'goree': 0,
+    'lompoul': 0,
+    'thies': 0,
+  });
+
+  useEffect(() => {
+    const loadCounts = async () => {
+      try {
+        setLoadingRegions(true);
+        const { data, error } = await supabase
+          .from('properties')
+          .select('id, city, address')
+          .eq('is_active', true)
+          .or('long_term_enabled.is.null,long_term_enabled.eq.false');
+        if (error) throw error;
+        const base: Record<RegionSlug, number> = REGIONS.reduce((acc, r) => {
+          acc[r.slug] = 0;
+          return acc;
+        }, {} as Record<RegionSlug, number>);
+        for (const p of data || []) {
+          const region = mapLocationToRegion(p.city as string | undefined, p.address as string | undefined);
+          if (region) base[region]++;
+        }
+        setRegionCounts(base);
+      } catch (e) {
+        console.error('Erreur chargement des régions:', e);
+      } finally {
+        setLoadingRegions(false);
+      }
+    };
+    loadCounts();
+  }, []);
   
   const handleSearch = () => {
     if (searchLocation.trim()) {
@@ -73,158 +116,61 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Popular Destinations */}
+      {/* Régions */}
       <section className="py-16 px-4">
         <div className="container mx-auto">
-          <h2 className="text-3xl font-bold text-center mb-12">Destinations populaires</h2>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Dakar */}
-            <div>
-              <h3 className="text-xl font-semibold mb-4 text-center">Dakar</h3>
-              <div className="space-y-4">
-                {[
-                  { 
-                    name: 'Plateau', 
-                    description: 'Centre-ville historique', 
-                    rating: '4.9', 
-                    properties: '45',
-                    image: '/img/destPop/5.jpg'
-                  },
-                  { 
-                    name: 'Sine-Saloum',
-                    description: 'Quartier résidentiel chic', 
-                    rating: '4.8', 
-                    properties: '32',
-                    image: '/img/destPop/9.jpg'
-                  },
-                  { 
-                    name: 'Ngor', 
-                    description: 'Village de pêcheurs authentique', 
-                    rating: '4.7', 
-                    properties: '28',
-                    image: '/img/destPop/10.jpg'
-                  }
-                ].map((area) => (
-                  <Link key={area.name} to={`/destination/${area.name.toLowerCase()}`}>
-                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
-                      <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${area.image})` }}>
-                        <div className="absolute inset-0 bg-black/20"></div>
-                      </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold">{area.name}</h4>
-                        <p className="text-sm text-muted-foreground">{area.description}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center">
-                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                            <span className="ml-1 text-xs">{area.rating}</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">{area.properties} logements</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+          <h2 className="text-3xl font-bold text-center mb-12">Explorer par régions</h2>
+          {loadingRegions ? (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {Array.from({ length: 8 }).map((_, i) => (
+                <Card key={i} className="overflow-hidden">
+                  <Skeleton className="h-40 w-full" />
+                  <CardContent className="p-4 space-y-3">
+                    <Skeleton className="h-5 w-2/3" />
+                    <div className="flex gap-2">
+                      <Skeleton className="h-5 w-12" />
+                      <Skeleton className="h-5 w-16" />
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
             </div>
-
-            {/* Saint-Louis */}
-            <div>
-              <h3 className="text-xl font-semibold mb-4 text-center">Saint-Louis</h3>
-              <div className="space-y-4">
-                {[
-                  { 
-                    name: 'Île de Saint-Louis', 
-                    description: 'Centre historique UNESCO', 
-                    rating: '4.9', 
-                    properties: '22',
-                    image: '/img/destPop/6.jpg'
-                  },
-                  { 
-                    name: 'Lac Rose',
-                    description: 'Quartier traditionnel', 
-                    rating: '4.6', 
-                    properties: '18',
-                    image: '/img/destPop/13.jpg'
-                  },
-                  { 
-                    name: 'Cap Skirring',
-                    description: 'Plage et nature', 
-                    rating: '4.8', 
-                    properties: '15',
-                    image: '/img/destPop/14.jpg'
-                  }
-                ].map((area) => (
-                  <Link key={area.name} to={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
-                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
-                      <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${area.image})` }}>
-                        <div className="absolute inset-0 bg-black/20"></div>
+          ) : (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+              {REGIONS.filter(r => SHOW_EMPTY_REGIONS || regionCounts[r.slug] > 0).map((region) => (
+                <Link key={region.slug} to={`/destination/${region.slug}`} aria-label={`Voir les logements en ${region.name}`}>
+                  <Card
+                    className="group relative overflow-hidden border-0 rounded-xl shadow-sm bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60 transition-transform duration-200 will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98]"
+                  >
+                    <div className="relative h-40">
+                      <img
+                        src={region.image}
+                        alt={region.name}
+                        loading="lazy"
+                        className="h-full w-full object-cover transform-gpu transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
+                      />
+                      <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-200" />
+                      <div className="absolute top-3 left-3 flex gap-2">
+                        {region.tags.slice(0, 2).map(tag => (
+                          <Badge key={tag} variant="secondary" className="bg-white/80 text-black shadow-sm">
+                            <Tag className="h-3 w-3 mr-1" />{tag}
+                          </Badge>
+                        ))}
                       </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold">{area.name}</h4>
-                        <p className="text-sm text-muted-foreground">{area.description}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center">
-                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                            <span className="ml-1 text-xs">{area.rating}</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">{area.properties} logements</span>
+                      <div className="absolute bottom-3 left-3 right-3 text-white drop-shadow">
+                        <div className="flex items-center justify-between">
+                          <h3 className="text-lg font-semibold text-white inline-block bg-black/60 supports-[backdrop-filter]:bg-black/50 backdrop-blur-sm rounded-full px-3 py-1.5 shadow-md ring-1 ring-white/10">{region.name}</h3>
+                          <span className="text-sm bg-black/60 supports-[backdrop-filter]:bg-black/50 backdrop-blur-sm rounded-full px-3 py-1 ring-1 ring-white/10">
+                            {regionCounts[region.slug]} logements
+                          </span>
                         </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* Saly */}
-            <div>
-              <h3 className="text-xl font-semibold mb-4 text-center">Saly</h3>
-              <div className="space-y-4">
-                {[
-                  { 
-                    name: 'Saly Portudal', 
-                    description: 'Front de mer touristique', 
-                    rating: '4.8', 
-                    properties: '38',
-                    image: '/img/destPop/3.jpg'
-                  },
-                  { 
-                    name: 'Gorée',
-                    description: 'île authentique',
-                    rating: '4.7', 
-                    properties: '25',
-                    image: '/img/destPop/7.jpg'
-                  },
-                  { 
-                    name: 'Desert de Lompoul',
-                    description: 'Plages paradisiaques', 
-                    rating: '4.9', 
-                    properties: '30',
-                    image: '/img/destPop/4.jpg'
-                  }
-                ].map((area) => (
-                  <Link key={area.name} to={`/destination/${area.name.toLowerCase().replace(/\s+/g, '-')}`}>
-                    <Card className="overflow-hidden hover:shadow-lg transition-all duration-300 cursor-pointer hover:scale-105">
-                      <div className="h-32 bg-cover bg-center relative" style={{ backgroundImage: `url(${area.image})` }}>
-                        <div className="absolute inset-0 bg-black/20"></div>
                       </div>
-                      <CardContent className="p-4">
-                        <h4 className="font-semibold">{area.name}</h4>
-                        <p className="text-sm text-muted-foreground">{area.description}</p>
-                        <div className="flex items-center justify-between mt-2">
-                          <div className="flex items-center">
-                            <Star className="h-3 w-3 text-yellow-400 fill-current" />
-                            <span className="ml-1 text-xs">{area.rating}</span>
-                          </div>
-                          <span className="text-xs text-muted-foreground">{area.properties} logements</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  </Link>
-                ))}
-              </div>
+                    </div>
+                  </Card>
+                </Link>
+              ))}
             </div>
-          </div>
+          )}
         </div>
       </section>
 

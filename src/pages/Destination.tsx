@@ -4,10 +4,11 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Header from "@/components/layout/Header";
-import InteractiveMap from "@/components/Map";
+import InteractiveMap from "@/components/MapCluster";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { getAmenityIcon } from "@/utils/amenityIcons";
+import { getRegionBySlug, REGION_CITIES, mapLocationToRegion } from "@/utils/regions";
 interface PropertyImage {
   id: string;
   image_url: string;
@@ -49,6 +50,7 @@ const Destination = () => {
     try {
       setLoading(true);
       const areaInfo = getAreaInfo(area || '');
+      const region = getRegionBySlug(area || '');
       
       // Recherche par ville ou région selon la destination
       let query = supabase
@@ -66,8 +68,13 @@ const Destination = () => {
         .eq('is_active', true)
         .or('long_term_enabled.is.null,long_term_enabled.eq.false');
 
-      // Filtrer par ville selon la destination
-      if (areaInfo.city) {
+      if (region) {
+        const cities = REGION_CITIES[region.slug];
+        if (cities?.length) {
+          query = query.in('city', cities);
+        }
+      } else if (areaInfo.city) {
+        // Filtrer par ville selon la destination
         query = query.eq('city', areaInfo.city);
       }
 
@@ -78,11 +85,18 @@ const Destination = () => {
         return;
       }
 
+      let list = data || [];
+
+      // Si c'est une région mais qu'on n'a pas pu filtrer précisément côté base (variantes), filtrer côté client
+      if (region) {
+        list = list.filter((p: any) => mapLocationToRegion(p.city, p.address) === region.slug);
+      }
+
       // Trier les images par sort_order pour chaque propriété
-      const propertiesWithSortedImages = data?.map(property => ({
+      const propertiesWithSortedImages = list.map((property: any) => ({
         ...property,
         images: property.property_images?.sort((a: PropertyImage, b: PropertyImage) => a.sort_order - b.sort_order) || []
-      })) || [];
+      }));
 
       setProperties(propertiesWithSortedImages);
     } catch (error) {
@@ -93,7 +107,28 @@ const Destination = () => {
   };
 
   const getAreaInfo = (areaSlug: string) => {
-    const areaMap: Record<string, any> = {
+    // Si c'est une région (nos 8 blocs), utiliser la config région
+    const region = getRegionBySlug(areaSlug);
+    if (region) {
+      const descriptions: Record<string, string> = {
+        'dakar': 'Capitale dynamique du Sénégal, entre patrimoine et modernité',
+        'saint-louis': 'Ville historique classée UNESCO au bord du fleuve Sénégal',
+        'saly': 'Station balnéaire de la Petite Côte, idéale pour se détendre',
+        'casamance': 'Région luxuriante au sud, plages et nature préservée',
+        'sine-saloum': 'Delta et mangroves, terres d\'eau et d\'oiseaux',
+        'goree': 'Île mémoire, patrimoine et charme authentique',
+        'lompoul': 'Dunes orangées et bivouacs au désert de Lompoul',
+        'thies': 'Petite Côte et villages côtiers, entre nature et culture',
+      };
+      return {
+        name: region.name,
+        description: descriptions[region.slug] || region.name,
+        image: region.image,
+        regionSlug: region.slug,
+      };
+    }
+
+    const areaMap = {
       'plateau': {
         name: 'Dakar-Capitale',
         city: 'Dakar',
@@ -124,34 +159,27 @@ const Destination = () => {
         description: 'Station balnéaire avec plages de sable fin',
         image: '/img/destPop/17.jpg'
       },
-      'dakar': {
-        name: 'Dakar',
-        city: 'Dakar',
-        description: 'Capitale dynamique du Sénégal',
-        image: '/img/destPop/15.jpg'
+      'desert-de-lompoul': {
+        name: 'Désert de Lompoul',
+        city: 'Lompoul',
+        description: 'Unique désert de sable du Sénégal avec ses dunes orangées',
+        image: '/img/destPop/4.jpg'
       },
-        // Ajout des nouvelles destinations
-        'desert-de-lompoul': {
-            name: 'Désert de Lompoul',
-            city: 'Lompoul',
-            description: 'Unique désert de sable du Sénégal avec ses dunes orangées',
-            image: '/img/destPop/4.jpg'
-        },
-        'goree': {
-            name: 'Île de Gorée',
-            city: 'Dakar',
-            description: 'Île historique marquée par son passé lié à la traite négrière',
-            image: '/img/destPop/19.jpg'
-        },
-        'cap-skirring': {
-            name: 'Cap Skirring',
-            city: 'Casamance',
-            description: 'Station balnéaire paradisiaque au sud du Sénégal',
-            image: '/img/destPop/17.jpg'
-        }
-    };
+      'goree': {
+        name: 'Île de Gorée',
+        city: 'Dakar',
+        description: 'Île historique marquée par son passé lié à la traite négrière',
+        image: '/img/destPop/19.jpg'
+      },
+      'cap-skirring': {
+        name: 'Cap Skirring',
+        city: 'Casamance',
+        description: 'Station balnéaire paradisiaque au sud du Sénégal',
+        image: '/img/destPop/17.jpg'
+      }
+    } as const;
     
-    return areaMap[areaSlug || ''] || {
+    return (areaMap as any)[areaSlug || ''] || {
       name: 'Lac Rose',
       city: 'Sénégal',
       description: 'Découvrez cette magnifique destination',
@@ -175,24 +203,6 @@ const Destination = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      
-      {/* Hero Section */}
-      {/*<section className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url(${areaInfo.image})` }}>*/}
-      {/*  <div className="absolute inset-0 bg-black/40"></div>*/}
-      {/*  <div className="relative container mx-auto px-4 h-full flex items-center">*/}
-      {/*    <div className="text-white">*/}
-      {/*      <Button variant="ghost" size="sm" className="text-white hover:bg-white/20 mb-4" asChild>*/}
-      {/*        <Link to="/">*/}
-      {/*          <ArrowLeft className="h-4 w-4 mr-2" />*/}
-      {/*          Retour*/}
-      {/*        </Link>*/}
-      {/*      </Button>*/}
-      {/*      <h1 className="text-4xl font-bold mb-2">{areaInfo.name}</h1>*/}
-      {/*      <p className="text-xl opacity-90">{areaInfo.description}</p>*/}
-      {/*    </div>*/}
-      {/*  </div>*/}
-      {/*</section>*/}
-        {/* Hero Section */}
         <section
             className="relative h-[500px] bg-cover bg-center bg-no-repeat"
             style={{
@@ -203,17 +213,6 @@ const Destination = () => {
             <div className="absolute inset-0 bg-gradient-to-b from-black/60 to-black/30"></div>
             <div className="relative container mx-auto px-4 h-full flex flex-col justify-end pb-12">
                 <div className="text-white max-w-3xl">
-                    {/*<Button*/}
-                    {/*    variant="outline"*/}
-                    {/*    size="sm"*/}
-                    {/*    className="text-white border-white/20 hover:bg-white/20 mb-6 backdrop-blur-sm"*/}
-                    {/*    asChild*/}
-                    {/*>*/}
-                    {/*    <Link to="/">*/}
-                    {/*        <ArrowLeft className="h-4 w-4 mr-2" />*/}
-                    {/*        Retour*/}
-                    {/*    </Link>*/}
-                    {/*</Button>*/}
                     <Button
                         variant="secondary"
                         size="sm"
@@ -225,7 +224,7 @@ const Destination = () => {
                             Retour
                         </Link>
                     </Button>
-                    <h1 className="text-5xl font-bold mb-4 drop-shadow-lg">
+                    <h1 className="text-5xl font-bold mb-4 drop-shadow-lg text-white">
                         {areaInfo.name}
                     </h1>
                     <p className="text-xl opacity-90 drop-shadow-md">

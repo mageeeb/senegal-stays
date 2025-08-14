@@ -11,7 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { BookingForm } from "@/components/BookingForm";
 import ImageGallery from "@/components/ImageGallery";
-import InteractiveMap from "@/components/Map";
+import InteractiveMap from "@/components/MapCluster";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { getAmenityIcon } from "@/utils/amenityIcons";
