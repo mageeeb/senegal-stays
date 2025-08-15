@@ -111,7 +111,7 @@ const LongStays = () => {
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="flex flex-col items-center text-center gap-4">
               <img
-                src="/lovable-uploads/c3f179a3-8194-49b7-b5b5-71ec36a3e68c.png"
+                src="/favicon.ico"
                 alt="Logo - séjours longue durée"
                 className="h-12 md:h-16 object-contain"
                 loading="lazy"

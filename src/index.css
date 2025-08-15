@@ -139,3 +139,10 @@ All colors MUST be HSL.
     @apply text-sm md:text-base font-medium;
   }
 }
+
+/* Hide any leftover legacy upload images (temporary until assets are replaced) */
+@layer base {
+  img[src^="/lovable-uploads/"] {
+    display: none !important;
+  }
+}

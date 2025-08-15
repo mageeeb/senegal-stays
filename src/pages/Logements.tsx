@@ -101,7 +101,7 @@ const Logements = () => {
           <div className="container mx-auto px-4 py-8 md:py-12">
             <div className="flex flex-col items-center text-center gap-4">
               <img
-                src="/lovable-uploads/6b7b0a3b-a0e4-4c6c-9d9d-2a8a2cb9a5b2.png"
+                src="/favicon.ico"
                 alt="Logo - logements"
                 className="h-12 md:h-16 object-contain"
                 loading="lazy"
