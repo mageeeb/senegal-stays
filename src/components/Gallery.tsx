@@ -312,13 +312,13 @@ function ZoomableImage({ src, alt, className }: { src?: string; alt?: string | n
     lastTap.current = now;
   };
 
-  const distance = (t1: Touch, t2: Touch) => {
+  const distance = (t1: React.Touch, t2: React.Touch) => {
     const dx = t1.clientX - t2.clientX;
     const dy = t1.clientY - t2.clientY;
     return Math.hypot(dx, dy);
   };
 
-  const center = (t1: Touch, t2: Touch) => ({ x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 });
+  const center = (t1: React.Touch, t2: React.Touch) => ({ x: (t1.clientX + t2.clientX) / 2, y: (t1.clientY + t2.clientY) / 2 });
 
   const onTouchStart = (e: React.TouchEvent) => {
     if (e.touches.length === 2) {

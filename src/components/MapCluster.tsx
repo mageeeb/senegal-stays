@@ -141,7 +141,7 @@ const InteractiveMap: React.FC<{
         clusterMaxZoom: 14,
         clusterRadius: 50,
         generateId: true,
-      } as mapboxgl.GeoJSONSourceRaw);
+      });
 
       map.addLayer({
         id: clustersLayerId,
