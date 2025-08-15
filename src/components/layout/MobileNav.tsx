@@ -1,5 +1,5 @@
 import { NavLink } from "react-router-dom";
-import { Home, Building2, CalendarRange, User, Plus } from "lucide-react";
+import { Home, Building2, CalendarRange, User, Plus, Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 
 // Mobile bottom navigation bar (shows only on small screens)
@@ -19,11 +19,17 @@ const MobileNav = () => {
       aria-label="Navigation principale mobile"
     >
       <div className="mx-auto max-w-screen-md">
-        <ul className="grid grid-cols-4 items-center">
+        <ul className="grid grid-cols-5 items-center">
           <li>
             <NavLink to="/" end className={navItemCls} aria-label="Accueil">
               <Home className="h-5 w-5" />
               <span>Accueil</span>
+            </NavLink>
+          </li>
+          <li>
+            <NavLink to="/properties" className={navItemCls} aria-label="Logements">
+              <Building2 className="h-5 w-5" />
+              <span>Logements</span>
             </NavLink>
           </li>
           <li>
@@ -33,9 +39,9 @@ const MobileNav = () => {
             </NavLink>
           </li>
           <li>
-            <NavLink to="/properties" className={navItemCls} aria-label="Logements">
-              <Building2 className="h-5 w-5" />
-              <span>Logements</span>
+            <NavLink to="/vehicles" className={navItemCls} aria-label="Véhicules">
+              <Car className="h-5 w-5" />
+              <span>Véhicules</span>
             </NavLink>
           </li>
           <li>

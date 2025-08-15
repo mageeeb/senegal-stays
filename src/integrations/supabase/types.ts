@@ -372,6 +372,134 @@ export type Database = {
           },
         ]
       }
+      vehicle_bookings: {
+        Row: {
+          additional_drivers: number | null
+          created_at: string
+          driver_license_number: string | null
+          id: string
+          insurance_type: string | null
+          pickup_date: string
+          pickup_location: string
+          return_date: string
+          return_location: string
+          special_requests: string | null
+          status: string
+          total_days: number
+          total_price: number
+          updated_at: string
+          user_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          additional_drivers?: number | null
+          created_at?: string
+          driver_license_number?: string | null
+          id?: string
+          insurance_type?: string | null
+          pickup_date: string
+          pickup_location: string
+          return_date: string
+          return_location: string
+          special_requests?: string | null
+          status?: string
+          total_days: number
+          total_price: number
+          updated_at?: string
+          user_id: string
+          vehicle_id: string
+        }
+        Update: {
+          additional_drivers?: number | null
+          created_at?: string
+          driver_license_number?: string | null
+          id?: string
+          insurance_type?: string | null
+          pickup_date?: string
+          pickup_location?: string
+          return_date?: string
+          return_location?: string
+          special_requests?: string | null
+          status?: string
+          total_days?: number
+          total_price?: number
+          updated_at?: string
+          user_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_bookings_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      vehicles: {
+        Row: {
+          brand: string
+          category: string
+          created_at: string
+          description: string | null
+          doors: number
+          features: string[] | null
+          fuel_type: string
+          id: string
+          image_url: string | null
+          is_available: boolean
+          location: string
+          model: string
+          name: string
+          price_per_day: number
+          seats: number
+          transmission: string
+          updated_at: string
+          year: number
+        }
+        Insert: {
+          brand: string
+          category: string
+          created_at?: string
+          description?: string | null
+          doors?: number
+          features?: string[] | null
+          fuel_type?: string
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          location: string
+          model: string
+          name: string
+          price_per_day: number
+          seats?: number
+          transmission?: string
+          updated_at?: string
+          year: number
+        }
+        Update: {
+          brand?: string
+          category?: string
+          created_at?: string
+          description?: string | null
+          doors?: number
+          features?: string[] | null
+          fuel_type?: string
+          id?: string
+          image_url?: string | null
+          is_available?: boolean
+          location?: string
+          model?: string
+          name?: string
+          price_per_day?: number
+          seats?: number
+          transmission?: string
+          updated_at?: string
+          year?: number
+        }
+        Relationships: []
+      }
     }
     Views: {
       popular_long_stay_cities_senegal: {
