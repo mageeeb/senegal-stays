@@ -9,6 +9,7 @@ import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import Host from "./pages/Host";
 import AddProperty from "./pages/AddProperty";
+import AddVehicle from "./pages/AddVehicle";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
 import EditProperty from "./pages/EditProperty";
@@ -39,6 +40,14 @@ const App = () => (
                 element={
                   <ProtectedRoute>
                     <AddProperty />
+                  </ProtectedRoute>
+                } 
+              />
+              <Route 
+                path="/add-vehicle" 
+                element={
+                  <ProtectedRoute>
+                    <AddVehicle />
                   </ProtectedRoute>
                 } 
               />

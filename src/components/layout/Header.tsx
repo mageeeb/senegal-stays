@@ -68,12 +68,20 @@ const Header = () => {
         <div className="flex items-center space-x-4">
           {user ? (
             <>
-              <Button variant="outline" size="sm" className="hidden sm:flex" asChild>
-                <Link to="/add-property">
-                  <Plus className="h-4 w-4 mr-2" />
-                  Ajouter un logement
-                </Link>
-              </Button>
+              <div className="hidden sm:flex items-center space-x-2">
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/add-property">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Ajouter un logement
+                  </Link>
+                </Button>
+                <Button variant="outline" size="sm" asChild>
+                  <Link to="/add-vehicle">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Ajouter un véhicule
+                  </Link>
+                </Button>
+              </div>
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
