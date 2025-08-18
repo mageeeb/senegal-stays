@@ -289,10 +289,10 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
 
   return (
     <section id="reviews-section" className="mb-12 pb-8 border-b" aria-label="Commentaires">
-      <div className="flex items-center justify-between gap-2 mb-4">
-        <div className="flex items-center gap-2">
-          <Star className="h-6 w-6 text-yellow-400 fill-current" />
-          <span className="text-2xl font-semibold">
+      <div className="flex flex-wrap items-start md:items-center justify-between gap-2 mb-4">
+        <div className="flex items-center gap-2 min-w-0 flex-1">
+          <Star className="h-6 w-6 text-yellow-400 fill-current shrink-0" />
+          <span className="text-2xl font-semibold break-words whitespace-normal leading-snug">
             {summaryLoading ? (
               '…'
             ) : (
@@ -303,8 +303,9 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
             )}
           </span>
         </div>
-        <div className="flex items-center gap-2">
+        <div className="flex flex-wrap gap-2 w-full md:w-auto justify-start md:justify-end">
           <Button
+            className="min-h-11 h-auto whitespace-normal break-words text-sm px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
             variant="outline"
             onClick={handleToggle}
             aria-expanded={open}
@@ -317,6 +318,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
             <TooltipTrigger asChild>
               <span>
                 <Button
+                  className="min-h-11 h-auto whitespace-normal break-words text-sm px-3 py-2 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2"
                   onClick={handleAddClick}
                   disabled={(eligible === false && !user) || alreadyReviewed || (eligible === false && !!ineligibleReason) || eligibilityLoading}
                   aria-disabled={(eligible === false && !!ineligibleReason) || alreadyReviewed}
