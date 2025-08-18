@@ -16,8 +16,10 @@ import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
 import { getAmenityIcon } from "@/utils/amenityIcons";
 import CommentsSection from "@/components/CommentsSection";
+import { useReviewsSummary } from "@/hooks/useReviewsSummary";
 import { useAuth } from "@/hooks/useAuth";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
+import MetaBar from "@/components/MetaBar";
 
 interface PropertyImage {
   id: string;
@@ -69,6 +71,7 @@ const PropertyDetail = () => {
   const { id } = useParams();
   const { user } = useAuth();
   const [property, setProperty] = useState<Property | null>(null);
+  const { data: summary, loading: summaryLoading } = useReviewsSummary(id);
   const [host, setHost] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
@@ -255,13 +258,33 @@ const PropertyDetail = () => {
 
                 {/* Titre principal et informations */}
                 <div className="mb-8">
-                    <h1 className="text-3xl font-semibold mb-4">{property.title}</h1>
-                    <div className="flex items-center justify-between flex-wrap gap-4 mb-6">
+                    {/* Mobile MetaBar */}
+                    <h1 className="text-2xl md:text-3xl font-semibold mb-2">{property.title}</h1>
+                    <MetaBar
+                      className="md:hidden mb-4"
+                      ratingText={summaryLoading ? '…' : (summary?.avg != null ? Number(summary.avg).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—')}
+                      commentsCount={summary?.count ?? 0}
+                      address={property.address}
+                      city={property.city}
+                      maxGuests={property.max_guests}
+                      bedrooms={property.bedrooms}
+                      bathrooms={property.bathrooms}
+                      onCommentsClick={() => {
+                        const el = document.getElementById('reviews-section');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                      onLocationClick={() => {
+                        const el = document.getElementById('location-section');
+                        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                      }}
+                    />
+                    {/* Desktop/Tablet meta row (hidden on mobile) */}
+                    <div className="hidden md:flex items-center justify-between flex-wrap gap-4 mb-6">
                         <div className="flex items-center gap-6 text-sm">
                             <div className="flex items-center gap-1">
                                 <Star className="h-4 w-4 text-yellow-400 fill-current" />
-                                <span className="font-medium">4,5</span>
-                                <span className="text-muted-foreground">• 12 commentaires</span>
+                                <span className="font-medium">{summaryLoading ? '…' : (summary?.avg != null ? Number(summary.avg).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—')}</span>
+                                <span className="text-muted-foreground">• {(summary?.count ?? 0)} commentaire{(summary?.count ?? 0) >= 2 ? 's' : ''}</span>
                             </div>
                             <div className="flex items-center gap-1 text-muted-foreground">
                                 <MapPin className="h-4 w-4" />
@@ -299,7 +322,7 @@ const PropertyDetail = () => {
                                     <h2 className="text-2xl font-semibold mb-2">
                                         {property.property_type} entier hébergé par {host?.first_name || 'Hôte'}
                                     </h2>
-                                    <div className="flex items-center gap-2 text-muted-foreground">
+                                    <div className="hidden md:flex items-center gap-2 text-muted-foreground">
                                         <span>{property.max_guests} voyageurs</span>
                                         <span>•</span>
                                         <span>{property.bedrooms} chambres</span>
@@ -508,7 +531,7 @@ const PropertyDetail = () => {
                 <CommentsSection propertyId={property.id} />
 
                 {/* Section Localisation */}
-                <div className="mb-12 pb-8 border-b">
+                <div className="mb-12 pb-8 border-b" id="location-section">
                     <h3 className="text-2xl font-semibold mb-6">Où vous dormirez</h3>
                     <div className="h-96 rounded-lg overflow-hidden">
                         <InteractiveMap

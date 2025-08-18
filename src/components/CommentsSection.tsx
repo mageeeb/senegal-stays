@@ -4,6 +4,8 @@ import { Star, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Tables } from '@/integrations/supabase/types';
 import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { useReviewsSummary, formatAvgFr, pluralizeCommentaires, invalidateReviewsSummary } from '@/hooks/useReviewsSummary';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -23,7 +25,7 @@ const PAGE_SIZE = 10;
 
 function formatReviewDate(iso: string): string {
   try {
-    return format(new Date(iso), 'MMM yyyy');
+    return format(new Date(iso), 'MMM yyyy', { locale: fr });
   } catch {
     return iso?.slice(0, 10);
   }
@@ -40,7 +42,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
   const firstLoadDoneRef = useRef(false);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  const showPagination = useMemo(() => (total ?? 0) > 50, [total]);
+  const showPagination = useMemo(() => (total ?? 0) > PAGE_SIZE, [total]);
 
   // Auth & navigation
   const { user } = useAuth();
@@ -67,18 +69,10 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
     setError(null);
 
     try {
-      // Determine limit for initial load: fetch all if <= 50, else first PAGE_SIZE
-      let rangeFrom = 0;
-      let rangeTo = PAGE_SIZE - 1;
-
-      if (total != null) {
-        if (total <= 50) {
-          rangeTo = Math.max(0, total - 1);
-        } else {
-          rangeFrom = (opts?.append ? (page + 1) : 0) * PAGE_SIZE;
-          rangeTo = rangeFrom + PAGE_SIZE - 1;
-        }
-      }
+      // Always paginate with PAGE_SIZE = 10
+      const nextPage = opts?.append ? page + 1 : 0;
+      const rangeFrom = nextPage * PAGE_SIZE;
+      const rangeTo = rangeFrom + PAGE_SIZE - 1;
 
       const query = supabase
         .from('reviews')
@@ -104,13 +98,9 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
 
       const totalCount = total ?? count ?? 0;
       const loadedCount = (opts?.append ? (reviews.length + rows.length) : rows.length);
-      const more = totalCount > loadedCount && totalCount > 50; // only paginate if > 50
+      const more = totalCount > loadedCount; // paginate if there are more than loaded
       setHasMore(more);
-      if (opts?.append) {
-        setPage(p => p + 1);
-      } else {
-        setPage(0);
-      }
+      setPage(nextPage);
     } catch (e: unknown) {
       const message = e instanceof Error ? e.message : 'Erreur inconnue';
       setError(message);
@@ -235,7 +225,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
     try {
       // Optimistic update
       const optimistic: ReviewRow = {
-        id: `optimistic-${Date.now()}` as unknown as any,
+        id: (`optimistic-${Date.now()}` as unknown) as string,
         rating: Number(rating),
         comment: comment || null,
         created_at: new Date().toISOString(),
@@ -264,15 +254,18 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
 
       // Revalidate list to get server-side data (and reviewer name)
       await fetchReviews();
+      // Invalidate and refetch summary cache for count/avg
+      invalidateReviewsSummary(propertyId);
+      await refetchSummary();
 
       // After success, eligibility should now mark as already reviewed
       setAlreadyReviewed(true);
       setEligible(false);
       setIneligibleReason('Vous avez déjà laissé un avis pour ce séjour.');
-    } catch (e: any) {
+    } catch (e: unknown) {
       // Rollback optimistic update by refetching
       await fetchReviews();
-      const msg = e?.message || '';
+      const msg = e instanceof Error ? e.message : '';
       if (/policy|rls/i.test(msg)) {
         setFormError("Vous n'êtes pas autorisé à laisser un avis pour ce logement.");
       } else {
@@ -283,11 +276,16 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
     }
   };
 
+  // Summary hook (count + average) with client-side cache
+  const { data: summary, loading: summaryLoading, error: summaryError, refetch: refetchSummary } = useReviewsSummary(propertyId);
+
   const averageRating = useMemo(() => {
+    // Use global average from summary if available; fallback to local slice average
+    if (summary?.avg != null) return summary.avg;
     if (!reviews.length) return null;
     const sum = reviews.reduce((acc, r) => acc + (r.rating || 0), 0);
     return Math.round((sum / reviews.length) * 10) / 10;
-  }, [reviews]);
+  }, [reviews, summary]);
 
   return (
     <section id="reviews-section" className="mb-12 pb-8 border-b" aria-label="Commentaires">
@@ -295,8 +293,14 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
         <div className="flex items-center gap-2">
           <Star className="h-6 w-6 text-yellow-400 fill-current" />
           <span className="text-2xl font-semibold">
-            {averageRating != null ? `${averageRating} • ` : ''}
-            {total != null ? `${total} commentaires` : 'Avis des voyageurs'}
+            {summaryLoading ? (
+              '…'
+            ) : (
+              <>
+                {summary?.avg != null ? `${formatAvgFr(summary.avg)} • ` : ''}
+                {summary ? pluralizeCommentaires(summary.count) : 'Avis des voyageurs'}
+              </>
+            )}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -305,6 +309,7 @@ export const CommentsSection: React.FC<CommentsSectionProps> = ({ propertyId }) 
             onClick={handleToggle}
             aria-expanded={open}
             aria-controls="reviews-list"
+            aria-label={summary && summary.count > 0 ? `Voir les ${summary.count} commentaires` : 'Aucun commentaire — ouvrir la section'}
           >
             {open ? 'Masquer les commentaires' : 'Afficher tous les commentaires'}
           </Button>
