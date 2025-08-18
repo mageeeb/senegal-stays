@@ -30,6 +30,12 @@ npm run build
 ```
 Then upload the dist/ folder to your hosting provider.
 
+## PWA
+- The app is installable (manifest + service worker).
+- Meta tags include viewport-fit=cover and theme-color for light/dark.
+- Service worker is registered only in production. Ensure your host serves over HTTPS.
+
 ## Notes
 - Brand assets (logo, favicons) are currently placeholders. We will update them when the final assets are provided.
 - Please purge CDN caches after deploying branding changes.
+- See docs/ux-pwa-plan.md for the mobile/tablet app-like plan, estimates, and QA checklist.

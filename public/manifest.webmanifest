@@ -1,0 +1,27 @@
+{
+  "name": "Teranga Home",
+  "short_name": "Teranga",
+  "description": "Découvrez et réservez des séjours uniques au Sénégal.",
+  "lang": "fr",
+  "dir": "ltr",
+  "start_url": "/?source=pwa",
+  "scope": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#0f172a",
+  "categories": ["travel", "booking", "lodging"],
+  "prefer_related_applications": false,
+  "icons": [
+    {
+      "src": "/favicon.ico",
+      "sizes": "48x48 32x32 16x16",
+      "type": "image/x-icon"
+    },
+    {
+      "src": "/lovable-uploads/c3f179a3-8194-49b7-b5b5-71ec36a3e68c.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}

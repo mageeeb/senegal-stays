@@ -194,8 +194,31 @@ const PropertyDetail = () => {
     return (
       <div className="min-h-screen bg-background">
         <Header />
-        <div className="container mx-auto px-4 py-8">
-          <div className="text-center">Chargement...</div>
+        <div className="max-w-7xl mx-auto px-6 py-8">
+          <div className="grid lg:grid-cols-12 gap-8">
+            <div className="lg:col-span-8 space-y-4">
+              <div className="h-56 w-full bg-muted animate-pulse rounded-lg" />
+              <div className="h-4 w-2/3 bg-muted animate-pulse rounded" />
+              <div className="h-4 w-1/3 bg-muted animate-pulse rounded" />
+              <div className="grid grid-cols-2 gap-3">
+                <div className="h-3 w-full bg-muted animate-pulse rounded" />
+                <div className="h-3 w-5/6 bg-muted animate-pulse rounded" />
+              </div>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {Array.from({ length: 6 }).map((_, i) => (
+                  <div key={i} className="h-6 bg-muted animate-pulse rounded" />
+                ))}
+              </div>
+            </div>
+            <div className="lg:col-span-4">
+              <div className="sticky top-24">
+                <div className="p-6 border rounded-xl shadow">
+                  <div className="h-6 w-1/2 bg-muted animate-pulse rounded mb-4" />
+                  <div className="h-10 w-full bg-muted animate-pulse rounded" />
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
     );
@@ -428,7 +451,7 @@ const PropertyDetail = () => {
 
                     {/* Colonne droite - Réservation */}
                     <div className="lg:col-span-4">
-                        <div className="sticky top-24">
+                        <div className="sticky top-24" id="booking-card">
                             <Card className="shadow-xl border rounded-xl">
                                 <CardContent className="p-6">
                                     <div className="flex items-baseline gap-1 mb-6">
@@ -538,6 +561,38 @@ const PropertyDetail = () => {
                         </div>
                     </div>
                 </div>
+            </div>
+
+            {/* Sticky mobile booking bar */}
+            <div className="lg:hidden fixed inset-x-0 bottom-16 z-40 border rounded-t-xl bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 shadow-lg" style={{ paddingBottom: 'max(env(safe-area-inset-bottom), 0px)' }}>
+              <div className="mx-auto max-w-screen-md px-4 py-3 flex items-center justify-between gap-3">
+                <div className="flex items-baseline gap-1">
+                  {property.long_term_enabled ? (
+                    <>
+                      <span className="text-xl font-semibold tabular-nums">{Number(property.monthly_price || 0).toLocaleString()} FCFA</span>
+                      <span className="text-muted-foreground">/mois</span>
+                    </>
+                  ) : (
+                    <>
+                      <span className="text-xl font-semibold tabular-nums">{Number(property.price_per_night).toLocaleString()} FCFA</span>
+                      <span className="text-muted-foreground">/nuit</span>
+                    </>
+                  )}
+                </div>
+                <Button
+                  size="lg"
+                  className="min-w-[140px]"
+                  onClick={() => {
+                    const el = document.getElementById('booking-card');
+                    if (el) {
+                      el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }
+                  }}
+                  aria-label="Aller au formulaire de réservation"
+                >
+                  Réserver
+                </Button>
+              </div>
             </div>
         </div>
     );
