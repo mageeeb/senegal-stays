@@ -39,10 +39,23 @@ const Header = () => {
   };
 
   return (
-    <header className="hidden lg:block border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-      <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-        <Link to="/" className="flex items-center space-x-2" aria-label="Teranga Home">
-          <span className="text-xl font-bold text-primary">Teranga Home</span>
+    <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+      <div className="container mx-auto px-4 h-14 md:h-16 lg:h-20 flex items-center justify-between">
+        <Link
+          to="/"
+          className="flex items-center space-x-2 min-h-11 py-1"
+          aria-label="Teranga Home"
+        >
+          <span className="inline-flex items-center justify-center rounded-lg p-1.5 bg-[#0B1220] dark:bg-white">
+            <img
+              src="/teranga_home.png"
+              alt="Teranga Home"
+              className="block h-8 md:h-10 lg:h-12 w-auto select-none"
+              loading="eager"
+              decoding="async"
+            />
+          </span>
+          <span className="sr-only">Teranga Home</span>
         </Link>
 
         <nav className="hidden md:flex items-center space-x-6">
