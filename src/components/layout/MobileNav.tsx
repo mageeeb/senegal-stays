@@ -1,6 +1,8 @@
 import { NavLink } from "react-router-dom";
 import { Home, Building2, CalendarRange, User, Plus, Car } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
 
 // Mobile bottom navigation bar (shows only on small screens)
 // Uses semantic tokens and Tailwind classes consistent with the design system
@@ -46,10 +48,33 @@ const MobileNav = () => {
           </li>
           <li>
             {user ? (
-              <NavLink to="/add-property" className={navItemCls} aria-label="Ajouter un logement">
-                <Plus className="h-5 w-5" />
-                <span>Publier</span>
-              </NavLink>
+              <Sheet>
+                <SheetTrigger asChild>
+                  <button className="flex flex-col items-center justify-center gap-1 px-3 py-2 text-xs text-muted-foreground">
+                    <Plus className="h-5 w-5" />
+                    <span>Publier</span>
+                  </button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-fit">
+                  <SheetHeader>
+                    <SheetTitle className="text-center">Que souhaitez-vous ajouter ?</SheetTitle>
+                  </SheetHeader>
+                  <div className="grid grid-cols-1 gap-4 py-6">
+                    <Button asChild variant="outline" className="h-16 flex-col gap-2">
+                      <NavLink to="/add-property">
+                        <Building2 className="h-6 w-6" />
+                        <span>Ajouter un logement</span>
+                      </NavLink>
+                    </Button>
+                    <Button asChild variant="outline" className="h-16 flex-col gap-2">
+                      <NavLink to="/add-vehicle">
+                        <Car className="h-6 w-6" />
+                        <span>Ajouter un véhicule</span>
+                      </NavLink>
+                    </Button>
+                  </div>
+                </SheetContent>
+              </Sheet>
             ) : (
               <NavLink to="/auth" className={navItemCls} aria-label="Mon compte">
                 <User className="h-5 w-5" />
