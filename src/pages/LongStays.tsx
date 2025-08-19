@@ -238,18 +238,17 @@ const LongStays = () => {
     <div className="min-h-screen bg-background">
       <Header />
       <main>
-        <section className="border-b bg-muted/40">
-          <div className="container mx-auto px-4 py-8 md:py-12">
-            <div className="flex flex-col items-center text-center gap-4">
-              <img
-                src="/favicon.ico"
-                alt="Logo - séjours longue durée"
-                className="h-12 md:h-16 object-contain"
-                loading="lazy"
-              />
-              <h1 className="text-3xl md:text-4xl font-bold">Locations longue durée</h1>
-              <p className="text-muted-foreground max-w-2xl">
-                Trouvez un logement pour plusieurs mois, meublé ou non, avec ou sans charges incluses.
+          <section className="border-b bg-muted/40">
+              <div className="container mx-auto px-4 py-8 md:py-12">
+                  <div className="flex flex-col items-center text-center gap-5">
+                      <img
+                          src="/favicon.ico"
+                          alt="Logo - séjours longue durée"
+                          className="h-20 md:h-28 lg:h-32 object-contain"
+                          loading="lazy"
+                      />
+                      <h1 className="text-3xl md:text-4xl font-bold">Locations longue durée</h1>
+                      <p className="text-muted-foreground max-w-2xl">
               </p>
             </div>
 

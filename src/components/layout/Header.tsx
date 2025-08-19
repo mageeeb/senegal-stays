@@ -40,18 +40,18 @@ const Header = () => {
   };
 
     return (
-        <header className="sticky top-0 z-50 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+        <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
             <div className="container mx-auto px-4 h-14 md:h-16 lg:h-20 flex items-center justify-between">
                 <Link
                     to="/"
                     className="flex items-center space-x-2 min-h-11 py-1"
                     aria-label="Teranga Home"
                 >
-          <span className="inline-flex items-center justify-center rounded-lg p-1.5 bg-[#0B1220] dark:bg-white">
+          <span className="inline-flex items-center justify-center rounded-lg p-0.5">
             <img
                 src="/teranga_home.png"
                 alt="Teranga Home"
-                className="block h-8 md:h-10 lg:h-12 w-auto select-none"
+                className="block h-12 md:h-14 lg:h-[72px] w-auto select-none"
                 loading="eager"
                 decoding="async"
             />
@@ -60,15 +60,22 @@ const Header = () => {
                 </Link>
 
                 <nav className="hidden lg:flex items-center space-x-6">
-                    {NAV_ITEMS.map((item) => (
-                      <Link key={item.to} to={item.to} className="text-foreground hover:text-primary transition-colors">
-                        {item.label}
-                      </Link>
-                    ))}
+                    <Link to="/" className="text-foreground hover:text-primary transition-colors">
+                        Accueil
+                    </Link>
+                    <Link to="/properties" className="text-foreground hover:text-primary transition-colors">
+                        Logements
+                    </Link>
+                    <Link to="/long-stays" className="text-foreground hover:text-primary transition-colors">
+                        Séjours Longue Durée
+                    </Link>
+                    <Link to="/vehicles" className="text-foreground hover:text-primary transition-colors">
+                        Véhicules
+                    </Link>
                     {user && (
-                      <Link to="/host" className="text-foreground hover:text-primary transition-colors">
-                        Devenir hôte
-                      </Link>
+                        <Link to="/host" className="text-foreground hover:text-primary transition-colors">
+                            Devenir hôte
+                        </Link>
                     )}
                 </nav>
 
