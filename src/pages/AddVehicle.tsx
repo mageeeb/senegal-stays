@@ -10,7 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useAuth } from "@/hooks/useAuth";
-import { VehicleImageUpload } from "@/components/VehicleImageUpload";
+import { VehiclePhotosUpload } from "@/components/VehiclePhotosUpload";
 import { Car, ArrowLeft } from "lucide-react";
 
 interface VehicleFormData {
@@ -27,7 +27,7 @@ interface VehicleFormData {
   location: string;
   description: string;
   features: string[];
-  image_url: string;
+  images: string[];
 }
 
 const AddVehicle = () => {
@@ -49,7 +49,7 @@ const AddVehicle = () => {
     location: "",
     description: "",
     features: [],
-    image_url: ""
+    images: []
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -63,10 +63,10 @@ const AddVehicle = () => {
       return;
     }
 
-    if (!formData.image_url) {
+    if (formData.images.length === 0) {
       toast({
-        title: "Image requise",
-        description: "Veuillez uploader une image de votre véhicule",
+        title: "Images requises",
+        description: "Veuillez uploader au moins une image de votre véhicule",
         variant: "destructive",
       });
       return;
@@ -74,14 +74,19 @@ const AddVehicle = () => {
 
     setLoading(true);
     try {
-      const { error } = await supabase
+      const vehicleId = crypto.randomUUID();
+      
+      // Insérer le véhicule
+      const { error: vehicleError } = await supabase
         .from("vehicles")
         .insert([{
           ...formData,
-          id: crypto.randomUUID()
+          id: vehicleId,
+          owner_id: user.id,
+          image_url: formData.images[0] // Utiliser la première image comme image principale
         }]);
 
-      if (error) throw error;
+      if (vehicleError) throw vehicleError;
 
       toast({
         title: "Véhicule ajouté",
@@ -360,15 +365,15 @@ const AddVehicle = () => {
             </CardContent>
           </Card>
 
-          {/* Upload d'image */}
+          {/* Upload d'images */}
           <Card>
             <CardHeader>
-              <CardTitle>Photo du véhicule *</CardTitle>
+              <CardTitle>Photos du véhicule *</CardTitle>
             </CardHeader>
             <CardContent>
-              <VehicleImageUpload
-                imageUrl={formData.image_url}
-                onImageUpload={(url) => setFormData(prev => ({ ...prev, image_url: url }))}
+              <VehiclePhotosUpload
+                images={formData.images}
+                onImagesUpdate={(urls) => setFormData(prev => ({ ...prev, images: urls }))}
               />
             </CardContent>
           </Card>

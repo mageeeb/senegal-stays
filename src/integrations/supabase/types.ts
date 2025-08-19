@@ -437,6 +437,47 @@ export type Database = {
           },
         ]
       }
+      vehicle_images: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          id: string
+          image_url: string
+          is_cover: boolean | null
+          sort_order: number | null
+          storage_path: string
+          vehicle_id: string
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_url: string
+          is_cover?: boolean | null
+          sort_order?: number | null
+          storage_path: string
+          vehicle_id: string
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          id?: string
+          image_url?: string
+          is_cover?: boolean | null
+          sort_order?: number | null
+          storage_path?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "vehicle_images_vehicle_id_fkey"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           brand: string
@@ -452,6 +493,7 @@ export type Database = {
           location: string
           model: string
           name: string
+          owner_id: string | null
           price_per_day: number
           seats: number
           transmission: string
@@ -472,6 +514,7 @@ export type Database = {
           location: string
           model: string
           name: string
+          owner_id?: string | null
           price_per_day: number
           seats?: number
           transmission?: string
@@ -492,6 +535,7 @@ export type Database = {
           location?: string
           model?: string
           name?: string
+          owner_id?: string | null
           price_per_day?: number
           seats?: number
           transmission?: string
