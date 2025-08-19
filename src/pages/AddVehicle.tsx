@@ -76,14 +76,17 @@ const AddVehicle = () => {
     try {
       const vehicleId = crypto.randomUUID();
       
+      // Extraire les champs sans "images" pour l'insertion du véhicule
+      const { images, ...vehicleData } = formData;
+      
       // Insérer le véhicule
       const { error: vehicleError } = await supabase
         .from("vehicles")
         .insert([{
-          ...formData,
+          ...vehicleData,
           id: vehicleId,
           owner_id: user.id,
-          image_url: formData.images[0] // Utiliser la première image comme image principale
+          image_url: images[0] || null // Utiliser la première image comme image principale
         }]);
 
       if (vehicleError) throw vehicleError;
