@@ -11,6 +11,7 @@ import {
 import { supabase } from "@/integrations/supabase/client";
 import { VehicleBookingForm } from "@/components/VehicleBookingForm";
 import { useAuth } from "@/hooks/useAuth";
+import Gallery from "@/components/Gallery";
 
 interface VehicleImage {
   id: string;
@@ -194,33 +195,19 @@ const VehicleDetail = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Section principale */}
             <div className="lg:col-span-2 space-y-6">
-              {/* Images */}
-              <div className="space-y-4">
-                {displayImages.length > 0 && (
-                  <div className="grid gap-4">
-                    <div className="aspect-video">
-                      <img
-                        src={displayImages[0].image_url}
-                        alt={vehicle.name}
-                        className="w-full h-full object-cover rounded-lg border"
-                      />
-                    </div>
-                    {displayImages.length > 1 && (
-                      <div className="grid grid-cols-3 gap-4">
-                        {displayImages.slice(1, 4).map((image, index) => (
-                          <div key={index} className="aspect-video">
-                            <img
-                              src={image.image_url}
-                              alt={`${vehicle.name} ${index + 2}`}
-                              className="w-full h-full object-cover rounded-lg border"
-                            />
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                )}
-              </div>
+              {/* Galerie images (alignée avec logements) */}
+              {displayImages.length > 0 ? (
+                <Gallery
+                  images={displayImages}
+                  variant="detail"
+                  loop={true}
+                  enableZoom={true}
+                  showDots={true}
+                  showCounter={true}
+                  showArrows={true}
+                  className="mb-2"
+                />
+              ) : null}
 
               {/* Informations du véhicule */}
               <div className="space-y-4">

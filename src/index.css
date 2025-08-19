@@ -146,3 +146,15 @@ All colors MUST be HSL.
     display: none !important;
   }
 }
+
+/* Utilities */
+@layer utilities {
+  /* Hide scrollbars without disabling scroll */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none; /* IE and Edge */
+    scrollbar-width: none; /* Firefox */
+  }
+}
