@@ -76,18 +76,31 @@ const AddVehicle = () => {
     try {
       const vehicleId = crypto.randomUUID();
       
-      // Extraire les champs sans "images" pour l'insertion du véhicule
-      const { images, ...vehicleData } = formData;
+      // Créer l'objet véhicule avec seulement les champs valides de la table
+      const vehicleToInsert = {
+        id: vehicleId,
+        name: formData.name,
+        brand: formData.brand,
+        model: formData.model,
+        year: formData.year,
+        category: formData.category,
+        fuel_type: formData.fuel_type,
+        transmission: formData.transmission,
+        seats: formData.seats,
+        doors: formData.doors,
+        price_per_day: formData.price_per_day,
+        location: formData.location,
+        description: formData.description,
+        features: formData.features,
+        image_url: formData.images[0] || null,
+        owner_id: user.id,
+        is_available: true
+      };
       
       // Insérer le véhicule
       const { error: vehicleError } = await supabase
         .from("vehicles")
-        .insert([{
-          ...vehicleData,
-          id: vehicleId,
-          owner_id: user.id,
-          image_url: images[0] || null // Utiliser la première image comme image principale
-        }]);
+        .insert([vehicleToInsert]);
 
       if (vehicleError) throw vehicleError;
 
