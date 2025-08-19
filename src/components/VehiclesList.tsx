@@ -3,8 +3,11 @@ import { supabase } from "@/integrations/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Search, Filter, Car } from "lucide-react";
-import { VehicleCard } from "./VehicleCard";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Search, Filter, Car, RefreshCcw } from "lucide-react";
+import EnhancedVehicleCard from "./EnhancedVehicleCard";
 import { useToast } from "@/hooks/use-toast";
 
 interface Vehicle {
@@ -32,6 +35,7 @@ export const VehiclesList = () => {
   const [selectedCategory, setSelectedCategory] = useState<string>("all");
   const [selectedLocation, setSelectedLocation] = useState<string>("all");
   const [priceRange, setPriceRange] = useState<string>("all");
+  const [transmission, setTransmission] = useState<string>("all");
   const { toast } = useToast();
 
   useEffect(() => {
@@ -67,6 +71,7 @@ export const VehiclesList = () => {
     
     const matchesCategory = selectedCategory === "all" || vehicle.category === selectedCategory;
     const matchesLocation = selectedLocation === "all" || vehicle.location === selectedLocation;
+    const matchesTransmission = transmission === "all" || vehicle.transmission === transmission;
     
     let matchesPrice = true;
     if (priceRange !== "all") {
@@ -84,40 +89,76 @@ export const VehiclesList = () => {
       }
     }
 
-    return matchesSearch && matchesCategory && matchesLocation && matchesPrice;
+    return matchesSearch && matchesCategory && matchesLocation && matchesTransmission && matchesPrice;
   });
 
   const categories = [...new Set(vehicles.map(v => v.category))];
   const locations = [...new Set(vehicles.map(v => v.location))];
 
   if (loading) {
+    // Skeletons while loading
     return (
-      <div className="flex justify-center items-center min-h-64">
-        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+      <div className="space-y-4">
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Filter className="h-5 w-5" />
+              Chargement des filtres...
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+              <Skeleton className="h-10" />
+            </div>
+          </CardContent>
+        </Card>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+          {Array.from({ length: 8 }).map((_, i) => (
+            <Card key={i} className="rounded-xl overflow-hidden">
+              <Skeleton className="aspect-[16/10] w-full" />
+              <CardContent className="p-4 space-y-2">
+                <Skeleton className="h-5 w-3/4" />
+                <Skeleton className="h-4 w-1/2" />
+                <div className="grid grid-cols-2 gap-2">
+                  <Skeleton className="h-4" />
+                  <Skeleton className="h-4" />
+                  <Skeleton className="h-4" />
+                  <Skeleton className="h-4" />
+                </div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-6">
-      {/* En-tête */}
-      <div className="text-center">
-        <h1 className="text-3xl font-bold mb-2">Location de Véhicules</h1>
-        <p className="text-muted-foreground">
-          Trouvez le véhicule parfait pour votre séjour au Sénégal
-        </p>
-      </div>
-
       {/* Filtres */}
       <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Filter className="h-5 w-5" />
-            Filtres de recherche
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center justify-between gap-2">
+            <span className="flex items-center gap-2">
+              <Filter className="h-5 w-5" /> Filtres
+            </span>
+            <Button variant="outline" size="sm" onClick={() => {
+              setSearchTerm("");
+              setSelectedCategory("all");
+              setSelectedLocation("all");
+              setPriceRange("all");
+              setTransmission("all");
+            }}>
+              <RefreshCcw className="h-3.5 w-3.5 mr-2" /> Réinitialiser
+            </Button>
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
             <div className="relative">
               <Search className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
@@ -167,7 +208,29 @@ export const VehiclesList = () => {
                 <SelectItem value="50000+">Plus de 50 000 FCFA</SelectItem>
               </SelectContent>
             </Select>
+
+            <Select value={transmission} onValueChange={setTransmission}>
+              <SelectTrigger>
+                <SelectValue placeholder="Transmission" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">Toutes transmissions</SelectItem>
+                <SelectItem value="manual">Manuelle</SelectItem>
+                <SelectItem value="automatic">Automatique</SelectItem>
+              </SelectContent>
+            </Select>
           </div>
+
+          {/* Active filters chips */}
+          {(searchTerm || selectedCategory !== 'all' || selectedLocation !== 'all' || priceRange !== 'all' || transmission !== 'all') && (
+            <div className="flex flex-wrap gap-2 mt-4">
+              {searchTerm && <Badge variant="secondary">Recherche: {searchTerm}</Badge>}
+              {selectedCategory !== 'all' && <Badge variant="secondary">Catégorie: {selectedCategory}</Badge>}
+              {selectedLocation !== 'all' && <Badge variant="secondary">Lieu: {selectedLocation}</Badge>}
+              {priceRange !== 'all' && <Badge variant="secondary">Prix: {priceRange}</Badge>}
+              {transmission !== 'all' && <Badge variant="secondary">Trans.: {transmission === 'manual' ? 'Manuelle' : 'Automatique'}</Badge>}
+            </div>
+          )}
         </CardContent>
       </Card>
 
@@ -185,15 +248,22 @@ export const VehiclesList = () => {
             <CardContent className="text-center py-12">
               <Car className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
               <h3 className="text-lg font-medium mb-2">Aucun véhicule trouvé</h3>
-              <p className="text-muted-foreground">
+              <p className="text-muted-foreground mb-4">
                 Essayez de modifier vos critères de recherche
               </p>
+              <Button variant="outline" onClick={() => {
+                setSearchTerm("");
+                setSelectedCategory("all");
+                setSelectedLocation("all");
+                setPriceRange("all");
+                setTransmission("all");
+              }}>Réinitialiser les filtres</Button>
             </CardContent>
           </Card>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredVehicles.map((vehicle) => (
-              <VehicleCard key={vehicle.id} vehicle={vehicle} />
+              <EnhancedVehicleCard key={vehicle.id} vehicle={vehicle} />
             ))}
           </div>
         )}

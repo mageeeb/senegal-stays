@@ -158,7 +158,7 @@ const Properties = () => {
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <div className="container mx-auto px-4 py-8">
+      <div className="container mx-auto px-0 sm:px-4 py-8 pb-28 sm:pb-8">
         <div className="flex justify-between items-center mb-8">
           <div>
             <h1 className="text-3xl font-bold mb-2">Mes logements</h1>
@@ -166,7 +166,7 @@ const Properties = () => {
               Gérez vos propriétés et leurs annonces
             </p>
           </div>
-          <div className="flex gap-2">
+          <div className="hidden sm:flex gap-2">
             <Button variant="outline" onClick={async () => {
               try {
                 if (!user) return;
@@ -249,7 +249,7 @@ const Properties = () => {
             {properties.map((property) => (
               <Card 
                 key={property.id} 
-                className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300"
+                className="overflow-hidden cursor-pointer hover:shadow-lg transition-all duration-300 rounded-none sm:rounded-lg"
                 onClick={() => window.location.href = `/property/${property.id}`}
               >
                 <div className="grid md:grid-cols-3 gap-0">
@@ -259,14 +259,14 @@ const Properties = () => {
                       <img
                         src={property.images[0].image_url}
                         alt={property.images[0].alt_text || property.title}
-                        className="w-full h-48 md:h-full object-cover"
+                        className="w-full h-56 md:h-full object-cover"
                         onError={(e) => {
                           console.log('Image failed to load:', property.images[0].image_url);
                           e.currentTarget.src = 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&h=600&fit=crop';
                         }}
                       />
                     ) : (
-                      <div className="w-full h-48 md:h-full bg-gray-200 flex items-center justify-center">
+                      <div className="w-full h-56 md:h-full bg-gray-200 flex items-center justify-center">
                         <p className="text-muted-foreground">Photo à venir</p>
                       </div>
                     )}
@@ -368,6 +368,7 @@ const Properties = () => {
             ))}
           </div>
         )}
+        
       </div>
     </div>
   );
