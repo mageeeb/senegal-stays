@@ -12,6 +12,7 @@ import AddProperty from "./pages/AddProperty";
 import AddVehicle from "./pages/AddVehicle";
 import Properties from "./pages/Properties";
 import PropertyDetail from "./pages/PropertyDetail";
+import VehicleDetail from "./pages/VehicleDetail";
 import EditProperty from "./pages/EditProperty";
 import Destination from "./pages/Destination";
 import LongStays from "./pages/LongStays";
@@ -68,6 +69,7 @@ const App = () => (
                 } 
               />
               <Route path="/property/:id" element={<PropertyDetail />} />
+              <Route path="/vehicle/:id" element={<VehicleDetail />} />
               <Route path="/long-stays" element={<LongStays />} />
                             <Route path="/sejour-longue-duree" element={<LongStays />} />
                             <Route path="/logements" element={<Logements />} />
