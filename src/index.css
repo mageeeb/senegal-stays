@@ -157,4 +157,15 @@ All colors MUST be HSL.
     -ms-overflow-style: none; /* IE and Edge */
     scrollbar-width: none; /* Firefox */
   }
+
+  /* Extra-small responsive helpers for very narrow phones (e.g., iPhone SE) */
+  /* Show/Hide helpers that switch around ~380px viewport width */
+  @media (max-width: 380px) {
+    .xs\:show { display: inline !important; }
+    .xs\:hide { display: none !important; }
+  }
+  @media (min-width: 381px) {
+    .xs\:show { display: none !important; }
+    .xs\:hide { display: inline !important; }
+  }
 }
