@@ -48,7 +48,7 @@ const MobileNav = () => {
                     {user ? (
                         <Link to="/host" aria-label="Devenir Hôte" className="min-w-[72px] md:min-w-[84px] px-2 md:px-3 inline-flex flex-col items-center justify-center gap-1 py-2 rounded-md transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background snap-center">
                             <Plus className="h-5 w-5 md:h-5 md:w-5" />
-                            <span className="text-[11px] md:text-xs max-w-[6.5rem] md:max-w-[8rem] truncate whitespace-nowrap text-center">Devenir Hôte</span>
+                            <span className="text-[11px] md:text-xs max-w-[6.5rem] md:max-w-[8rem] truncate whitespace-nowrap text-center">Hôte</span>
                         </Link>
                     ) : (
                         <Link to="/auth" className="min-w-[72px] md:min-w-[84px] px-2 md:px-3 inline-flex flex-col items-center justify-center gap-1 py-2 rounded-md transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background snap-center">
