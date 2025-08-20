@@ -14,7 +14,7 @@ import Gallery from "@/components/Gallery";
 import InteractiveMap from "@/components/MapCluster";
 import { Calendar } from "@/components/ui/calendar";
 import { format } from "date-fns";
-import { getAmenityIcon } from "@/utils/amenityIcons";
+import { getAmenityIcon, normalizeAmenities } from "@/utils/amenityIcons";
 import CommentsSection from "@/components/CommentsSection";
 import { useReviewsSummary } from "@/hooks/useReviewsSummary";
 import { useAuth } from "@/hooks/useAuth";
@@ -77,6 +77,7 @@ const PropertyDetail = () => {
   const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
   const [reviewPromptLoading, setReviewPromptLoading] = useState<boolean>(false);
   const [lastStayDate, setLastStayDate] = useState<string | null>(null);
+  const [amenitiesExpanded, setAmenitiesExpanded] = useState<boolean>(false);
 
   useEffect(() => {
     if (id) {
@@ -392,12 +393,15 @@ const PropertyDetail = () => {
                         </div>
 
                         {/* Équipements */}
-                        {property.amenities && property.amenities.length > 0 && (
+                        {property.amenities && property.amenities.length > 0 && (() => {
+                            const normalized = normalizeAmenities(property.amenities);
+                            const listToRender = amenitiesExpanded ? normalized : normalized.slice(0, 10);
+                            return (
                             <div className="py-8 border-b">
                                 <h3 className="text-xl font-semibold mb-6">Ce que propose ce logement</h3>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {property.amenities.slice(0, 10).map((amenity) => {
+                                    {listToRender.map((amenity) => {
                                         const Icon = getAmenityIcon(amenity);
                                         return (
                                             <div key={amenity} className="flex items-center gap-4 py-2">
@@ -408,13 +412,19 @@ const PropertyDetail = () => {
                                     })}
                                 </div>
 
-                                {property.amenities.length > 10 && (
-                                    <Button variant="outline" className="mt-6">
-                                        Afficher les {property.amenities.length} équipements
+                                {normalized.length > 10 && (
+                                    <Button
+                                      variant="outline"
+                                      className="mt-6"
+                                      onClick={() => setAmenitiesExpanded((v) => !v)}
+                                      aria-expanded={amenitiesExpanded}
+                                    >
+                                        {amenitiesExpanded ? "Réduire" : `Afficher les ${normalized.length} équipements`}
                                     </Button>
                                 )}
                             </div>
-                        )}
+                            );
+                        })()}
 
                         {/* Conditions longues durées */}
                         {property.long_term_enabled && (

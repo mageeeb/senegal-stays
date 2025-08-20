@@ -7,6 +7,7 @@ import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
 import { ArrowLeft, ArrowRight } from "lucide-react";
+import { normalizeAmenities } from "@/utils/amenityIcons";
 
 // Step components
 import { BasicInfoStep } from "./steps/BasicInfoStep";
@@ -178,7 +179,7 @@ export const PropertyListingFlow = ({
             max_guests: pd.max_guests,
             bedrooms: pd.bedrooms,
             bathrooms: pd.bathrooms,
-            amenities: pd.amenities,
+            amenities: normalizeAmenities(pd.amenities),
             latitude: pd.coordinates?.lat ?? null,
             longitude: pd.coordinates?.lng ?? null,
             long_term_enabled: pd.long_term_enabled,
@@ -240,7 +241,7 @@ export const PropertyListingFlow = ({
             max_guests: pd.max_guests,
             bedrooms: pd.bedrooms,
             bathrooms: pd.bathrooms,
-            amenities: pd.amenities,
+            amenities: normalizeAmenities(pd.amenities),
             host_id: user.id,
             latitude: pd.coordinates?.lat ?? null,
             longitude: pd.coordinates?.lng ?? null,

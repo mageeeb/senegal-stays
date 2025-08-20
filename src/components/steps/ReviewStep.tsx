@@ -116,23 +116,26 @@ export const ReviewStep = ({ data }: ReviewStepProps) => {
             </div>
 
             {/* Équipements */}
-            {data.amenities.length > 0 && (
+            {data.amenities.length > 0 && (() => {
+              const amenities = Array.from(new Set(data.amenities));
+              return (
               <div>
                 <p className="text-sm font-medium mb-2">Équipements</p>
                 <div className="flex flex-wrap gap-2">
-                  {data.amenities.slice(0, 6).map((amenity) => (
+                  {amenities.slice(0, 6).map((amenity) => (
                     <Badge key={amenity} variant="outline" className="text-xs">
                       {amenity}
                     </Badge>
                   ))}
-                  {data.amenities.length > 6 && (
+                  {amenities.length > 6 && (
                     <Badge variant="outline" className="text-xs">
-                      +{data.amenities.length - 6} autres
+                      +{amenities.length - 6} autres
                     </Badge>
                   )}
                 </div>
               </div>
-            )}
+              );
+            })()}
 
             {/* Prix */}
             <div className="flex items-center justify-between pt-4 border-t">

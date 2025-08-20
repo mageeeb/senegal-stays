@@ -125,7 +125,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
   const roundFcfa = (n: number) => Math.round(n);
 
   const computeBreakdown = (opts?: { serviceFeeRate?: number; vatRate?: number; cleaningFee?: number; discountAmount?: number }) => {
-    const serviceFeeRate = opts?.serviceFeeRate ?? 0.12;
+    const serviceFeeRate = opts?.serviceFeeRate ?? 0.10;
     const vatRate = opts?.vatRate ?? 0.18;
     const cleaningFee = roundFcfa(opts?.cleaningFee ?? 0);
     const discountAmount = roundFcfa(opts?.discountAmount ?? 0);

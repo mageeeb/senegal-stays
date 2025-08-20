@@ -7,7 +7,7 @@ import Header from "@/components/layout/Header";
 import InteractiveMap from "@/components/MapCluster";
 import { ArrowLeft, Star, MapPin, Users, Bed, Bath, Wifi, Car, Waves } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
-import { getAmenityIcon } from "@/utils/amenityIcons";
+import { getAmenityIcon, normalizeAmenities } from "@/utils/amenityIcons";
 import { getRegionBySlug, REGION_CITIES, mapLocationToRegion } from "@/utils/regions";
 import Gallery from "@/components/Gallery";
 interface PropertyImage {
@@ -327,16 +327,23 @@ const Destination = () => {
                           </div>
 
                           <div className="flex flex-wrap gap-1 mb-3">
-                            {property.amenities?.slice(0, 3).map((amenity) => (
-                              <Badge key={amenity} variant="secondary" className="text-xs">
-                                {amenity}
-                              </Badge>
-                            ))}
-                            {property.amenities && property.amenities.length > 3 && (
-                              <Badge variant="secondary" className="text-xs">
-                                +{property.amenities.length - 3}
-                              </Badge>
-                            )}
+                            {(() => {
+                              const amenities = normalizeAmenities(property.amenities || []);
+                              return (
+                                <>
+                                  {amenities.slice(0, 3).map((amenity) => (
+                                    <Badge key={amenity} variant="secondary" className="text-xs">
+                                      {amenity}
+                                    </Badge>
+                                  ))}
+                                  {amenities.length > 3 && (
+                                    <Badge variant="secondary" className="text-xs">
+                                      +{amenities.length - 3}
+                                    </Badge>
+                                  )}
+                                </>
+                              );
+                            })()}
                           </div>
 
                           <div className="mt-auto pt-2 flex justify-between items-center">

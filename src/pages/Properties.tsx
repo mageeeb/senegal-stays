@@ -8,6 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Edit, Trash2, Eye } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { normalizeAmenities } from "@/utils/amenityIcons";
 
 interface PropertyImage {
   id: string;
@@ -348,20 +349,23 @@ const Properties = () => {
                       {property.description}
                     </p>
 
-                    {property.amenities && property.amenities.length > 0 && (
+                    {property.amenities && property.amenities.length > 0 && (() => {
+                      const amenities = normalizeAmenities(property.amenities);
+                      return (
                       <div className="flex flex-wrap gap-1">
-                        {property.amenities.slice(0, 5).map((amenity, index) => (
-                          <Badge key={index} variant="outline" className="text-xs">
+                        {amenities.slice(0, 5).map((amenity) => (
+                          <Badge key={amenity} variant="outline" className="text-xs">
                             {amenity}
                           </Badge>
                         ))}
-                        {property.amenities.length > 5 && (
+                        {amenities.length > 5 && (
                           <Badge variant="outline" className="text-xs">
-                            +{property.amenities.length - 5}
+                            +{amenities.length - 5}
                           </Badge>
                         )}
                       </div>
-                    )}
+                      );
+                    })()}
                   </div>
                 </div>
               </Card>
