@@ -5,7 +5,8 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Calendar } from "@/components/ui/calendar";
 import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { Calendar as CalendarIcon, Users } from "lucide-react";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Calendar as CalendarIcon, Users, Shield } from "lucide-react";
 import { format } from "date-fns";
 import { fr } from "date-fns/locale";
 import { cn } from "@/lib/utils";
@@ -29,6 +30,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
   const [checkOut, setCheckOut] = useState<Date>();
   const [guests, setGuests] = useState(1);
   const [selectedMonths, setSelectedMonths] = useState(1); // Nouveau state pour 1, 2 ou 3 mois
+  const [hasInsurance, setHasInsurance] = useState(false); // État pour l'assurance
   const [isLoading, setIsLoading] = useState(false);
   const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
   const { user } = useAuth();
@@ -127,6 +129,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
     const vatRate = opts?.vatRate ?? 0.18;
     const cleaningFee = roundFcfa(opts?.cleaningFee ?? 0);
     const discountAmount = roundFcfa(opts?.discountAmount ?? 0);
+    const insuranceRate = 0.08; // 8% du prix de base (taux légal)
 
     if (longTermEnabled) {
       const months = calculateMonths();
@@ -135,7 +138,8 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
       const baseAmount = Math.max(baseRaw, 0);
       const serviceFeeAmount = roundFcfa(baseAmount * serviceFeeRate);
       const vatOnService = roundFcfa(serviceFeeAmount * vatRate);
-      const total = baseAmount + serviceFeeAmount + vatOnService + cleaningFee;
+      const insuranceAmount = hasInsurance ? roundFcfa(baseAmount * insuranceRate) : 0;
+      const total = baseAmount + serviceFeeAmount + vatOnService + cleaningFee + insuranceAmount;
       return {
         months,
         baseAmount,
@@ -145,6 +149,8 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
         discountAmount,
         serviceFeeRate,
         vatRate,
+        insuranceAmount,
+        insuranceRate,
         total,
         unit,
       } as const;
@@ -155,7 +161,8 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
     const baseAmount = Math.max(baseRaw, 0);
     const serviceFeeAmount = roundFcfa(baseAmount * serviceFeeRate);
     const vatOnService = roundFcfa(serviceFeeAmount * vatRate);
-    const total = baseAmount + serviceFeeAmount + vatOnService + cleaningFee;
+    const insuranceAmount = hasInsurance ? roundFcfa(baseAmount * insuranceRate) : 0;
+    const total = baseAmount + serviceFeeAmount + vatOnService + cleaningFee + insuranceAmount;
 
     return {
       nights,
@@ -166,6 +173,8 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
       discountAmount,
       serviceFeeRate,
       vatRate,
+      insuranceAmount,
+      insuranceRate,
       total,
     };
   };
@@ -250,6 +259,8 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
         vat_rate: 0.18,
         currency: 'FCFA',
         total_price: calculateTotal(),
+        has_insurance: hasInsurance,
+        insurance_amount: hasInsurance ? roundFcfa((longTermEnabled ? (calculateMonths() * (monthlyPrice || 0)) : (calculateNights() * pricePerNight)) * 0.08) : 0,
         status: 'pending',
       };
       if (longTermEnabled) {
@@ -288,6 +299,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
       setCheckOut(undefined);
       setGuests(1);
       setSelectedMonths(1);
+      setHasInsurance(false);
 
     } catch (error) {
       console.error('Erreur:', error);
@@ -475,7 +487,38 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
             </SelectContent>
           </Select>
 
-          <Button 
+          {/* Option d'assurance */}
+          <div className="bg-muted/30 p-4 rounded-lg border">
+            <div className="flex items-start space-x-3">
+              <Checkbox
+                id="insurance"
+                checked={hasInsurance}
+                onCheckedChange={(checked) => setHasInsurance(checked as boolean)}
+                className="mt-1"
+              />
+              <div className="flex-1">
+                <label 
+                  htmlFor="insurance" 
+                  className="flex items-center gap-2 text-sm font-medium cursor-pointer"
+                >
+                  <Shield className="h-4 w-4 text-primary" />
+                  Assurance Premium (8%)
+                </label>
+                <div className="text-xs text-muted-foreground mt-1 space-y-1">
+                  <div>• Annulation gratuite jusqu'à 2 jours avant</div>
+                  <div>• Couverture dégâts matériels</div>
+                  <div>• Protection complète de votre séjour</div>
+                </div>
+                {hasInsurance && (
+                  <div className="text-xs font-medium text-primary mt-2">
+                    + {roundFcfa((longTermEnabled ? (calculateMonths() * (monthlyPrice || 0)) : (calculateNights() * pricePerNight)) * 0.08).toLocaleString()} FCFA
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+
+          <Button
             className="w-full" 
             size="lg" 
             onClick={handleBooking}
@@ -522,6 +565,15 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
                       <span className="tabular-nums">-{b.discountAmount.toLocaleString()} FCFA</span>
                     </div>
                   )}
+                  {hasInsurance && b.insuranceAmount && b.insuranceAmount > 0 && (
+                    <div className="flex justify-between text-sm text-primary">
+                      <span className="flex items-center gap-1">
+                        <Shield className="h-3 w-3" />
+                        Assurance Premium ({Math.round(b.insuranceRate * 100)}%)
+                      </span>
+                      <span className="tabular-nums">{b.insuranceAmount.toLocaleString()} FCFA</span>
+                    </div>
+                  )}
                   <div className="flex justify-between font-semibold pt-2 border-t">
                     <span>Total</span>
                     <span className="tabular-nums">{b.total.toLocaleString()} FCFA</span>
@@ -557,6 +609,15 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
                     <div className="flex justify-between text-sm text-green-700">
                       <span>Remise</span>
                       <span className="tabular-nums">-{b.discountAmount.toLocaleString()} FCFA</span>
+                    </div>
+                  )}
+                  {hasInsurance && b.insuranceAmount && b.insuranceAmount > 0 && (
+                    <div className="flex justify-between text-sm text-primary">
+                      <span className="flex items-center gap-1">
+                        <Shield className="h-3 w-3" />
+                        Assurance Premium ({Math.round(b.insuranceRate * 100)}%)
+                      </span>
+                      <span className="tabular-nums">{b.insuranceAmount.toLocaleString()} FCFA</span>
                     </div>
                   )}
                   <div className="flex justify-between font-semibold pt-2 border-t">
