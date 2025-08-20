@@ -104,6 +104,27 @@ const AddVehicle = () => {
 
       if (vehicleError) throw vehicleError;
 
+      // Insérer les images multiples dans vehicle_images
+      if (formData.images.length > 0) {
+        const vehicleImages = formData.images.map((imageUrl, index) => ({
+          vehicle_id: vehicleId,
+          image_url: imageUrl,
+          storage_path: imageUrl, // Pour l'instant, on utilise l'URL comme storage_path
+          is_cover: index === 0, // La première image est la couverture
+          sort_order: index,
+          alt_text: `${formData.name} - Image ${index + 1}`
+        }));
+
+        const { error: imagesError } = await supabase
+          .from("vehicle_images")
+          .insert(vehicleImages);
+
+        if (imagesError) {
+          console.error("Erreur lors de l'ajout des images:", imagesError);
+          // On continue quand même, car le véhicule est créé
+        }
+      }
+
       toast({
         title: "Véhicule ajouté",
         description: "Votre véhicule a été ajouté avec succès",
