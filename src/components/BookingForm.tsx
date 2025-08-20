@@ -28,6 +28,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
   const [guests, setGuests] = useState(1);
+  const [selectedMonths, setSelectedMonths] = useState(1); // Nouveau state pour 1, 2 ou 3 mois
   const [isLoading, setIsLoading] = useState(false);
   const [unavailableSet, setUnavailableSet] = useState<Set<string>>(new Set());
   const { user } = useAuth();
@@ -88,13 +89,22 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
     return true;
   };
 
+  // Auto-calculer checkOut quand checkIn ou selectedMonths change (pour séjours longue durée)
   useEffect(() => {
-    if (checkIn && checkOut) {
+    if (longTermEnabled && checkIn && selectedMonths) {
+      const endDate = new Date(checkIn);
+      endDate.setDate(endDate.getDate() + (selectedMonths * 30)); // 30 jours par mois
+      setCheckOut(endDate);
+    }
+  }, [checkIn, selectedMonths, longTermEnabled]);
+
+  useEffect(() => {
+    if (!longTermEnabled && checkIn && checkOut) {
       if (checkOut <= checkIn || isUnavailable(checkOut) || hasBlockedBetween(checkIn, checkOut)) {
         setCheckOut(undefined);
       }
     }
-  }, [checkIn, unavailableSet]);
+  }, [checkIn, unavailableSet, longTermEnabled]);
 
   const calculateNights = () => {
     if (!checkIn || !checkOut) return 0;
@@ -103,6 +113,9 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
   };
 
   const calculateMonths = () => {
+    if (longTermEnabled) {
+      return selectedMonths; // Utiliser la sélection manuelle pour les séjours longue durée
+    }
     if (!checkIn || !checkOut) return 0;
     return monthsDiffInclusive(checkIn, checkOut);
   };
@@ -193,28 +206,20 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
     }
 
     if (longTermEnabled) {
-      // validate monthly rules
-      const months = calculateMonths();
-      if (months < minM) {
+      // validate monthly rules - pour les séjours longue durée, on vérifie les périodes de 30 jours
+      if (selectedMonths < 1 || selectedMonths > 3) {
         toast({
-          title: "Durée insuffisante",
-          description: `La durée minimale est de ${minM} mois.`,
+          title: "Durée invalide",
+          description: "Veuillez choisir entre 1 et 3 mois.",
           variant: "destructive",
         });
         return;
       }
-      if (months > maxM) {
-        toast({
-          title: "Durée trop longue",
-          description: `La durée maximale est de ${maxM} mois.`,
-          variant: "destructive",
-        });
-        return;
-      }
-      if (!isRangeMonthsFullyAvailable(checkIn, checkOut)) {
+      // Vérifier la disponibilité jour par jour sur la période de 30 jours * selectedMonths
+      if (hasBlockedBetween(checkIn, checkOut!)) {
         toast({
           title: "Indisponible",
-          description: "Un ou plusieurs mois de la période sont partiellement indisponibles.",
+          description: "Une ou plusieurs dates de la période sont indisponibles.",
           variant: "destructive",
         });
         return;
@@ -249,7 +254,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
       };
       if (longTermEnabled) {
         payload.is_monthly = true;
-        payload.months_count = calculateMonths();
+        payload.months_count = selectedMonths;
         payload.monthly_unit_price = roundFcfa(monthlyPrice || 0);
       }
       const { data, error } = await supabase
@@ -282,6 +287,7 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
       setCheckIn(undefined);
       setCheckOut(undefined);
       setGuests(1);
+      setSelectedMonths(1);
 
     } catch (error) {
       console.error('Erreur:', error);
@@ -381,80 +387,71 @@ export const BookingForm = ({ propertyId, pricePerNight, maxGuests, longTermEnab
               </Popover>
             </div>
           ) : (
-            <div className="grid grid-cols-1 gap-2">
+            <div className="grid grid-cols-1 gap-4">
+              {/* Sélecteur de durée (1, 2 ou 3 mois) */}
+              <div>
+                <div className="text-xs font-medium mb-2">DURÉE DU SÉJOUR</div>
+                <Select value={selectedMonths.toString()} onValueChange={(value) => setSelectedMonths(parseInt(value))}>
+                  <SelectTrigger className="h-auto p-3">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="text-sm">
+                        {selectedMonths} mois ({selectedMonths * 30} jours)
+                      </div>
+                    </div>
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="1">1 mois (30 jours)</SelectItem>
+                    <SelectItem value="2">2 mois (60 jours)</SelectItem>
+                    <SelectItem value="3">3 mois (90 jours)</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              {/* Sélecteur de date de début */}
               <Popover>
                 <PopoverTrigger asChild>
                   <Button
                     variant="outline"
                     className={cn(
                       "justify-start text-left font-normal h-auto p-3",
-                      !checkIn && !checkOut && "text-muted-foreground"
+                      !checkIn && "text-muted-foreground"
                     )}
                   >
                     <div>
-                      <div className="text-xs font-medium">PÉRIODE</div>
+                      <div className="text-xs font-medium">DATE DE DÉBUT</div>
                       <div className="text-sm">
-                        {checkIn && checkOut
-                          ? `${format(startOfMonth(checkIn), "MMM yyyy", { locale: fr })} → ${format(endOfMonth(checkOut), "MMM yyyy", { locale: fr })}`
-                          : "Sélectionner des mois"}
+                        {checkIn ? format(checkIn, "dd/MM/yyyy", { locale: fr }) : "Sélectionner"}
                       </div>
                     </div>
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start">
                   <Calendar
-                    mode="range"
-                    numberOfMonths={2}
-                    selected={{ from: checkIn, to: checkOut }}
-                    onSelect={(range) => {
-                      const from = range?.from;
-                      const to = range?.to;
-                      if (!from && !to) {
-                        setCheckIn(undefined);
-                        setCheckOut(undefined);
-                        return;
-                      }
-                      const norm = normalizeMonthlySelection(from || undefined, to || undefined);
-                      const normFrom = norm.from as Date | undefined;
-                      const normTo = norm.to as Date | undefined;
-                      if (normFrom && normTo) {
-                        const months = monthsDiffInclusive(normFrom, normTo);
-                        if (months < minM || months > maxM) {
-                          toast({
-                            title: months < minM ? "Durée insuffisante" : "Durée trop longue",
-                            description: months < minM ? `Minimum ${minM} mois.` : `Maximum ${maxM} mois.`,
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                        if (!isRangeMonthsFullyAvailable(normFrom, normTo)) {
-                          toast({
-                            title: "Indisponible",
-                            description: "Un mois de la période est partiellement indisponible.",
-                            variant: "destructive",
-                          });
-                          return;
-                        }
-                      }
-                      setCheckIn(normFrom);
-                      setCheckOut(normTo);
-                    }}
-                    disabled={(date) => {
-                      const now = new Date();
-                      now.setHours(0,0,0,0);
-                      const firstDayShown = new Date(date.getFullYear(), date.getMonth(), 1);
-                      // Disable months strictly before today month
-                      if (endOfMonth(firstDayShown) < startOfMonth(now)) return true;
-                      // Disable if month is not fully available
-                      return !isMonthFullyAvailable(date.getFullYear(), date.getMonth());
-                    }}
+                    mode="single"
+                    selected={checkIn}
+                    onSelect={setCheckIn}
+                    disabled={(date) => date < new Date() || isUnavailable(date)}
                     initialFocus
+                    className="pointer-events-auto"
                   />
                 </PopoverContent>
               </Popover>
+
+              {/* Affichage de la période calculée */}
+              {checkIn && checkOut && (
+                <div className="bg-muted/50 p-3 rounded-md">
+                  <div className="text-xs font-medium mb-1">PÉRIODE SÉLECTIONNÉE</div>
+                  <div className="text-sm">
+                    Du {format(checkIn, "dd/MM/yyyy", { locale: fr })} au {format(checkOut, "dd/MM/yyyy", { locale: fr })}
+                  </div>
+                  <div className="text-xs text-muted-foreground mt-1">
+                    {selectedMonths} mois • {selectedMonths * 30} jours
+                  </div>
+                </div>
+              )}
+
               <div className="text-xs text-muted-foreground">
-                Sélection par mois. Arrivée le 1er, départ le dernier jour du mois.
-                {minM || maxM ? ` (min ${minM} · max ${maxM} mois)` : null}
+                Périodes de 30 jours par mois. Choisissez votre date de début et la durée souhaitée.
               </div>
             </div>
           )}
