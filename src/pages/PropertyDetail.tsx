@@ -88,6 +88,21 @@ const PropertyDetail = () => {
     }
   }, [id]);
 
+  // Rafraîchir les données quand la page devient visible (retour depuis admin)
+  useEffect(() => {
+    const handleVisibilityChange = () => {
+      if (!document.hidden && id) {
+        fetchProperty();
+      }
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    
+    return () => {
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+    };
+  }, [id]);
+
   useEffect(() => {
     const fetchLastCompletedStay = async () => {
       if (!id || !user) {
