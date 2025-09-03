@@ -41,15 +41,16 @@ const Properties = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [loading, setLoading] = useState(true);
 
+  // Check if this is the public properties page or private my-properties page
+  const isMyProperties = window.location.pathname === '/my-properties';
+
   useEffect(() => {
-    if (user) {
-      fetchProperties();
-    }
-  }, [user]);
+    fetchProperties();
+  }, [user, isMyProperties]);
 
   const fetchProperties = async () => {
     try {
-      const { data, error } = await supabase
+      let query = supabase
         .from('properties')
         .select(`
           *,
@@ -60,9 +61,17 @@ const Properties = () => {
             alt_text,
             sort_order
           )
-        `)
-        .eq('host_id', user?.id)
-        .order('created_at', { ascending: false });
+        `);
+
+      if (isMyProperties && user) {
+        // For /my-properties: show user's own properties
+        query = query.eq('host_id', user.id);
+      } else {
+        // For /properties: show all active properties
+        query = query.eq('is_active', true);
+      }
+
+      const { data, error } = await query.order('created_at', { ascending: false });
 
       if (error) throw error;
       
@@ -81,7 +90,7 @@ const Properties = () => {
       console.error('Error fetching properties:', error);
       toast({
         title: "Erreur",
-        description: "Impossible de charger vos logements",
+        description: "Impossible de charger les logements",
         variant: "destructive",
       });
     } finally {
@@ -162,87 +171,95 @@ const Properties = () => {
       <div className="container mx-auto px-0 sm:px-4 py-8 pb-28 sm:pb-8">
         <div className="flex justify-between items-center mb-8">
           <div>
-            <h1 className="text-3xl font-bold mb-2">Mes logements</h1>
+            <h1 className="text-3xl font-bold mb-2">
+              {isMyProperties ? "Mes logements" : "Logements disponibles"}
+            </h1>
             <p className="text-muted-foreground">
-              Gérez vos propriétés et leurs annonces
+              {isMyProperties ? "Gérez vos propriétés et leurs annonces" : "Découvrez tous nos logements"}
             </p>
           </div>
-          <div className="hidden sm:flex gap-2">
-            <Button variant="outline" onClick={async () => {
-              try {
-                if (!user) return;
-                const nextMonth = new Date();
-                nextMonth.setMonth(nextMonth.getMonth() + 1);
-                const formatDate = (d: Date) => d.toISOString().slice(0,10);
-                const { error } = await supabase.from('properties').insert([
-                  {
-                    host_id: user.id,
-                    title: "Appartement meublé au Plateau — Longue durée",
-                    description: "Appartement confortable au Plateau avec wifi fibre et eau incluse. Idéal pour séjours mensuels.",
-                    property_type: "appartement",
-                    address: "Plateau, Dakar",
-                    city: "Dakar",
-                    price_per_night: 60000,
-                    max_guests: 2,
-                    bedrooms: 1,
-                    bathrooms: 1,
-                    amenities: ['WiFi','Lave-linge','Climatisation'],
-                    long_term_enabled: true,
-                    monthly_price: 450000,
-                    min_months: 1,
-                    max_months: 12,
-                    deposit_amount: 450000,
-                    utilities_included: true,
-                    utilities_notes: "Électricité non incluse",
-                    furnished: true,
-                    notice_period_days: 30,
-                    available_from: formatDate(nextMonth),
-                  },
-                  {
-                    host_id: user.id,
-                    title: "Villa 2 chambres — Séjours mensuels",
-                    description: "Villa confortable à Saly, idéale pour des séjours longue durée.",
-                    property_type: "villa",
-                    address: "Saly Portudal",
-                    city: "Saly",
-                    price_per_night: 90000,
-                    max_guests: 4,
-                    bedrooms: 2,
-                    bathrooms: 2,
-                    amenities: ['WiFi','Piscine','Parking'],
-                    long_term_enabled: true,
-                    monthly_price: 700000,
-                    min_months: 2,
-                    max_months: 12,
-                    deposit_amount: 700000,
-                    utilities_included: false,
-                    utilities_notes: "Charges selon consommation",
-                    furnished: true,
-                    notice_period_days: 45,
-                    available_from: formatDate(new Date()),
-                  }
-                ]).select();
-                if (error) throw error;
-                toast({ title: 'Exemples ajoutés', description: '2 annonces longue durée ont été créées.' });
-                fetchProperties();
-              } catch (e) {
-                console.error(e);
-                toast({ title: 'Erreur', description: "Impossible d'ajouter les exemples", variant: 'destructive' });
-              }
-            }}>Ajouter exemples longue durée</Button>
-            <Button onClick={() => window.location.href = '/add-property'}>
-              Ajouter un logement
-            </Button>
-          </div>
+          {isMyProperties && user && (
+            <div className="hidden sm:flex gap-2">
+              <Button variant="outline" onClick={async () => {
+                try {
+                  if (!user) return;
+                  const nextMonth = new Date();
+                  nextMonth.setMonth(nextMonth.getMonth() + 1);
+                  const formatDate = (d: Date) => d.toISOString().slice(0,10);
+                  const { error } = await supabase.from('properties').insert([
+                    {
+                      host_id: user.id,
+                      title: "Appartement meublé au Plateau — Longue durée",
+                      description: "Appartement confortable au Plateau avec wifi fibre et eau incluse. Idéal pour séjours mensuels.",
+                      property_type: "appartement",
+                      address: "Plateau, Dakar",
+                      city: "Dakar",
+                      price_per_night: 60000,
+                      max_guests: 2,
+                      bedrooms: 1,
+                      bathrooms: 1,
+                      amenities: ['WiFi','Lave-linge','Climatisation'],
+                      long_term_enabled: true,
+                      monthly_price: 450000,
+                      min_months: 1,
+                      max_months: 12,
+                      deposit_amount: 450000,
+                      utilities_included: true,
+                      utilities_notes: "Électricité non incluse",
+                      furnished: true,
+                      notice_period_days: 30,
+                      available_from: formatDate(nextMonth),
+                    },
+                    {
+                      host_id: user.id,
+                      title: "Villa 2 chambres — Séjours mensuels",
+                      description: "Villa confortable à Saly, idéale pour des séjours longue durée.",
+                      property_type: "villa",
+                      address: "Saly Portudal",
+                      city: "Saly",
+                      price_per_night: 90000,
+                      max_guests: 4,
+                      bedrooms: 2,
+                      bathrooms: 2,
+                      amenities: ['WiFi','Piscine','Parking'],
+                      long_term_enabled: true,
+                      monthly_price: 700000,
+                      min_months: 2,
+                      max_months: 12,
+                      deposit_amount: 700000,
+                      utilities_included: false,
+                      utilities_notes: "Charges selon consommation",
+                      furnished: true,
+                      notice_period_days: 45,
+                      available_from: formatDate(new Date()),
+                    }
+                  ]).select();
+                  if (error) throw error;
+                  toast({ title: 'Exemples ajoutés', description: '2 annonces longue durée ont été créées.' });
+                  fetchProperties();
+                } catch (e) {
+                  console.error(e);
+                  toast({ title: 'Erreur', description: "Impossible d'ajouter les exemples", variant: 'destructive' });
+                }
+              }}>Ajouter exemples longue durée</Button>
+              <Button onClick={() => window.location.href = '/add-property'}>
+                Ajouter un logement
+              </Button>
+            </div>
+          )}
         </div>
 
         {properties.length === 0 ? (
           <Card>
             <CardContent className="flex flex-col items-center justify-center py-12">
-              <p className="text-lg mb-4">Vous n'avez pas encore de logements</p>
-              <Button onClick={() => window.location.href = '/add-property'}>
-                Créer votre première annonce
-              </Button>
+              <p className="text-lg mb-4">
+                {isMyProperties ? "Vous n'avez pas encore de logements" : "Aucun logement disponible"}
+              </p>
+              {isMyProperties && user && (
+                <Button onClick={() => window.location.href = '/add-property'}>
+                  Créer votre première annonce
+                </Button>
+              )}
             </CardContent>
           </Card>
         ) : (
@@ -287,43 +304,45 @@ const Properties = () => {
                           {property.address}, {property.city}
                         </p>
                       </div>
-                      <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => window.location.href = `/edit-property/${property.id}`}
-                        >
-                          <Edit className="h-4 w-4" />
-                        </Button>
-                        <Button 
-                          variant="outline" 
-                          size="sm"
-                          onClick={() => togglePropertyStatus(property.id, property.is_active)}
-                        >
-                          <Eye className="h-4 w-4" />
-                        </Button>
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Supprimer le logement</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Êtes-vous sûr de vouloir supprimer ce logement ? Cette action est irréversible.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Annuler</AlertDialogCancel>
-                              <AlertDialogAction onClick={() => deleteProperty(property.id)}>
-                                Supprimer
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      </div>
+                      {isMyProperties && user && (
+                        <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => window.location.href = `/edit-property/${property.id}`}
+                          >
+                            <Edit className="h-4 w-4" />
+                          </Button>
+                          <Button 
+                            variant="outline" 
+                            size="sm"
+                            onClick={() => togglePropertyStatus(property.id, property.is_active)}
+                          >
+                            <Eye className="h-4 w-4" />
+                          </Button>
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Supprimer le logement</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Êtes-vous sûr de vouloir supprimer ce logement ? Cette action est irréversible.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Annuler</AlertDialogCancel>
+                                <AlertDialogAction onClick={() => deleteProperty(property.id)}>
+                                  Supprimer
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      )}
                     </div>
 
                     <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-4">
