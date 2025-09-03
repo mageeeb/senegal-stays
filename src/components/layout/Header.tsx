@@ -140,14 +140,15 @@ const Header = () => {
                              <span>Mes logements</span>
                          </Link>
                      </DropdownMenuItem>
-                     {user?.email === 'nanouchkaly@yahoo.fr' && (
-                         <DropdownMenuItem asChild>
-                             <Link to="/admin">
-                                 <Shield className="mr-2 h-4 w-4" />
-                                 <span>Administration</span>
-                             </Link>
-                         </DropdownMenuItem>
-                     )}
+                     
+                     {/* FORCE AFFICHAGE ADMIN - TOUJOURS VISIBLE */}
+                     <DropdownMenuItem asChild>
+                         <Link to="/admin">
+                             <Shield className="mr-2 h-4 w-4" />
+                             <span>🔧 Administration</span>
+                         </Link>
+                     </DropdownMenuItem>
+                     
                                      <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleSignOut}>
                                         <LogOut className="mr-2 h-4 w-4" />
