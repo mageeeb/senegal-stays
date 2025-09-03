@@ -10,6 +10,7 @@ interface UseUserRoleReturn {
   loading: boolean;
   isSuperAdmin: boolean;
   hasRole: (checkRole: UserRole) => boolean;
+  refreshRoles: () => Promise<void>;
 }
 
 export const useUserRole = (): UseUserRoleReturn => {
@@ -17,38 +18,53 @@ export const useUserRole = (): UseUserRoleReturn => {
   const [roles, setRoles] = useState<UserRole[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUserRoles = async () => {
-      if (!user) {
-        setRoles([]);
-        setLoading(false);
-        return;
-      }
+  const fetchUserRoles = async () => {
+    if (!user?.id) {
+      setRoles([]);
+      setLoading(false);
+      return;
+    }
 
-      try {
-        const { data, error } = await supabase
-          .from('user_roles')
-          .select('role')
-          .eq('user_id', user.id);
+    setLoading(true);
+    try {
+      console.log('Fetching roles for user ID:', user.id);
+      
+      const { data, error } = await supabase
+        .from('user_roles')
+        .select('role')
+        .eq('user_id', user.id);
 
-        if (error) throw error;
-
-        const userRoles = data?.map(item => item.role as UserRole) || [];
-        setRoles(userRoles);
-      } catch (error) {
+      if (error) {
         console.error('Error fetching user roles:', error);
-        setRoles([]);
-      } finally {
-        setLoading(false);
+        throw error;
       }
-    };
 
+      const userRoles = data?.map(item => item.role as UserRole) || [];
+      console.log('Fetched roles for user:', user.email, 'roles:', userRoles);
+      setRoles(userRoles);
+    } catch (error) {
+      console.error('Error in fetchUserRoles:', error);
+      setRoles([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
     fetchUserRoles();
-  }, [user]);
+  }, [user?.id]);
 
   const hasRole = (checkRole: UserRole) => roles.includes(checkRole);
   const isSuperAdmin = hasRole('super_admin');
   const primaryRole = roles.length > 0 ? roles[0] : null;
+
+  console.log('useUserRole return:', { 
+    isSuperAdmin, 
+    roles, 
+    loading, 
+    userEmail: user?.email,
+    userId: user?.id 
+  });
 
   return {
     role: primaryRole,
@@ -56,5 +72,6 @@ export const useUserRole = (): UseUserRoleReturn => {
     loading,
     isSuperAdmin,
     hasRole,
+    refreshRoles: fetchUserRoles,
   };
 };

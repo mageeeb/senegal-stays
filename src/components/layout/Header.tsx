@@ -16,9 +16,12 @@ import { NAV_ITEMS } from "@/components/layout/navItems";
 
 const Header = () => {
   const { user, signOut } = useAuth();
-  const { isSuperAdmin } = useUserRole();
+  const { isSuperAdmin, loading: roleLoading } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
+
+  // Debug log pour vérifier le rôle
+  console.log('User:', user?.email, 'isSuperAdmin:', isSuperAdmin, 'roleLoading:', roleLoading);
 
   const handleSignOut = async () => {
     try {
