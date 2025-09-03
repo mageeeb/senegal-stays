@@ -140,7 +140,7 @@ const Header = () => {
                              <span>Mes logements</span>
                          </Link>
                      </DropdownMenuItem>
-                     {isSuperAdmin && (
+                     {user?.email === 'nanouchkaly@yahoo.fr' && (
                          <DropdownMenuItem asChild>
                              <Link to="/admin">
                                  <Shield className="mr-2 h-4 w-4" />
