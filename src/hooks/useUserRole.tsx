@@ -58,12 +58,13 @@ export const useUserRole = (): UseUserRoleReturn => {
   const isSuperAdmin = hasRole('super_admin');
   const primaryRole = roles.length > 0 ? roles[0] : null;
 
-  console.log('useUserRole return:', { 
+  console.log('useUserRole FINAL STATE:', { 
     isSuperAdmin, 
     roles, 
     loading, 
     userEmail: user?.email,
-    userId: user?.id 
+    userId: user?.id,
+    hasRole: hasRole('super_admin')
   });
 
   return {
