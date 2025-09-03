@@ -114,10 +114,12 @@ const Header = () => {
                                         <User className="mr-2 h-4 w-4" />
                                         <span>Mon profil</span>
                                     </DropdownMenuItem>
-                                    <DropdownMenuItem>
-                                        <Home className="mr-2 h-4 w-4" />
-                                        <span>Mes logements</span>
-                                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                        <Link to="/my-properties">
+                            <Home className="mr-2 h-4 w-4" />
+                            <span>Mes logements</span>
+                        </Link>
+                    </DropdownMenuItem>
                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleSignOut}>
                                         <LogOut className="mr-2 h-4 w-4" />

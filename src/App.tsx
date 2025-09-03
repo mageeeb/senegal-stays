@@ -52,8 +52,9 @@ const App = () => (
                   </ProtectedRoute>
                 } 
               />
+              <Route path="/properties" element={<Properties />} />
               <Route 
-                path="/properties" 
+                path="/my-properties" 
                 element={
                   <ProtectedRoute>
                     <Properties />
