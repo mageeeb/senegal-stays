@@ -134,13 +134,21 @@ const Header = () => {
                                         <User className="mr-2 h-4 w-4" />
                                         <span>Mon profil</span>
                                     </DropdownMenuItem>
-                    <DropdownMenuItem asChild>
-                        <Link to="/my-properties">
-                            <Home className="mr-2 h-4 w-4" />
-                            <span>Mes logements</span>
-                        </Link>
-                    </DropdownMenuItem>
-                                    <DropdownMenuSeparator />
+                     <DropdownMenuItem asChild>
+                         <Link to="/my-properties">
+                             <Home className="mr-2 h-4 w-4" />
+                             <span>Mes logements</span>
+                         </Link>
+                     </DropdownMenuItem>
+                     {isSuperAdmin && (
+                         <DropdownMenuItem asChild>
+                             <Link to="/admin">
+                                 <Shield className="mr-2 h-4 w-4" />
+                                 <span>Administration</span>
+                             </Link>
+                         </DropdownMenuItem>
+                     )}
+                                     <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleSignOut}>
                                         <LogOut className="mr-2 h-4 w-4" />
                                         <span>Se déconnecter</span>
