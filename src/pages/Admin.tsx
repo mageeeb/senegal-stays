@@ -221,7 +221,7 @@ const Admin = () => {
     switch (property.validation_status) {
       case 'pending':
       case null:
-        return <Badge variant="secondary">En attente</Badge>;
+        return <Badge className="bg-orange-500 text-white">Cours de validation</Badge>;
       case 'approved':
         return (
           <div className="flex items-center gap-2">
