@@ -167,6 +167,7 @@ export type Database = {
           price_per_night: number
           property_type: string
           region: string | null
+          rejection_reason: string | null
           title: string
           updated_at: string
           utilities_included: boolean | null
@@ -204,6 +205,7 @@ export type Database = {
           price_per_night: number
           property_type: string
           region?: string | null
+          rejection_reason?: string | null
           title: string
           updated_at?: string
           utilities_included?: boolean | null
@@ -241,6 +243,7 @@ export type Database = {
           price_per_night?: number
           property_type?: string
           region?: string | null
+          rejection_reason?: string | null
           title?: string
           updated_at?: string
           utilities_included?: boolean | null

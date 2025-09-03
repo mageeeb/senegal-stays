@@ -233,7 +233,7 @@ const Admin = () => {
         return (
           <div className="flex items-center gap-2">
             <Badge variant="destructive" className="bg-red-500">
-              {property.rejection_reason || 'Identité non conforme'}
+              Identité non conforme
             </Badge>
             {isPending && <Badge variant="outline" className="text-xs">Non sauvegardé</Badge>}
           </div>
