@@ -20,6 +20,7 @@ import { useReviewsSummary } from "@/hooks/useReviewsSummary";
 import { useAuth } from "@/hooks/useAuth";
 import { VerifiedBadge } from "@/components/VerifiedBadge";
 import MetaBar from "@/components/MetaBar";
+import VirtualTour from "@/components/VirtualTour";
 
 interface PropertyImage {
   id: string;
@@ -560,6 +561,12 @@ const PropertyDetail = () => {
                         {!property.latitude || !property.longitude ? "Localisation approximative: ajoutez un point précis lors de l'édition pour afficher le marqueur exact." : null}
                     </div>
                 </div>
+
+                {/* Section Visite Guidée */}
+                <VirtualTour 
+                  propertyTitle={property.title}
+                  matterportUrl={undefined} // À configurer avec l'URL Matterport spécifique au logement
+                />
 
                 {/* Section Hôte */}
                 <div className="mb-12">
