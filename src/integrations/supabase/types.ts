@@ -21,7 +21,9 @@ export type Database = {
           created_at: string
           guest_id: string
           guests_count: number
+          has_insurance: boolean | null
           id: string
+          insurance_amount: number | null
           is_monthly: boolean | null
           monthly_unit_price: number | null
           months_count: number | null
@@ -39,7 +41,9 @@ export type Database = {
           created_at?: string
           guest_id: string
           guests_count?: number
+          has_insurance?: boolean | null
           id?: string
+          insurance_amount?: number | null
           is_monthly?: boolean | null
           monthly_unit_price?: number | null
           months_count?: number | null
@@ -57,7 +61,9 @@ export type Database = {
           created_at?: string
           guest_id?: string
           guests_count?: number
+          has_insurance?: boolean | null
           id?: string
+          insurance_amount?: number | null
           is_monthly?: boolean | null
           monthly_unit_price?: number | null
           months_count?: number | null
