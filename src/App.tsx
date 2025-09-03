@@ -19,6 +19,7 @@ import LongStays from "./pages/LongStays";
 import Logements from "./pages/Logements";
 import Vehicles from "./pages/Vehicles";
 import NotFound from "./pages/NotFound";
+import Admin from "./pages/Admin";
 import MobileNav from "@/components/layout/MobileNav";
 
 const queryClient = new QueryClient();
@@ -76,6 +77,14 @@ const App = () => (
                             <Route path="/logements" element={<Logements />} />
               <Route path="/vehicles" element={<Vehicles />} />
               <Route path="/vehicules" element={<Vehicles />} />
+              <Route 
+                path="/admin" 
+                element={
+                  <ProtectedRoute>
+                    <Admin />
+                  </ProtectedRoute>
+                } 
+              />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

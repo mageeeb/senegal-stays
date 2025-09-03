@@ -10,11 +10,13 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { LogOut, User, Home, Plus } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
+import { useUserRole } from "@/hooks/useUserRole";
 import { useToast } from "@/hooks/use-toast";
 import { NAV_ITEMS } from "@/components/layout/navItems";
 
 const Header = () => {
   const { user, signOut } = useAuth();
+  const { isSuperAdmin } = useUserRole();
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -82,6 +84,11 @@ const Header = () => {
                     <Link to="/vehicles" className="text-foreground hover:text-primary transition-colors">
                         Véhicules
                     </Link>
+                    {isSuperAdmin && (
+                        <Link to="/admin" className="text-foreground hover:text-primary transition-colors font-medium text-red-600">
+                            Admin
+                        </Link>
+                    )}
                     {user && (
                         <Link to="/host" className="text-foreground hover:text-primary transition-colors">
                             Devenir hôte

@@ -62,12 +62,6 @@ const regionKeywords: Record<RegionSlug, string[]> = {
   thies: [
     'thies', 'thiès', 'somone', 'ngaparou', 'popenguine', 'toubab dialaw', 'joal', 'joal fadiouth', 'fadiouth', 'nguekhokh', 'petite cote'
   ],
-    saintLouis: [
-    'île_nord', 'sor', 'île_sud', 'ndioloffene', 'balacosse', 'leona', 'pikine', 'cite niakh', 'tableau walo'
-  ],
-
-
-
 };
 
 export const REGIONS: RegionConfig[] = [
