@@ -48,6 +48,7 @@ interface Property {
   host_id: string;
   latitude?: number | null;
   longitude?: number | null;
+  validation_status?: string | null;
   // long-term
   long_term_enabled?: boolean;
   monthly_price?: number | null;
