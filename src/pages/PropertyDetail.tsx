@@ -590,7 +590,11 @@ const PropertyDetail = () => {
                                     <span>4,5 (12 commentaires)</span>
                                 </div>
                                 <div className="flex items-center gap-1">
-                                    <VerifiedBadge status="verified" size="sm" />
+                                    <VerifiedBadge 
+                                        status={property.validation_status === "approved" ? "verified" : "pending"} 
+                                        size="sm" 
+                                        labelPending="En cours de vérification"
+                                    />
                                 </div>
                             </div>
                             <div className="flex gap-4">
