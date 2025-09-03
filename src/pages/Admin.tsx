@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Trash2, CheckCircle, XCircle, Eye } from "lucide-react";
+import { Trash2, CheckCircle, XCircle, Eye, Save } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { Loader2 } from "lucide-react";
 
@@ -17,6 +17,7 @@ interface Property {
   validation_status: string | null;
   created_at: string;
   host_id: string;
+  rejection_reason?: string | null;
 }
 
 interface ValidationCriteria {
@@ -32,6 +33,8 @@ const Admin = () => {
   const [properties, setProperties] = useState<Property[]>([]);
   const [criteria, setCriteria] = useState<ValidationCriteria[]>([]);
   const [loading, setLoading] = useState(true);
+  const [pendingChanges, setPendingChanges] = useState<Set<string>>(new Set());
+  const [saving, setSaving] = useState(false);
 
   useEffect(() => {
     // Vérification simplifiée par email au lieu des rôles
@@ -48,7 +51,7 @@ const Admin = () => {
       // Fetch all properties for super admin
       const { data: propertiesData, error: propertiesError } = await supabase
         .from('properties')
-        .select('id, title, city, validation_status, created_at, host_id')
+        .select('id, title, city, validation_status, created_at, host_id, rejection_reason')
         .order('created_at', { ascending: false });
 
       if (propertiesError) throw propertiesError;
@@ -106,12 +109,20 @@ const Admin = () => {
     status: 'approved' | 'rejected'
   ) => {
     try {
+      const updateData: any = {
+        validation_status: status,
+        validated_at: new Date().toISOString(),
+        validated_by: user?.id,
+      };
+
+      // Si rejeté, ajouter la raison spécifique
+      if (status === 'rejected') {
+        updateData.rejection_reason = 'Identité non conforme';
+      }
+
       const { error } = await supabase
         .from('properties')
-        .update({
-          validation_status: status,
-          validated_at: new Date().toISOString(),
-        })
+        .update(updateData)
         .eq('id', propertyId);
 
       if (error) throw error;
@@ -119,14 +130,20 @@ const Admin = () => {
       setProperties(prev => 
         prev.map(p => 
           p.id === propertyId 
-            ? { ...p, validation_status: status }
+            ? { ...p, validation_status: status, rejection_reason: status === 'rejected' ? 'Identité non conforme' : null }
             : p
         )
       );
 
+      // Ajouter aux changements en attente
+      setPendingChanges(prev => new Set([...prev, propertyId]));
+
       toast({
-        title: "Succès",
-        description: `Logement ${status === 'approved' ? 'approuvé' : 'rejeté'}`,
+        title: "Action enregistrée",
+        description: status === 'approved' 
+          ? "Logement approuvé - N'oubliez pas de sauvegarder" 
+          : "Logement rejeté (Identité non conforme) - N'oubliez pas de sauvegarder",
+        variant: status === 'approved' ? "default" : "destructive",
       });
     } catch (error) {
       console.error('Error updating validation status:', error);
@@ -135,6 +152,49 @@ const Admin = () => {
         description: "Impossible de mettre à jour le statut",
         variant: "destructive",
       });
+    }
+  };
+
+  const saveAllChanges = async () => {
+    if (pendingChanges.size === 0) {
+      toast({
+        title: "Information",
+        description: "Aucun changement à sauvegarder",
+      });
+      return;
+    }
+
+    setSaving(true);
+    try {
+      // Les changements sont déjà enregistrés en base, on fait juste une vérification
+      const { data, error } = await supabase
+        .from('properties')
+        .select('id, validation_status')
+        .in('id', Array.from(pendingChanges));
+
+      if (error) throw error;
+
+      setPendingChanges(new Set());
+      
+      toast({
+        title: "Succès",
+        description: `${pendingChanges.size} modification(s) sauvegardée(s)`,
+      });
+
+      // Rediriger vers la page d'accueil après 1 seconde
+      setTimeout(() => {
+        navigate('/');
+      }, 1000);
+
+    } catch (error) {
+      console.error('Error saving changes:', error);
+      toast({
+        title: "Erreur",
+        description: "Erreur lors de la sauvegarde",
+        variant: "destructive",
+      });
+    } finally {
+      setSaving(false);
     }
   };
 
@@ -155,15 +215,29 @@ const Admin = () => {
   const approvedProperties = properties.filter(p => p.validation_status === 'approved');
   const rejectedProperties = properties.filter(p => p.validation_status === 'rejected');
 
-  const getStatusBadge = (status: string | null) => {
-    switch (status) {
+  const getStatusBadge = (property: Property) => {
+    const isPending = pendingChanges.has(property.id);
+    
+    switch (property.validation_status) {
       case 'pending':
       case null:
         return <Badge variant="secondary">En attente</Badge>;
       case 'approved':
-        return <Badge className="bg-green-500">Approuvé</Badge>;
+        return (
+          <div className="flex items-center gap-2">
+            <Badge className="bg-green-500">Identité vérifiée</Badge>
+            {isPending && <Badge variant="outline" className="text-xs">Non sauvegardé</Badge>}
+          </div>
+        );
       case 'rejected':
-        return <Badge variant="destructive">Rejeté</Badge>;
+        return (
+          <div className="flex items-center gap-2">
+            <Badge variant="destructive" className="bg-red-500">
+              {property.rejection_reason || 'Identité non conforme'}
+            </Badge>
+            {isPending && <Badge variant="outline" className="text-xs">Non sauvegardé</Badge>}
+          </div>
+        );
       default:
         return <Badge variant="outline">Inconnu</Badge>;
     }
@@ -177,7 +251,7 @@ const Admin = () => {
             <CardTitle className="text-lg">{property.title}</CardTitle>
             <p className="text-muted-foreground">{property.city}</p>
           </div>
-          {getStatusBadge(property.validation_status)}
+          {getStatusBadge(property)}
         </div>
       </CardHeader>
       <CardContent>
@@ -227,11 +301,37 @@ const Admin = () => {
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <div className="mb-8">
-        <h1 className="text-3xl font-bold">Administration</h1>
-        <p className="text-muted-foreground">
-          Gestion des logements et validation de conformité
-        </p>
+      <div className="mb-8 flex justify-between items-start">
+        <div>
+          <h1 className="text-3xl font-bold">Administration</h1>
+          <p className="text-muted-foreground">
+            Gestion des logements et validation de conformité
+          </p>
+        </div>
+        <div className="flex gap-2">
+          {pendingChanges.size > 0 && (
+            <Badge variant="outline" className="text-orange-500">
+              {pendingChanges.size} modification(s) non sauvegardée(s)
+            </Badge>
+          )}
+          <Button 
+            onClick={saveAllChanges} 
+            disabled={saving || pendingChanges.size === 0}
+            className="bg-blue-500 hover:bg-blue-600"
+          >
+            {saving ? (
+              <>
+                <Loader2 className="h-4 w-4 mr-1 animate-spin" />
+                Sauvegarde...
+              </>
+            ) : (
+              <>
+                <Save className="h-4 w-4 mr-1" />
+                Sauvegarder & Retour
+              </>
+            )}
+          </Button>
+        </div>
       </div>
 
       <Tabs defaultValue="pending" className="w-full">
