@@ -49,8 +49,21 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
   }, []);
 
   const signOut = async () => {
-    const { error } = await supabase.auth.signOut();
-    if (error) throw error;
+    try {
+      const { error } = await supabase.auth.signOut();
+      // Ignore "session not found" errors as user is already logged out
+      if (error && !error.message.includes('Session not found')) {
+        throw error;
+      }
+      // Force clear local state even if session not found
+      setSession(null);
+      setUser(null);
+    } catch (error) {
+      // Force clear local state on any error
+      setSession(null);
+      setUser(null);
+      throw error;
+    }
   };
 
   const value = {
