@@ -171,6 +171,9 @@ export type Database = {
           updated_at: string
           utilities_included: boolean | null
           utilities_notes: string | null
+          validated_at: string | null
+          validated_by: string | null
+          validation_status: string | null
         }
         Insert: {
           address: string
@@ -205,6 +208,9 @@ export type Database = {
           updated_at?: string
           utilities_included?: boolean | null
           utilities_notes?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_status?: string | null
         }
         Update: {
           address?: string
@@ -239,6 +245,9 @@ export type Database = {
           updated_at?: string
           utilities_included?: boolean | null
           utilities_notes?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
+          validation_status?: string | null
         }
         Relationships: [
           {
@@ -278,6 +287,51 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "property_availability_property_id_fkey"
+            columns: ["property_id"]
+            isOneToOne: false
+            referencedRelation: "properties"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      property_evaluations: {
+        Row: {
+          comments: string | null
+          created_at: string
+          criteria_id: string
+          evaluator_id: string
+          id: string
+          property_id: string
+          score: number
+        }
+        Insert: {
+          comments?: string | null
+          created_at?: string
+          criteria_id: string
+          evaluator_id: string
+          id?: string
+          property_id: string
+          score: number
+        }
+        Update: {
+          comments?: string | null
+          created_at?: string
+          criteria_id?: string
+          evaluator_id?: string
+          id?: string
+          property_id?: string
+          score?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "property_evaluations_criteria_id_fkey"
+            columns: ["criteria_id"]
+            isOneToOne: false
+            referencedRelation: "validation_criteria"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "property_evaluations_property_id_fkey"
             columns: ["property_id"]
             isOneToOne: false
             referencedRelation: "properties"
@@ -396,6 +450,30 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      validation_criteria: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
         }
         Relationships: []
       }
