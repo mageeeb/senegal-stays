@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useUserRole } from "@/hooks/useUserRole";
+import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/supabase/client";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -27,22 +27,21 @@ interface ValidationCriteria {
 
 const Admin = () => {
   const navigate = useNavigate();
-  const { isSuperAdmin, loading: roleLoading } = useUserRole();
+  const { user } = useAuth();
   const { toast } = useToast();
   const [properties, setProperties] = useState<Property[]>([]);
   const [criteria, setCriteria] = useState<ValidationCriteria[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (!roleLoading && !isSuperAdmin) {
+    // Vérification simplifiée par email au lieu des rôles
+    if (user?.email !== 'nanouchkaly@yahoo.fr') {
       navigate('/');
       return;
     }
-
-    if (isSuperAdmin) {
-      fetchData();
-    }
-  }, [isSuperAdmin, roleLoading, navigate]);
+    // Pour l'utilisateur super admin, charger directement les données
+    fetchData();
+  }, [user?.email, navigate]);
 
   const fetchData = async () => {
     try {
@@ -139,7 +138,7 @@ const Admin = () => {
     }
   };
 
-  if (roleLoading || loading) {
+  if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <Loader2 className="h-8 w-8 animate-spin" />
@@ -147,7 +146,8 @@ const Admin = () => {
     );
   }
 
-  if (!isSuperAdmin) {
+  // Vérification simplifiée par email
+  if (user?.email !== 'nanouchkaly@yahoo.fr') {
     return null;
   }
 
