@@ -594,6 +594,7 @@ const PropertyDetail = () => {
                                         status={property.validation_status === "approved" ? "verified" : "pending"} 
                                         size="sm" 
                                         labelPending="En cours de vérification"
+                                        labelVerified="Identité vérifiée"
                                     />
                                 </div>
                             </div>
