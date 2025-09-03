@@ -51,7 +51,14 @@ export const useUserRole = (): UseUserRoleReturn => {
   };
 
   useEffect(() => {
-    fetchUserRoles();
+    console.log('useUserRole useEffect triggered, user:', user?.email, user?.id);
+    if (user?.id) {
+      fetchUserRoles();
+    } else {
+      console.log('No user.id, setting empty roles and loading false');
+      setRoles([]);
+      setLoading(false);
+    }
   }, [user?.id]);
 
   const hasRole = (checkRole: UserRole) => roles.includes(checkRole);
