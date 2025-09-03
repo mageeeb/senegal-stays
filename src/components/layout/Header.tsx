@@ -26,12 +26,22 @@ const Header = () => {
         description: "À bientôt sur Teranga Home !",
       });
       navigate("/");
-    } catch (error) {
-      toast({
-        title: "Erreur",
-        description: "Impossible de se déconnecter",
-        variant: "destructive",
-      });
+    } catch (error: any) {
+      // Only show error if it's not a session not found error
+      if (!error.message?.includes('Session not found')) {
+        toast({
+          title: "Erreur",
+          description: "Impossible de se déconnecter",
+          variant: "destructive",
+        });
+      } else {
+        // Session was already expired, treat as successful logout
+        toast({
+          title: "Déconnexion réussie",
+          description: "À bientôt sur Teranga Home !",
+        });
+        navigate("/");
+      }
     }
   };
 
