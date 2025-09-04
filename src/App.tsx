@@ -21,6 +21,7 @@ import Vehicles from "./pages/Vehicles";
 import NotFound from "./pages/NotFound";
 import Admin from "./pages/Admin";
 import MobileNav from "@/components/layout/MobileNav";
+import { PWAPrompt } from "./components/PWAPrompt";
 
 const queryClient = new QueryClient();
 
@@ -31,7 +32,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <div className="pb-20 lg:pb-0">
+          <div className="mobile-nav-padding md:pb-0">
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/auth" element={<Auth />} />
@@ -90,6 +91,7 @@ const App = () => (
             </Routes>
           </div>
           <MobileNav />
+          <PWAPrompt />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>

@@ -19,41 +19,64 @@ const MobileNav = () => {
   const location = useLocation();
 
   return (
-    <nav className="fixed bottom-0 inset-x-0 z-50 border-t bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 lg:hidden">
-        <div className="mx-auto max-w-screen-md px-2 md:px-4 py-1.5 md:py-2 pb-[env(safe-area-inset-bottom)]">
+    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-background/98 backdrop-blur-lg supports-[backdrop-filter]:bg-background/95 border-t shadow-lg">
+        <div className="safe-area-bottom px-1">
             <ul
-              className="flex flex-nowrap items-stretch gap-1 md:gap-2 overflow-x-auto md:overflow-x-visible no-scrollbar snap-x snap-proximity md:snap-none justify-start md:justify-center pr-[calc(env(safe-area-inset-right)+0.75rem)]"
+              className="flex items-center justify-around no-scrollbar"
               style={{ WebkitOverflowScrolling: "touch" }}
             >
                 {NAV_ITEMS.map((item) => {
                     const isActive = location.pathname === item.to || (item.to !== "/" && location.pathname.startsWith(item.to));
                     const Icon = iconMap[item.icon || "Home"];
                     return (
-                        <li key={item.to} className="shrink-0">
+                        <li key={item.to}>
                             <Link
                                 to={item.to}
-                                className={`min-w-[72px] md:min-w-[84px] px-2 md:px-3 inline-flex flex-col items-center justify-center gap-1 py-2 rounded-md transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background snap-center ${
-                                    isActive ? "text-primary" : "text-muted-foreground hover:text-foreground"
+                                className={`flex flex-col items-center justify-center min-h-[60px] px-2 py-2 text-xs transition-all duration-200 touch-target mobile-button no-select ${
+                                    isActive ? "text-primary font-semibold scale-105" : "text-muted-foreground hover:text-foreground active:scale-95"
                                 }`}
                                 aria-current={isActive ? "page" : undefined}
                             >
-                                <Icon className="h-5 w-5 md:h-5 md:w-5" />
-                                <span className="text-[11px] md:text-xs max-w-[6.5rem] md:max-w-[8rem] truncate whitespace-nowrap text-center">{item.label}</span>
+                                <div className={`p-1.5 rounded-xl transition-all duration-200 ${
+                                    isActive ? "bg-primary/10 scale-110" : "hover:bg-muted/50"
+                                }`}>
+                                    <Icon className="h-5 w-5" />
+                                </div>
+                                <span className="text-[10px] leading-tight mt-1 font-medium">{item.label}</span>
                             </Link>
                         </li>
                     );
                 })}
 
-                <li className="shrink-0">
+                <li>
                     {user ? (
-                        <Link to="/host" aria-label="Devenir Hôte" className="min-w-[72px] md:min-w-[84px] px-2 md:px-3 inline-flex flex-col items-center justify-center gap-1 py-2 rounded-md transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background snap-center">
-                            <Plus className="h-5 w-5 md:h-5 md:w-5" />
-                            <span className="text-[11px] md:text-xs max-w-[6.5rem] md:max-w-[8rem] truncate whitespace-nowrap text-center">Hôte</span>
+                        <Link 
+                            to="/host" 
+                            aria-label="Devenir Hôte" 
+                            className={`flex flex-col items-center justify-center min-h-[60px] px-2 py-2 text-xs transition-all duration-200 touch-target mobile-button no-select ${
+                                location.pathname === "/host" ? "text-primary font-semibold scale-105" : "text-muted-foreground hover:text-foreground active:scale-95"
+                            }`}
+                        >
+                            <div className={`p-1.5 rounded-xl transition-all duration-200 ${
+                                location.pathname === "/host" ? "bg-primary/10 scale-110" : "hover:bg-muted/50"
+                            }`}>
+                                <Plus className="h-5 w-5" />
+                            </div>
+                            <span className="text-[10px] leading-tight mt-1 font-medium">Hôte</span>
                         </Link>
                     ) : (
-                        <Link to="/auth" className="min-w-[72px] md:min-w-[84px] px-2 md:px-3 inline-flex flex-col items-center justify-center gap-1 py-2 rounded-md transition-colors text-muted-foreground hover:text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background snap-center">
-                            <LogIn className="h-5 w-5 md:h-5 md:w-5" />
-                            <span className="text-[11px] md:text-xs max-w-[6.5rem] md:max-w-[8rem] truncate whitespace-nowrap text-center">Connexion</span>
+                        <Link 
+                            to="/auth" 
+                            className={`flex flex-col items-center justify-center min-h-[60px] px-2 py-2 text-xs transition-all duration-200 touch-target mobile-button no-select ${
+                                location.pathname === "/auth" ? "text-primary font-semibold scale-105" : "text-muted-foreground hover:text-foreground active:scale-95"
+                            }`}
+                        >
+                            <div className={`p-1.5 rounded-xl transition-all duration-200 ${
+                                location.pathname === "/auth" ? "bg-primary/10 scale-110" : "hover:bg-muted/50"
+                            }`}>
+                                <LogIn className="h-5 w-5" />
+                            </div>
+                            <span className="text-[10px] leading-tight mt-1 font-medium">Connexion</span>
                         </Link>
                     )}
                 </li>
