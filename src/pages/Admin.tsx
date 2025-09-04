@@ -314,6 +314,14 @@ const Admin = () => {
               {pendingChanges.size} modification(s) non sauvegardée(s)
             </Badge>
           )}
+          {pendingProperties.length === 0 && (
+            <Button 
+              onClick={() => navigate('/')} 
+              variant="outline"
+            >
+              Retour à l'accueil
+            </Button>
+          )}
           <Button 
             onClick={saveAllChanges} 
             disabled={saving || pendingChanges.size === 0}

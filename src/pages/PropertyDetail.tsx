@@ -88,6 +88,41 @@ const PropertyDetail = () => {
     }
   }, [id]);
 
+  // Écouter les mises à jour en temps réel du statut de validation
+  useEffect(() => {
+    if (!id) return;
+
+    const channel = supabase
+      .channel('property-validation-changes')
+      .on(
+        'postgres_changes',
+        {
+          event: 'UPDATE',
+          schema: 'public',
+          table: 'properties',
+          filter: `id=eq.${id}`
+        },
+        (payload) => {
+          console.log('Mise à jour en temps réel reçue:', payload);
+          // Mettre à jour seulement le statut de validation
+          if (payload.new && property) {
+            setProperty(prev => prev ? {
+              ...prev,
+              validation_status: payload.new.validation_status,
+              validated_at: payload.new.validated_at,
+              validated_by: payload.new.validated_by,
+              rejection_reason: payload.new.rejection_reason
+            } : null);
+          }
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [id, property?.id]);
+
   // Rafraîchir les données quand la page devient visible (retour depuis admin)
   useEffect(() => {
     const handleVisibilityChange = () => {
