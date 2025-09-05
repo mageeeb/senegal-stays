@@ -144,13 +144,14 @@ const Header = () => {
                          </Link>
                      </DropdownMenuItem>
                      
-                     {/* FORCE AFFICHAGE ADMIN - TOUJOURS VISIBLE */}
-                     <DropdownMenuItem asChild>
-                         <Link to="/admin">
-                             <Shield className="mr-2 h-4 w-4" />
-                             <span>🔧 Administration</span>
-                         </Link>
-                     </DropdownMenuItem>
+                     {isSuperAdmin && (
+                         <DropdownMenuItem asChild>
+                             <Link to="/admin">
+                                 <Shield className="mr-2 h-4 w-4" />
+                                 <span>Administration</span>
+                             </Link>
+                         </DropdownMenuItem>
+                     )}
                      
                                      <DropdownMenuSeparator />
                                     <DropdownMenuItem onClick={handleSignOut}>
