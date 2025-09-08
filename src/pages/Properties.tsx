@@ -272,19 +272,20 @@ const Properties = () => {
               >
                 <div className="grid md:grid-cols-3 gap-0">
                   {/* Image principale */}
-                  <div className="relative md:col-span-1">
+                  <div className="relative md:col-span-1" style={{ aspectRatio: '995/576' }}>
                     {property.images && property.images.length > 0 ? (
                       <img
                         src={property.images[0].image_url}
                         alt={property.images[0].alt_text || property.title}
-                        className="w-full h-56 md:h-full object-cover"
+                        className="w-full h-full object-cover"
+                        style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
                         onError={(e) => {
                           console.log('Image failed to load:', property.images[0].image_url);
                           e.currentTarget.src = 'https://images.unsplash.com/photo-1554995207-c18c203602cb?w=800&h=600&fit=crop';
                         }}
                       />
                     ) : (
-                      <div className="w-full h-56 md:h-full bg-gray-200 flex items-center justify-center">
+                      <div className="w-full h-full bg-gray-200 flex items-center justify-center">
                         <p className="text-muted-foreground">Photo à venir</p>
                       </div>
                     )}
