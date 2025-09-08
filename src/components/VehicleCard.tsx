@@ -55,11 +55,12 @@ export const VehicleCard = ({ vehicle }: VehicleCardProps) => {
       <Link to={`/vehicle/${vehicle.id}`} className="block">
         <Card className="group hover:shadow-lg transition-shadow duration-200 cursor-pointer">
           <CardHeader className="p-0">
-            <div className="relative">
+            <div className="relative" style={{ aspectRatio: '995/576' }}>
               <img
                 src={vehicle.image_url || '/img/destPop/1.jpg'}
                 alt={vehicle.name}
-                className="w-full h-48 object-cover rounded-t-lg"
+                className="w-full h-full object-cover rounded-t-lg"
+                style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
               />
               <Badge className={`absolute top-2 right-2 ${getCategoryColor(vehicle.category)}`}>
                 {vehicle.category}

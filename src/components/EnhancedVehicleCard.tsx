@@ -68,11 +68,12 @@ export const EnhancedVehicleCard = ({ vehicle }: VehicleCardProps) => {
         <CardHeader className="p-0">
           <div className="relative">
             <Link to={`/vehicle/${vehicle.id}`} className="block focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary/60">
-              <div className="aspect-[16/10] w-full bg-muted/40">
+              <div className="w-full bg-muted/40" style={{ aspectRatio: '995/576' }}>
                 <img
                   src={vehicle.image_url || '/img/destPop/1.jpg'}
                   alt={vehicle.name}
                   className="w-full h-full object-cover"
+                  style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
                   loading="lazy"
                 />
               </div>

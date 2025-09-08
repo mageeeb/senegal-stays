@@ -81,11 +81,12 @@ export const ReviewStep = ({ data }: ReviewStepProps) => {
           <div className="space-y-4">
             {/* Photo principale */}
             {data.photos.length > 0 && (
-              <div className="aspect-video bg-muted rounded-lg overflow-hidden">
+              <div className="bg-muted rounded-lg overflow-hidden" style={{ aspectRatio: '995/576' }}>
                 <img
                   src={data.photos[0]}
                   alt="Photo principale"
                   className="w-full h-full object-cover"
+                  style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
                 />
               </div>
             )}
