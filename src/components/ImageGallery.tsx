@@ -42,12 +42,11 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
       {/* Galerie principale */}
       <div className="grid grid-cols-4 gap-2 mb-8">
         {/* Image principale */}
-        <div className="col-span-2 row-span-2 relative" style={{ aspectRatio: '995/576' }}>
+        <div className="col-span-2 row-span-2 relative">
           <img
             src={images[0]?.image_url}
             alt={images[0]?.alt_text || title}
-            className="w-full h-full object-cover rounded-l-lg cursor-pointer hover:brightness-110 transition-all"
-            style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
+            className="w-full h-64 md:h-80 lg:h-96 object-cover rounded-l-lg cursor-pointer hover:brightness-110 transition-all"
             onClick={() => openLightbox(0)}
           />
         </div>
@@ -55,14 +54,13 @@ const ImageGallery = ({ images, title }: ImageGalleryProps) => {
         {/* Images secondaires */}
         <div className="col-span-2 grid grid-cols-2 gap-2">
           {images.slice(1, 5).map((image, index) => (
-            <div key={image.id} className="relative" style={{ aspectRatio: '995/576' }}>
+            <div key={image.id} className="relative">
               <img
                 src={image.image_url}
                 alt={image.alt_text || title}
-                className={`w-full h-full object-cover cursor-pointer hover:brightness-110 transition-all ${
+                className={`w-full h-32 md:h-40 lg:h-48 object-cover cursor-pointer hover:brightness-110 transition-all ${
                   index === 1 ? 'rounded-tr-lg' : index === 3 ? 'rounded-br-lg' : ''
                 }`}
-                style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
                 onClick={() => openLightbox(index + 1)}
               />
               {/* Overlay pour la dernière image s'il y en a plus */}

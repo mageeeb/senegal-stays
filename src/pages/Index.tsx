@@ -142,13 +142,12 @@ const Index = () => {
                   <Card
                     className="group relative overflow-hidden border-0 rounded-xl shadow-sm bg-card/80 backdrop-blur supports-[backdrop-filter]:bg-card/60 transition-transform duration-200 will-change-transform focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary active:scale-[0.98]"
                   >
-                    <div className="relative" style={{ aspectRatio: '995/576' }}>
+                    <div className="relative h-48 md:h-56">
                       <img
                         src={region.image}
                         alt={region.name}
                         loading="lazy"
                         className="h-full w-full object-cover transform-gpu transition-transform duration-500 group-hover:scale-105 motion-reduce:transform-none motion-reduce:transition-none"
-                        style={{ width: '995px', height: '576px', maxWidth: '100%', maxHeight: '100%' }}
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent transition-opacity duration-200" />
                       <div className="absolute top-3 left-3 flex gap-2">
