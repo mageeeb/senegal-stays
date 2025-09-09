@@ -5,10 +5,12 @@ import Header from "@/components/layout/Header";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Edit, Trash2, Eye } from "lucide-react";
+import { Edit, Trash2, Eye, Star, Clock } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
+import { useReviewsSummary, pluralizeCommentaires, formatAvgFr } from "@/hooks/useReviewsSummary";
 import { normalizeAmenities } from "@/utils/amenityIcons";
+import { PropertyHostInfo } from "@/components/PropertyHostInfo";
 
 interface PropertyImage {
   id: string;
@@ -32,6 +34,7 @@ interface Property {
   amenities: string[];
   is_active: boolean;
   created_at: string;
+  host_id: string;
   images?: PropertyImage[];
 }
 
@@ -371,7 +374,7 @@ const Properties = () => {
                     {property.amenities && property.amenities.length > 0 && (() => {
                       const amenities = normalizeAmenities(property.amenities);
                       return (
-                      <div className="flex flex-wrap gap-1">
+                      <div className="flex flex-wrap gap-1 mb-4">
                         {amenities.slice(0, 5).map((amenity) => (
                           <Badge key={amenity} variant="outline" className="text-xs">
                             {amenity}
@@ -385,6 +388,12 @@ const Properties = () => {
                       </div>
                       );
                     })()}
+
+                    {/* Informations hôte et avis */}
+                    <PropertyHostInfo 
+                      propertyId={property.id}
+                      hostId={property.host_id}
+                    />
                   </div>
                 </div>
               </Card>
