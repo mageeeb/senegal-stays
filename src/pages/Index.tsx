@@ -10,6 +10,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useEffect, useMemo, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { REGIONS, SHOW_EMPTY_REGIONS, mapLocationToRegion, RegionSlug } from "@/utils/regions";
+import { PropertyHostInfo } from "@/components/PropertyHostInfo";
 
 const Index = () => {
   const { user } = useAuth();

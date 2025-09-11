@@ -9,6 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import { Checkbox } from "@/components/ui/checkbox";
+import { PropertyHostInfo } from "@/components/PropertyHostInfo";
 
 interface PropertyImage { id: string; image_url: string; is_cover: boolean; alt_text: string | null; sort_order: number; }
 interface Property {
@@ -23,6 +24,7 @@ interface Property {
   utilities_included: boolean | null;
   amenities: string[] | null;
   property_images?: PropertyImage[];
+  host_id: string;
 }
 
 type TabletSearchProps = {
@@ -171,7 +173,7 @@ const LongStays = () => {
     // Cast to any to avoid deep TS instantiation from Supabase generics (types are not generated in this project)
     let query: any = (supabase as any)
       .from('properties')
-      .select(`id, title, city, price_per_night, monthly_price, long_term_enabled, min_months, furnished, utilities_included, amenities, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
+      .select(`id, title, city, price_per_night, monthly_price, long_term_enabled, min_months, furnished, utilities_included, amenities, host_id, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
       .eq('is_active', true)
       .eq('long_term_enabled', true)
       .eq('country', 'Senegal')
@@ -394,11 +396,17 @@ const LongStays = () => {
                         <span className="text-lg font-bold tabular-nums">{Number(p.monthly_price || 0).toLocaleString()} FCFA</span>
                         <span className="text-sm text-muted-foreground">/ mois</span>
                       </div>
-                      <div className="mt-2 flex gap-2">
+                      <div className="mt-2 flex gap-2 mb-3">
                         {p.utilities_included ? <Badge variant="outline">Charges incluses</Badge> : null}
                         {p.furnished ? <Badge variant="outline">Meublé</Badge> : <Badge variant="outline">Non meublé</Badge>}
                         {p.min_months ? <Badge variant="outline">{p.min_months} mois min</Badge> : null}
                       </div>
+                      
+                      {/* Informations hôte et avis */}
+                      <PropertyHostInfo 
+                        propertyId={p.id}
+                        hostId={p.host_id}
+                      />
                     </CardContent>
                   </Card>
                 </Link>

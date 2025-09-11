@@ -10,6 +10,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { getAmenityIcon, normalizeAmenities } from "@/utils/amenityIcons";
 import { getRegionBySlug, REGION_CITIES, mapLocationToRegion } from "@/utils/regions";
 import Gallery from "@/components/Gallery";
+import { PropertyHostInfo } from "@/components/PropertyHostInfo";
 interface PropertyImage {
   id: string;
   image_url: string;
@@ -36,6 +37,7 @@ interface Property {
   images?: PropertyImage[];
   latitude?: number | null;
   longitude?: number | null;
+  host_id: string;
 }
 
 const Destination = () => {
@@ -294,12 +296,6 @@ const Destination = () => {
                               <p className="text-muted-foreground">Photo à venir</p>
                             </div>
                           )}
-                          <div className="absolute top-3 right-3 bg-white/90 backdrop-blur-sm px-2 py-1 rounded-md">
-                            <div className="flex items-center text-sm">
-                              <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                              4.5
-                            </div>
-                          </div>
                         </div>
 
                         <CardContent className="p-4 flex flex-col gap-3 grow">
@@ -346,16 +342,18 @@ const Destination = () => {
                             })()}
                           </div>
 
-                          <div className="mt-auto pt-2 flex justify-between items-center">
+                          <div className="flex justify-between items-center mb-3">
                             <div>
                               <span className="font-bold text-lg tabular-nums">{Number(property.price_per_night).toLocaleString()} FCFA</span>
                               <span className="text-muted-foreground text-sm"> / nuit</span>
                             </div>
-                            <div className="flex items-center text-sm text-muted-foreground">
-                              <Star className="h-3 w-3 text-yellow-400 fill-current mr-1" />
-                              4.5 (12)
-                            </div>
                           </div>
+                          
+                          {/* Informations hôte et avis */}
+                          <PropertyHostInfo 
+                            propertyId={property.id}
+                            hostId={property.host_id}
+                          />
                         </CardContent>
                       </Card>
                     </Link>

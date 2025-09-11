@@ -55,7 +55,7 @@ export const PropertyHostInfo = ({ propertyId, hostId }: PropertyHostInfoProps) 
   return (
     <div className="flex flex-col sm:flex-row sm:items-center gap-3 mt-4 pt-4 border-t">
       {/* Avis */}
-      {reviewsData && reviewsData.count > 0 && (
+      {reviewsData && (
         <div className="flex items-center gap-1 text-sm">
           <Star className="h-4 w-4 fill-yellow-400 text-yellow-400" />
           <span className="font-medium">

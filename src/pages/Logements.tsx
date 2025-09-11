@@ -7,6 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
+import { PropertyHostInfo } from "@/components/PropertyHostInfo";
 
 interface PropertyImage { id: string; image_url: string; is_cover: boolean; alt_text: string | null; sort_order: number; }
 interface Property {
@@ -17,6 +18,7 @@ interface Property {
   long_term_enabled: boolean | null;
   amenities: string[] | null;
   property_images?: PropertyImage[];
+  host_id: string;
 }
 
 const Logements = () => {
@@ -33,7 +35,7 @@ const Logements = () => {
     // Base query: active properties in Senegal, NOT long-term
     let query: any = (supabase as any)
       .from('properties')
-      .select(`id, title, city, price_per_night, long_term_enabled, amenities, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
+      .select(`id, title, city, price_per_night, long_term_enabled, amenities, host_id, property_images ( id, image_url, is_cover, alt_text, sort_order )`)
       .eq('is_active', true)
       .eq('country', 'Senegal')
       .or('long_term_enabled.is.null,long_term_enabled.eq.false')
@@ -191,10 +193,16 @@ const Logements = () => {
                         <Badge variant="secondary">Nuitée</Badge>
                       </div>
                       <div className="text-sm text-muted-foreground mb-2">{p.city}</div>
-                      <div className="flex items-baseline gap-1">
+                      <div className="flex items-baseline gap-1 mb-3">
                         <span className="text-lg font-bold tabular-nums">{Number(p.price_per_night || 0).toLocaleString()} FCFA</span>
                         <span className="text-sm text-muted-foreground">/ nuit</span>
                       </div>
+                      
+                      {/* Informations hôte et avis */}
+                      <PropertyHostInfo 
+                        propertyId={p.id}
+                        hostId={p.host_id}
+                      />
                     </CardContent>
                   </Card>
                 </Link>
