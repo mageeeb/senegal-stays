@@ -12,6 +12,8 @@ import { supabase } from "@/integrations/supabase/client";
 import { VehicleBookingForm } from "@/components/VehicleBookingForm";
 import { useAuth } from "@/hooks/useAuth";
 import Gallery from "@/components/Gallery";
+import { VehicleCommentsSection } from "@/components/VehicleCommentsSection";
+import { useVehicleReviewsSummary, formatAvgFr, pluralizeAvis } from "@/hooks/useVehicleReviewsSummary";
 
 interface VehicleImage {
   id: string;
@@ -57,6 +59,7 @@ const VehicleDetail = () => {
   const [owner, setOwner] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [showBookingForm, setShowBookingForm] = useState(false);
+  const { data: reviewsSummary } = useVehicleReviewsSummary(id);
 
   useEffect(() => {
     if (id) {
@@ -227,10 +230,14 @@ const VehicleDetail = () => {
                     <MapPin className="h-4 w-4" />
                     <span>{vehicle.location}</span>
                   </div>
-                  <div className="flex items-center gap-1">
-                    <Star className="h-4 w-4 fill-current text-yellow-500" />
-                    <span>4.8 (12 avis)</span>
-                  </div>
+                  {reviewsSummary && reviewsSummary.count > 0 && (
+                    <div className="flex items-center gap-1">
+                      <Star className="h-4 w-4 fill-current text-yellow-500" />
+                      <span>
+                        {formatAvgFr(reviewsSummary.average)} ({reviewsSummary.count} {pluralizeAvis(reviewsSummary.count)})
+                      </span>
+                    </div>
+                  )}
                 </div>
               </div>
 
@@ -333,6 +340,9 @@ const VehicleDetail = () => {
                   </CardContent>
                 </Card>
               )}
+
+              {/* Section des avis */}
+              <VehicleCommentsSection vehicleId={vehicle.id} />
             </div>
 
             {/* Sidebar de réservation */}

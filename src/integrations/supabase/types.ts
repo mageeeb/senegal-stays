@@ -586,6 +586,51 @@ export type Database = {
           },
         ]
       }
+      vehicle_reviews: {
+        Row: {
+          booking_id: string
+          comment: string | null
+          created_at: string
+          id: string
+          rating: number
+          reviewer_id: string
+          vehicle_id: string
+        }
+        Insert: {
+          booking_id: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating: number
+          reviewer_id: string
+          vehicle_id: string
+        }
+        Update: {
+          booking_id?: string
+          comment?: string | null
+          created_at?: string
+          id?: string
+          rating?: number
+          reviewer_id?: string
+          vehicle_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "fk_vehicle_reviews_booking_id"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "vehicle_bookings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "fk_vehicle_reviews_vehicle_id"
+            columns: ["vehicle_id"]
+            isOneToOne: false
+            referencedRelation: "vehicles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       vehicles: {
         Row: {
           brand: string
