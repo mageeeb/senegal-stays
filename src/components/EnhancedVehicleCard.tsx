@@ -69,7 +69,7 @@ export const EnhancedVehicleCard = ({ vehicle }: VehicleCardProps) => {
     const badges: string[] = [];
     if (vehicle.transmission === 'automatic' || vehicle.transmission === 'automatique') badges.push('Automatique');
     if (vehicle.transmission === 'manual') badges.push('Manuelle');
-    if (vehicle.features?.some(f => /clim|air.?condition/i.test(f))) badges.push('Clim');
+    if (vehicle.features?.some(f => /clim|air.?condition/i.test(f))) badges.push('Climatisation');
     if (vehicle.features?.some(f => /illimit|km/i.test(f))) badges.push('KM inclus');
     if (vehicle.features?.some(f => /annulation|flex/i.test(f))) badges.push('Annulation flexible');
     return badges;
