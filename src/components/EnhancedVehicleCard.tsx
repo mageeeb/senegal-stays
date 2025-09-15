@@ -72,7 +72,7 @@ export const EnhancedVehicleCard = ({ vehicle }: VehicleCardProps) => {
     if (vehicle.features?.some(f => /clim|air.?condition/i.test(f))) badges.push('Climatisation');
     if (vehicle.features?.some(f => /illimit|km/i.test(f))) badges.push('KM inclus');
     if (vehicle.features?.some(f => /annulation|flex/i.test(f))) badges.push('Annulation flexible');
-    return badges;
+    return [...new Set(badges)]; // Remove duplicates
   };
 
   return (
