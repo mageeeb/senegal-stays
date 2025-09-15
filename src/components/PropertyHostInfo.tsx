@@ -26,26 +26,35 @@ export const PropertyHostInfo = ({ propertyId, hostId }: PropertyHostInfoProps) 
 
   useEffect(() => {
     const fetchData = async () => {
+      // Laisser passer si le profil n'est pas accessible (RLS), mais récupérer quand même le statut
       try {
-        // Récupérer le profil de l'hôte
-        const { data: hostData, error: hostError } = await supabase
+        const profilePromise = supabase
           .from('profiles')
           .select('first_name, last_name, created_at')
           .eq('user_id', hostId)
-          .single();
+          .maybeSingle();
 
-        if (hostError) throw hostError;
-        setHostProfile(hostData);
-
-        // Récupérer le statut de validation de la propriété
-        const { data: propertyData, error: propertyError } = await supabase
+        const propertyPromise = supabase
           .from('properties')
           .select('validation_status')
           .eq('id', propertyId)
           .single();
 
-        if (propertyError) throw propertyError;
-        setPropertyInfo(propertyData);
+        const [profileResult, propertyResult] = await Promise.allSettled([profilePromise, propertyPromise]);
+
+        if (profileResult.status === 'fulfilled') {
+          const { data } = profileResult.value as any;
+          if (data) setHostProfile(data);
+        } else {
+          console.warn('Profil hôte inaccessible (attendu si RLS):', profileResult.reason);
+        }
+
+        if (propertyResult.status === 'fulfilled') {
+          const { data } = propertyResult.value as any;
+          setPropertyInfo(data);
+        } else {
+          console.error('Erreur récupération statut de validation:', propertyResult.reason);
+        }
       } catch (error) {
         console.error('Error fetching data:', error);
       }
