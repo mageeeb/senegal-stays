@@ -637,7 +637,10 @@ const PropertyDetail = () => {
                             <div className="flex items-center gap-6 mb-4 text-sm">
                                 <div className="flex items-center gap-1">
                                     <Star className="h-4 w-4" />
-                                    <span>4,5 (12 commentaires)</span>
+                                    <span>
+                                        {summaryLoading ? '…' : (summary?.avg != null ? Number(summary.avg).toLocaleString('fr-FR', { minimumFractionDigits: 1, maximumFractionDigits: 1 }) : '—')}
+                                        {summary?.count ? ` (${summary.count} commentaire${summary.count >= 2 ? 's' : ''})` : ' (0 commentaire)'}
+                                    </span>
                                 </div>
                                 <div className="flex items-center gap-1">
                                     <VerifiedBadge 
