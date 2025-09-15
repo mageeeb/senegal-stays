@@ -3,8 +3,9 @@ import { Link } from "react-router-dom";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Users, Settings, MapPin, Fuel, Calendar } from "lucide-react";
+import { Users, Settings, MapPin, Fuel, Calendar, Star } from "lucide-react";
 import { VehicleBookingForm } from "./VehicleBookingForm";
+import { useVehicleReviewsSummary, formatAvgFr } from "@/hooks/useVehicleReviewsSummary";
 
 interface Vehicle {
   id: string;
@@ -32,6 +33,18 @@ interface VehicleCardProps {
 export const EnhancedVehicleCard = ({ vehicle }: VehicleCardProps) => {
   const [showBookingForm, setShowBookingForm] = useState(false);
   const isAvailable = vehicle.is_available !== false;
+  const { data: reviewsSummary } = useVehicleReviewsSummary(vehicle.id);
+
+  const renderStars = (rating: number) => {
+    return Array.from({ length: 5 }, (_, i) => (
+      <Star
+        key={i}
+        className={`h-4 w-4 ${
+          i < Math.round(rating) ? 'fill-amber-400 text-amber-400' : 'text-gray-300'
+        }`}
+      />
+    ));
+  };
 
   const getCategoryColor = (category: string) => {
     switch (category) {
@@ -91,10 +104,14 @@ export const EnhancedVehicleCard = ({ vehicle }: VehicleCardProps) => {
                 {vehicle.name}
               </Link>
             </CardTitle>
-            <div className="flex items-center gap-1 text-amber-500 text-sm" aria-label="Note moyenne">
-              <svg viewBox="0 0 24 24" className="w-4 h-4 fill-current" aria-hidden="true"><path d="M12 .587l3.668 7.431 8.2 1.192-5.934 5.787 1.402 8.168L12 18.896l-7.336 3.869 1.402-8.168L.132 9.21l8.2-1.192z"/></svg>
-              <span>4.7</span>
-            </div>
+            {reviewsSummary && reviewsSummary.count > 0 ? (
+              <div className="flex items-center gap-1 text-amber-500 text-sm" aria-label="Note moyenne">
+                <div className="flex items-center">
+                  {renderStars(reviewsSummary.average || 0)}
+                </div>
+                <span>{formatAvgFr(reviewsSummary.average)}</span>
+              </div>
+            ) : null}
           </div>
           <p className="text-muted-foreground text-sm mb-3">
             {vehicle.brand} {vehicle.model} ({vehicle.year})
