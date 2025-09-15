@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react';
-import { Star, Clock } from 'lucide-react';
+import { Star } from 'lucide-react';
 import { useReviewsSummary, pluralizeCommentaires, formatAvgFr } from '@/hooks/useReviewsSummary';
 import { supabase } from '@/integrations/supabase/client';
-import { Badge } from '@/components/ui/badge';
+import { VerifiedBadge } from '@/components/VerifiedBadge';
 
 interface PropertyHostInfoProps {
   propertyId: string;
@@ -15,30 +15,46 @@ interface HostProfile {
   created_at: string;
 }
 
+interface PropertyInfo {
+  validation_status: string | null;
+}
+
 export const PropertyHostInfo = ({ propertyId, hostId }: PropertyHostInfoProps) => {
   const { data: reviewsData } = useReviewsSummary(propertyId);
   const [hostProfile, setHostProfile] = useState<HostProfile | null>(null);
+  const [propertyInfo, setPropertyInfo] = useState<PropertyInfo | null>(null);
 
   useEffect(() => {
-    const fetchHostProfile = async () => {
+    const fetchData = async () => {
       try {
-        const { data, error } = await supabase
+        // Récupérer le profil de l'hôte
+        const { data: hostData, error: hostError } = await supabase
           .from('profiles')
           .select('first_name, last_name, created_at')
           .eq('user_id', hostId)
           .single();
 
-        if (error) throw error;
-        setHostProfile(data);
+        if (hostError) throw hostError;
+        setHostProfile(hostData);
+
+        // Récupérer le statut de validation de la propriété
+        const { data: propertyData, error: propertyError } = await supabase
+          .from('properties')
+          .select('validation_status')
+          .eq('id', propertyId)
+          .single();
+
+        if (propertyError) throw propertyError;
+        setPropertyInfo(propertyData);
       } catch (error) {
-        console.error('Error fetching host profile:', error);
+        console.error('Error fetching data:', error);
       }
     };
 
-    if (hostId) {
-      fetchHostProfile();
+    if (hostId && propertyId) {
+      fetchData();
     }
-  }, [hostId]);
+  }, [hostId, propertyId]);
 
   const getHostSinceYear = () => {
     if (!hostProfile?.created_at) return new Date().getFullYear();
@@ -50,6 +66,21 @@ export const PropertyHostInfo = ({ propertyId, hostId }: PropertyHostInfoProps) 
     const firstName = hostProfile.first_name || '';
     const lastName = hostProfile.last_name || '';
     return `${firstName} ${lastName}`.trim() || 'Hôte';
+  };
+
+  const getValidationStatus = () => {
+    if (!propertyInfo?.validation_status) return 'pending';
+    
+    switch (propertyInfo.validation_status) {
+      case 'verified':
+      case 'approved':
+        return 'verified';
+      case 'rejected':
+        return 'unverified';
+      case 'pending':
+      default:
+        return 'pending';
+    }
   };
 
   return (
@@ -68,10 +99,11 @@ export const PropertyHostInfo = ({ propertyId, hostId }: PropertyHostInfoProps) 
       )}
 
       {/* Badge de vérification */}
-      <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">
-        <Clock className="h-3 w-3 mr-1" />
-        En cours de vérification
-      </Badge>
+      <VerifiedBadge 
+        status={getValidationStatus()}
+        size="sm"
+        className="text-xs"
+      />
 
       {/* Info hôte */}
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
