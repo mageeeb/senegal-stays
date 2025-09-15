@@ -383,7 +383,7 @@ function ZoomableImage({ src, alt, className }: { src?: string; alt?: string | n
         src={error ? FALLBACK_URL : src}
         alt={alt || undefined}
         onError={() => setError(true)}
-        className="w-full h-full select-none"
+        className="w-full aspect-video object-cover select-none"
         style={{
           transform: `translate(${offset.x}px, ${offset.y}px) scale(${scale})`,
           transformOrigin: "center center",
