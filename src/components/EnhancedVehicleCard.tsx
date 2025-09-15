@@ -144,14 +144,16 @@ export const EnhancedVehicleCard = ({ vehicle }: VehicleCardProps) => {
                     {b}
                   </Badge>
                 ))}
-                {vehicle.features?.slice(0, 3).map((feature, index) => (
+                {vehicle.features?.slice(0, 3)
+                  .filter(feature => !/clim|air.?condition/i.test(feature))
+                  .map((feature, index) => (
                   <Badge key={index} variant="secondary" className="text-xs">
                     {feature}
                   </Badge>
                 ))}
-                {vehicle.features && vehicle.features.length > 3 && (
+                {vehicle.features && vehicle.features.filter(f => !/clim|air.?condition/i.test(f)).length > 3 && (
                   <Badge variant="secondary" className="text-xs">
-                    +{vehicle.features.length - 3} autres
+                    +{vehicle.features.filter(f => !/clim|air.?condition/i.test(f)).length - 3} autres
                   </Badge>
                 )}
               </div>
